@@ -1,0 +1,48 @@
+/dts-v1/;
+
+#include "skeleton.dtsi"
+
+/ {
+
+	model = "qemu_archs";
+	compatible = "qemu,archs";
+
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		cpu@0 {
+			device_type = "cpu";
+			compatible = "snps,archs";
+			reg = <1>;
+		};
+
+	intc: arcv2-intc {
+			compatible = "snps,arcv2-intc";
+			interrupt-controller;
+			#interrupt-cells = <2>;
+		};
+	};
+
+	sram: sram@0 {
+		device_type = "memory";
+		compatible = "mmio-sram";
+		reg = <0x0 0x8000000>;
+	};
+
+	ns16550_uart: uart@90000000 {
+		compatible = "ns16550";
+		clock-frequency = <10000000>;
+		reg = <0x90000000 0x400>;
+		current-speed = <115200>;
+		label = "UART_0";
+		interrupt-parent = <&intc>;
+		interrupts = <20 1>;
+	};
+
+	chosen {
+		zephyr,sram = &sram;
+		zephyr,console = &ns16550_uart;
+		zephyr,shell-uart = &ns16550_uart;
+	};
+};

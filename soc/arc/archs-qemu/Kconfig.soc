@@ -1,0 +1,2 @@
+config SOC_ARCHS_QEMU
+	bool "ARC HS - Experimental QEMU emulation"

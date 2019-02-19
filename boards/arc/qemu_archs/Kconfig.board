@@ -1,0 +1,8 @@
+#Copyright (c) 2019 Synopsys, Inc. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+config BOARD_QEMU_ARCHS
+	bool "ARC HS Emulation (QEMU)"
+	depends on SOC_ARCHS_QEMU
+	select QEMU_TARGET
