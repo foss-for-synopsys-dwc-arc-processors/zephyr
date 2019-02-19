@@ -1,0 +1,24 @@
+if SOC_ARCHS_QEMU
+
+config SOC
+	string
+	default "archs-qemu"
+
+config SYS_CLOCK_HW_CYCLES_PER_SEC
+	int
+	default 10000000
+
+config UART_CONSOLE_ON_DEV_NAME
+	string
+	default "UART_0"
+
+config RGF_NUM_BANKS
+	default 1
+
+config ARC_FIRQ
+	default n
+
+config NUM_IRQ_PRIO_LEVELS
+	default 4
+
+endif
