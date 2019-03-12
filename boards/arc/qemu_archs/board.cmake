@@ -8,6 +8,7 @@ set(QEMU_FLAGS_${ARCH}
   -nographic
   -no-reboot
   -monitor none
+  -global cpu.firq=false
   )
 
 set(BOARD_DEBUG_RUNNER qemu)
