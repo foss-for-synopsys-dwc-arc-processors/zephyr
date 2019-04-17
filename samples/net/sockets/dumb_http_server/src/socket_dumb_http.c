@@ -47,6 +47,9 @@ int main(void)
 	static int counter;
 	int ret;
 
+	/* wait some time for wifi connection */
+	k_sleep(K_SECONDS(5));
+
 	serv = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	CHECK(serv);
 

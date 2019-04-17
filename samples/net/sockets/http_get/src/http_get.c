@@ -28,7 +28,7 @@
 #endif
 
 /* HTTP server to connect to */
-#define HTTP_HOST "google.com"
+#define HTTP_HOST "baidu.com"
 /* Port to connect to, as string */
 #if defined(CONFIG_NET_SOCKETS_SOCKOPT_TLS)
 #define HTTP_PORT "443"
@@ -61,6 +61,8 @@ int main(void)
 	struct addrinfo *res;
 	int st, sock;
 
+	/* wait some time for wifi connection */
+	k_sleep(K_SECONDS(5));
 #if defined(CONFIG_NET_SOCKETS_SOCKOPT_TLS)
 	tls_credential_add(CA_CERTIFICATE_TAG, TLS_CREDENTIAL_CA_CERTIFICATE,
 			   ca_certificate, sizeof(ca_certificate));
