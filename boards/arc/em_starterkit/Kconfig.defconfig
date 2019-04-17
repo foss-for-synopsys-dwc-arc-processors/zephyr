@@ -60,6 +60,10 @@ if UART_CONSOLE
 config UART_NS16550_PORT_1
 	default y
 
+config UART_NS16550_PORT_0
+	default y
+
+
 endif # UART_CONSOLE
 
 if SPI
