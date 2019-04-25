@@ -9,6 +9,7 @@ set(QEMU_FLAGS_${ARCH}
   -no-reboot
   -monitor none
   -global cpu.firq=false
+  -global cpu.mpu-numreg=16
   )
 
 set(BOARD_DEBUG_RUNNER qemu)
