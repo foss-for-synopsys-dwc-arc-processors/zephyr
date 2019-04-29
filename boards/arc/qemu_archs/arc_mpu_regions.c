@@ -10,24 +10,15 @@
 #include <linker/linker-defs.h>
 
 static struct arc_mpu_region mpu_regions[] = {
-#if DT_ICCM_SIZE > 0
-	/* Region ICCM */
-	MPU_REGION_ENTRY("ICCM",
-			 DT_ICCM_BASE_ADDRESS,
-			 DT_ICCM_SIZE * 1024,
-			 REGION_ROM_ATTR),
-#endif
-#if DT_DCCM_SIZE > 0
-	/* Region DCCM */
-	MPU_REGION_ENTRY("DCCM",
-			 DT_DCCM_BASE_ADDRESS,
-			 DT_DCCM_SIZE * 1024,
-			 REGION_KERNEL_RAM_ATTR | REGION_DYNAMIC),
-#endif
+	/* Region SRAM */
+	MPU_REGION_ENTRY("SRAM",
+			 DT_SRAM_BASE_ADDRESS,
+			 DT_SRAM_SIZE,
+			 REGION_KERNEL_ROM_ATTR | REGION_KERNEL_RAM_ATTR),
 	/* Region Peripheral */
 	MPU_REGION_ENTRY("PERIPHERAL",
-			 0xF0000000,
-			 64 * 1024,
+       DT_UART_NS16550_PORT_0_BASE_ADDR,
+			 DT_UART_NS16550_PORT_0_SIZE,
 			 REGION_KERNEL_RAM_ATTR),
 };
 
