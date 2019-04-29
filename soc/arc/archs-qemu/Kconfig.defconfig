@@ -22,6 +22,6 @@ config ARC_FIRQ
 	default n
 
 config NUM_IRQ_PRIO_LEVELS
-	default 4
+	default 15
 
 endif
