@@ -151,9 +151,9 @@ static void write_control(void)
 		"lr %0, [0x402]\n"
 		: "=r" (er_status)::
 	);
+	zassert_unreachable("Write to control register did not fault");
 #else
 #error "Not implemented for this architecture"
-	zassert_unreachable("Write to control register did not fault");
 #endif
 }
 
