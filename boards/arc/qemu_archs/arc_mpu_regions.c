@@ -12,13 +12,13 @@
 static struct arc_mpu_region mpu_regions[] = {
 	/* Region SRAM */
 	MPU_REGION_ENTRY("ROM",
-			 (u32_t)_image_rom_start,
-			 (u32_t)_image_rom_size,
-			 REGION_ROM_ATTR),
+			CONFIG_FLASH_BASE_ADDRESS,
+			CONFIG_FLASH_SIZE * 1024,
+			REGION_ROM_ATTR),
 
 	MPU_REGION_ENTRY("RAM",
-			(u32_t)_image_ram_start,
-			256 * 1024,
+			CONFIG_SRAM_BASE_ADDRESS,
+			CONFIG_SRAM_SIZE * 1024,
 			REGION_KERNEL_RAM_ATTR),
 	/* Region Peripheral */
 	MPU_REGION_ENTRY("PERIPHERAL",

@@ -24,10 +24,15 @@
 		};
 	};
 
-	sram: sram@0 {
+	flash0: flash@0 {
+		compatible = "soc-nv-flash";
+		reg = <0x0 (256*1024)>;
+	};
+
+	sram0: sram@40000 {
 		device_type = "memory";
 		compatible = "mmio-sram";
-		reg = <0x0 0x80000>;
+		reg = <0x40000 (256*1024)>;
 	};
 
 	ns16550_uart: uart@90000000 {
@@ -41,7 +46,8 @@
 	};
 
 	chosen {
-		zephyr,sram = &sram;
+		zephyr,sram = &sram0;
+		zephyr,flash = &flash0;
 		zephyr,console = &ns16550_uart;
 		zephyr,shell-uart = &ns16550_uart;
 	};

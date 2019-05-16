@@ -1,8 +1,5 @@
 if BOARD_QEMU_ARCHS
 
-config BUILD_OUTPUT_BIN
-	default n
-
 config BOARD
 	default "qemu_archs"
 

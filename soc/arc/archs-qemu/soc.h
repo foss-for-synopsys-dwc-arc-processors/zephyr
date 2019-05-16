@@ -18,10 +18,8 @@
 
 
 /* ARC HS Core IRQs */
-#define IRQ_TIMER0				16
-#define IRQ_TIMER1				17
-
-#define IRQ_SEC_TIMER0			20
+#define IRQ_TIMER0			16
+#define IRQ_TIMER1			17
 
 #ifndef _ASMLANGUAGE
 
