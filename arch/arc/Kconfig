@@ -12,17 +12,25 @@ menu "ARC Options"
 config ARCH
 	default "arc"
 
-menu "ARC processor options"
+choice
+	prompt "ARC core family"
+	default CPU_ARCEM
 
 config	CPU_ARCEM
-	bool
-	default y
+	bool "ARC EM cores"
 	select CPU_ARCV2
 	select ATOMIC_OPERATIONS_C
 	help
 	  This option signifies the use of an ARC EM CPU
 
-endmenu
+config	CPU_ARCHS
+	bool "ARC HS cores"
+	select CPU_ARCV2
+	select ATOMIC_OPERATIONS_BUILTIN
+	help
+	  This option signifies the use of an ARC HS CPU
+
+endchoice
 
 menu "ARCv2 Family Options"
 
