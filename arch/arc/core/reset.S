@@ -66,12 +66,6 @@ SECTION_FUNC(TEXT,__start)
 
 	/* \todo: MPU init, gp for small data? */
 
-#if defined(CONFIG_USERSPACE)
-	lr r0, [_ARC_V2_STATUS32]
-	bset r0, r0, _ARC_V2_STATUS32_US_BIT
-	kflag r0
-#endif
-
 #if defined(CONFIG_CPU_ARCHS) || !defined(CONFIG_ARC_HAS_SECURE)
 	/*
 	 * Unaligned access is supported by all ARC HS cores and
