@@ -126,7 +126,7 @@ _exc_return:
 #endif
 	/* clear AE bit to forget this was an exception */
 	lr r3, [_ARC_V2_STATUS32]
-	and r3,r3,(~_ARC_V2_STATUS32_AE)
+	bclr r3,r3,_ARC_V2_STATUS32_AE_BIT
 	kflag r3
 	/* pretend lowest priority interrupt happened to use common handler */
 	lr r3, [_ARC_V2_AUX_IRQ_ACT]
@@ -259,7 +259,7 @@ exc_nest_handle:
 #endif
 	/* clear AE bit to forget this was an exception */
 	lr r3, [_ARC_V2_STATUS32]
-	and r3,r3,(~_ARC_V2_STATUS32_AE)
+	bclr r3,r3,_ARC_V2_STATUS32_AE_BIT
 	kflag r3
 	/* pretend lowest priority interrupt happened to use common handler */
 	lr r3, [_ARC_V2_AUX_IRQ_ACT]
