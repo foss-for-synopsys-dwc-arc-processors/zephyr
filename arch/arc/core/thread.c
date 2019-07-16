@@ -216,6 +216,14 @@ void z_new_thread(struct k_thread *thread, k_thread_stack_t *stack,
 #endif
 #endif
 
+#if defined(CONFIG_CPU_ARCHS) || !defined(CONFIG_ARC_HAS_SECURE)
+	/*
+	 * Unaligned access is supported by all ARC HS cores and
+	 * ARC EM cores without Enhanced Security Package (ESP)
+	 */
+	pInitCtx->status32 |= _ARC_V2_STATUS32_AD;
+#endif
+
 	thread->switch_handle = thread;
 	thread->arch.relinquish_cause = _CAUSE_COOP;
 	thread->callee_saved.sp =
