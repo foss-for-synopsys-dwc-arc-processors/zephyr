@@ -5,9 +5,6 @@ pipeline {
       buildDiscarder(
           logRotator(numToKeepStr:'5'))
   }
-  triggers {
-      gitlab(triggerOnPush: true, triggerOnMergeRequest: true, branchFilterType: 'All')
-  }
   environment {
     ZEPHYR_TOOLCHAIN_VARIANT="zephyr"
     SDK="0.10.2-rc3"
