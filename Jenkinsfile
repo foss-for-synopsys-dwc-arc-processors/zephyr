@@ -6,6 +6,7 @@ pipeline {
           logRotator(numToKeepStr:'5'))
   }
   triggers {
+      cron('0 1 * * *')
       gitlab(triggerOnPush: true, triggerOnMergeRequest: true, branchFilterType: 'All')
   }
   environment {
