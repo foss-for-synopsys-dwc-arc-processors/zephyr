@@ -6,7 +6,7 @@ pipeline {
           logRotator(numToKeepStr:'5'))
   }
   triggers {
-      cron('0 1 * * *')
+      // cron('0 1 * * *')
       gitlab(triggerOnPush: true, triggerOnMergeRequest: true, branchFilterType: 'All')
   }
   environment {
@@ -84,7 +84,7 @@ pipeline {
     }
     stage('Deploy') {
         steps {
-          build job: 'Jingru_jenkins_jobs/zephyr_deploy', parameters: [string(name: 'U_JOB_NAME', value: env.JOB_NAME),string(name: 'GIT_COMMIT', value: env.BUILD_NUMBER),string(name: 'GIT_URL', value: env.GIT_URL),string(name: 'GIT_COMMIT', value: env.GIT_COMMIT)]  //this is where we specify which job to invoke.
+          build job: 'zephyrproject-rtos/zephyr_deploy', parameters: [string(name: 'U_JOB_NAME', value: env.JOB_NAME),string(name: 'GIT_COMMIT', value: env.BUILD_NUMBER),string(name: 'GIT_URL', value: env.GIT_URL),string(name: 'GIT_COMMIT', value: env.GIT_COMMIT)]  //this is where we specify which job to invoke.
 
         }
     }
