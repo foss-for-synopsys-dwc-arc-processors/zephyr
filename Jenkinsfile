@@ -2,7 +2,7 @@ pipeline {
   agent any
   options {
       buildDiscarder(
-          logRotator(numToKeepStr:'5'))
+          logRotator(daysToKeepStr: '3', numToKeepStr:'5'))
   }
   triggers {
       // cron('0 1 * * *')
@@ -195,5 +195,4 @@ void build_script() {
     echo LD_LIBRARY_PATH="/global/freeware/Linux/RHEL6/python-3.7.0/lib:/global/freeware/Linux/RHEL6/python-3.7.0/deps/lib:/global/freeware/Linux/RHEL6/python-3.7.0/deps/tcl-8.6.8/lib:/global/freeware/Linux/RHEL6/python-3.7.0/deps/tk-8.6.8/lib:/global/freeware/Linux/RHEL6/python-3.7.0/libs:/global/freeware/Linux/RHEL6/glibc-2.14/lib:$LD_LIBRARY_PATH" >> env.prop
 
   '''
-
 }
