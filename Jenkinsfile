@@ -189,7 +189,12 @@ void build_script() {
     do
         ${SANITYCHECK} -p ${i} -T tests --subset ${MATRIX}/4 -O nsim -o ${i}_result.csv || true
         mv ${i}_result.csv archive/${i}_result.csv
-        find nsim -iname handler.log | while read file; do cp "${file}" archive/"${file//[\\/]/_}"; done
+        while IFS= read -r line; do
+          IFS=', ' read -r -a array <<< "$line"
+          if [ "${array[3]}"==False ]; then
+            find nsim/${i}/${array[3]} -iname handler.log | while read file; do cp "${file}" archive/"${file//[\\/]/_}"; done
+          fi
+        done < "${i}_result.csv"
     done 
     echo PATH="$WORKSPACE/cur_dtc/usr/bin:$HOME/.local/bin:$PATH" >> env.prop
     echo LD_LIBRARY_PATH="/global/freeware/Linux/RHEL6/python-3.7.0/lib:/global/freeware/Linux/RHEL6/python-3.7.0/deps/lib:/global/freeware/Linux/RHEL6/python-3.7.0/deps/tcl-8.6.8/lib:/global/freeware/Linux/RHEL6/python-3.7.0/deps/tk-8.6.8/lib:/global/freeware/Linux/RHEL6/python-3.7.0/libs:/global/freeware/Linux/RHEL6/glibc-2.14/lib:$LD_LIBRARY_PATH" >> env.prop
