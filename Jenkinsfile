@@ -1,6 +1,7 @@
 pipeline {
   agent any
   options {
+      timeout(time: 3, unit: 'HOURS') 
       buildDiscarder(
           logRotator(daysToKeepStr: '3', numToKeepStr:'5'))
   }
@@ -191,7 +192,8 @@ void build_script() {
         mv ${i}_result.csv archive/${i}_result.csv
         while IFS= read -r line; do
           IFS=', ' read -r -a array <<< "$line"
-          if [ "${array[3]}"==False ]; then
+          echo ${array[3]}
+          if [ "${array[3]}"=="False" ]; then
             find nsim/${i}/${array[0]} -iname handler.log | while read file; do cp "${file}" archive/"${file//[\\/]/_}"; done
           fi
         done < "${i}_result.csv"
