@@ -1,7 +1,7 @@
 pipeline {
   agent any
   options {
-      timeout(time: 3, unit: 'HOURS') 
+      timeout(time: 4, unit: 'HOURS') 
       buildDiscarder(
           logRotator(daysToKeepStr: '3', numToKeepStr:'5'))
   }
@@ -186,6 +186,7 @@ void build_script() {
     if [ ! -d "archive" ]; then
       mkdir archive
     fi
+
     for i in $nsim_platform
     do
         ${SANITYCHECK} -p ${i} -T tests --subset ${MATRIX}/4 -O nsim -o ${i}_result.csv || true
