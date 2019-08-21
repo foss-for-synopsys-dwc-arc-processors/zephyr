@@ -191,7 +191,6 @@ void build_script() {
         ${SANITYCHECK} -p ${i} -T tests --subset ${MATRIX}/4 -O nsim -o ${i}_result.csv || true
         while IFS= read -r line; do
           IFS=', ' read -r -a array <<< "$line"
-          echo ${array[3]}
           if [ "${array[3]}"=="False" ]; then
             find nsim/${i}/${array[0]} -iname handler.log | while read file; do cp "${file}" archive/"${file//[\\/]/_}"; done
           fi
