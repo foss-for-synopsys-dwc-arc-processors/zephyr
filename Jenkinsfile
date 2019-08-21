@@ -192,7 +192,7 @@ void build_script() {
         while IFS= read -r line; do
           IFS=', ' read -r -a array <<< "$line"
           if [ "${array[3]}"=="False" ]; then
-            find nsim/${i}/${array[0]} -iname handler.log | while read file; do cp "${file}" archive/"${file//[\\/]/_}"; done
+            find nsim/${i}/${array[0]} -iname handler.log | while read file; do mv "${file}" archive/"${file//[\\/]/_}"; done
           fi
         done < "${i}_result.csv"
         mv ${i}_result.csv archive/${i}_result.csv
