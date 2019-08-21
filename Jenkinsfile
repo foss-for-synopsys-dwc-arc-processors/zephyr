@@ -93,11 +93,11 @@ pipeline {
         }
     }
   }
-  post { 
-      always { 
-          cleanWs()
-      }
-  } 
+  // post { 
+  //     always { 
+  //         cleanWs()
+  //     }
+  // } 
 
 }
 
@@ -120,31 +120,36 @@ void before_install() {
       python -m pip install XlsxWriter --user
 
       if [ "$STAGE_NAME" != "Deploy" ]; then
-        echo "install dtc and gpref"
-        mkdir -p cur_dtc
-        cd cur_dtc
-        if [ ! -f "dtc-1.4.6-1.el7.x86_64.rpm" ]; then
-          wget http://mirror.centos.org/centos/7/extras/x86_64/Packages/dtc-1.4.6-1.el7.x86_64.rpm -q
+        
+        if [ ! -d "cur_dtc" ]; then
+          echo "install dtc and gpref"
+          mkdir -p cur_dtc
+          cd cur_dtc
+          if [ ! -f "dtc-1.4.6-1.el7.x86_64.rpm" ]; then
+            wget http://mirror.centos.org/centos/7/extras/x86_64/Packages/dtc-1.4.6-1.el7.x86_64.rpm -q
+          fi
+          rpm2cpio dtc-1.4.6-1.el7.x86_64.rpm | cpio -di
+
+          if [ ! -f "gperf-3.0.4-8.el7.x86_64.rpm" ]; then
+            wget http://mirror.centos.org/centos/7/os/x86_64/Packages/gperf-3.0.4-8.el7.x86_64.rpm -q
+          fi
+          rpm2cpio gperf-3.0.4-8.el7.x86_64.rpm | cpio -di
+          cd ..
         fi
-        rpm2cpio dtc-1.4.6-1.el7.x86_64.rpm | cpio -di
 
-        if [ ! -f "gperf-3.0.4-8.el7.x86_64.rpm" ]; then
-          wget http://mirror.centos.org/centos/7/os/x86_64/Packages/gperf-3.0.4-8.el7.x86_64.rpm -q
+        if [ ! -d "$WORKSPACE/zephyr-sdk" ]; then
+          # install zephyr sdk
+          if [ ! -f "zephyr-sdk-${SDK}-setup.run" ]; then
+
+            wget https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${SDK}/zephyr-sdk-${SDK}-setup.run # -q
+          fi
+          sh zephyr-sdk-${SDK}-setup.run --target zephyr-sdk-files --noexec
+          sed -in-place -e 's/-xf/-jxvf/g' zephyr-sdk-files/setup.sh
+
+          cd zephyr-sdk-files
+          sh setup.sh -d $WORKSPACE/zephyr-sdk
+          cd ..
         fi
-        rpm2cpio gperf-3.0.4-8.el7.x86_64.rpm | cpio -di
-        cd ..
-
-        # install zephyr sdk
-        if [ ! -f "zephyr-sdk-${SDK}-setup.run" ]; then
-
-          wget https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${SDK}/zephyr-sdk-${SDK}-setup.run # -q
-        fi
-        sh zephyr-sdk-${SDK}-setup.run --target zephyr-sdk-files --noexec
-        sed -in-place -e 's/-xf/-jxvf/g' zephyr-sdk-files/setup.sh
-
-        cd zephyr-sdk-files
-        sh setup.sh -d $WORKSPACE/zephyr-sdk
-        cd ..
 
         # To save disk
         find ${WORKSPACE} -iname '*.rst' -delete
