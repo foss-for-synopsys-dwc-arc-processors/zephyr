@@ -3,7 +3,7 @@ pipeline {
   options {
       timeout(time: 4, unit: 'HOURS') 
       buildDiscarder(
-          logRotator(daysToKeepStr: '3', numToKeepStr:'5'))
+          logRotator(daysToKeepStr: '3', numToKeepStr:'5', artifactNumToKeepStr: '3', artifactDaysToKeepStr: '5'))
   }
   triggers {
       // cron('0 1 * * *')
@@ -166,8 +166,8 @@ void before_install() {
 }
 void build_script() {
   sh '''
+    exec 1>/dev/null 2>&1
     MATRIX=${STAGE_NAME}
-
     INJECT_PATH=$(cat $WORKSPACE/env.prop)
     export ZEPHYR_SDK_INSTALL_DIR=${WORKSPACE}/zephyr-sdk
     export PATH=$INJECT_PATH
