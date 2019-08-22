@@ -118,6 +118,7 @@ void before_install() {
       python -m pip install pyelftools --user 
       python -m pip install pyserial --user
       python -m pip install XlsxWriter --user
+      python -m pip install chardet --user
 
       if [ "$STAGE_NAME" != "Deploy" ]; then
         
