@@ -3,7 +3,7 @@ pipeline {
   options {
       timeout(time: 4, unit: 'HOURS') 
       buildDiscarder(
-          logRotator(daysToKeepStr: '3', numToKeepStr:'5', artifactNumToKeepStr: '3', artifactDaysToKeepStr: '5'))
+          logRotator(daysToKeepStr: '3', numToKeepStr:'5', artifactNumToKeepStr: '0', artifactDaysToKeepStr: '0'))
   }
   triggers {
       // cron('0 1 * * *')
