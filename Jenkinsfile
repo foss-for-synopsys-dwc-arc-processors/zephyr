@@ -6,8 +6,8 @@ pipeline {
           logRotator(daysToKeepStr: '3', numToKeepStr:'5')) //, artifactNumToKeepStr: '0', artifactDaysToKeepStr: '0'
   }
   triggers {
-      // cron('0 1 * * *')
-      gitlab(triggerOnPush: true, triggerOnMergeRequest: true, branchFilterType: 'All')
+      // cron('0 1 * * *') // Set a timmer triggger
+      gitlab(triggerOnPush: true, triggerOnMergeRequest: true, branchFilterType: 'All') // push trigger
   }
   environment {
     ZEPHYR_TOOLCHAIN_VARIANT="zephyr"
@@ -217,19 +217,22 @@ void build_script() {
   '''
 }
 /* This method should be added to your Jenkinsfile and called at the very beginning of the build*/
-@NonCPS
+// @NonCPS
 def cancelPreviousBuilds() {
-    def jobName = env.JOB_NAME
-    def buildNumber = env.BUILD_NUMBER.toInteger()
-    /* Get job name */
-    def currentJob = Jenkins.instance.getItemByFullName(jobName)
+  def buildNumber = env.BUILD_NUMBER as int
+  if (buildNumber > 1) milestone(buildNumber - 1)
+  milestone(buildNumber)
+    // def jobName = env.JOB_NAME
+    // def buildNumber = env.BUILD_NUMBER.toInteger()
+    // /* Get job name */
+    // def currentJob = Jenkins.instance.getItemByFullName(jobName)
 
-    /* Iterating over the builds for specific job */
-    for (def build : currentJob.builds) {
-        /* If there is a build that is currently running and it's not current build */
-        if (build.isBuilding() && build.number.toInteger() != buildNumber) {
-            /* Than stopping it */
-            build.doStop()
-        }
-    }
+    // /* Iterating over the builds for specific job */
+    // for (def build : currentJob.builds) {
+    //     /* If there is a build that is currently running and it's not current build */
+    //     if (build.isBuilding() && build.number.toInteger() != buildNumber) {
+    //         /* Than stopping it */
+    //         build.doStop()
+    //     }
+    // }
 }
