@@ -3,7 +3,7 @@ pipeline {
   options {
       timeout(time: 4, unit: 'HOURS') 
       buildDiscarder(
-          logRotator(daysToKeepStr: '3', numToKeepStr:'5')) //, artifactNumToKeepStr: '0', artifactDaysToKeepStr: '0'
+          logRotator(daysToKeepStr: '3', numToKeepStr:'2')) //, artifactNumToKeepStr: '0', artifactDaysToKeepStr: '0'
   }
   triggers {
       // cron('0 1 * * *') // Set a timmer triggger
@@ -202,14 +202,16 @@ void build_script() {
 
     for i in $nsim_platform
     do
-      ${SANITYCHECK} -p ${i} -T tests --subset ${MATRIX}/4 -O nsim -o ${i}_result.csv || true
-      while IFS= read -r line; do
-        IFS=', ' read -r -a array <<< "$line"
-        if [ "${array[3]}" == "False" ]; then
-          find nsim/${i}/${array[0]} -iname handler.log | while read file; do mv "${file}" archive/"${file//[\\/]/_}"; done
-        fi
-      done < "${i}_result.csv"
-      mv ${i}_result.csv archive/${i}_result.csv
+      timeout 30m ${SANITYCHECK} -p ${i} -T tests --subset ${MATRIX}/4 -O nsim -o ${i}_result.csv || true
+      if [ -f "${i}_result.csv" ]; then
+          while IFS= read -r line; do
+              IFS=', ' read -r -a array <<< "$line"
+              if [ "${array[3]}" == "False" ]; then
+              find nsim/${i}/${array[0]} -iname handler.log | while read file; do mv "${file}" archive/"${file//[\\/]/_}"; done
+              fi
+          done < "${i}_result.csv"
+          mv ${i}_result.csv archive/${i}_result.csv
+      fi
     done 
     echo PATH="$WORKSPACE/cur_dtc/usr/bin:$HOME/.local/bin:$PATH" >> env.prop
     echo LD_LIBRARY_PATH="/global/freeware/Linux/RHEL6/python-3.7.0/lib:/global/freeware/Linux/RHEL6/python-3.7.0/deps/lib:/global/freeware/Linux/RHEL6/python-3.7.0/deps/tcl-8.6.8/lib:/global/freeware/Linux/RHEL6/python-3.7.0/deps/tk-8.6.8/lib:/global/freeware/Linux/RHEL6/python-3.7.0/libs:/global/freeware/Linux/RHEL6/glibc-2.14/lib:$LD_LIBRARY_PATH" >> env.prop
@@ -222,17 +224,4 @@ def cancelPreviousBuilds() {
   def buildNumber = env.BUILD_NUMBER as int
   if (buildNumber > 1) milestone(buildNumber - 1)
   milestone(buildNumber)
-    // def jobName = env.JOB_NAME
-    // def buildNumber = env.BUILD_NUMBER.toInteger()
-    // /* Get job name */
-    // def currentJob = Jenkins.instance.getItemByFullName(jobName)
-
-    // /* Iterating over the builds for specific job */
-    // for (def build : currentJob.builds) {
-    //     /* If there is a build that is currently running and it's not current build */
-    //     if (build.isBuilding() && build.number.toInteger() != buildNumber) {
-    //         /* Than stopping it */
-    //         build.doStop()
-    //     }
-    // }
 }

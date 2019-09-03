@@ -5,6 +5,7 @@ simulation: nsim
 arch: arc
 toolchain:
   - zephyr
+sanitycheck: false
 testing:
   ignore_tags:
     - net
