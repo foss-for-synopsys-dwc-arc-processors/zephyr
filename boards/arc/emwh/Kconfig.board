@@ -1,0 +1,14 @@
+# Kconfig - DesignWare ARC EM Wuhan board configuration
+#
+# Copyright (c) 2019 Synopsys, Inc. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+config BOARD_EMWH
+	bool "ARC EM Wuhan"
+	depends on SOC_EMWH
+	help
+	  The DesignWare ARC EM Wuhan board is a board
+	  that can host up to 3 different SOC FPGA bit files.
+	  Currently, it has EM9D configuration which uses CCM
+	  memories and is a Harvard Architecture.

@@ -1,0 +1,10 @@
+#
+# Copyright (c) 2019 Synopsys, Inc. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+config SOC_EMWH
+	bool "Synopsys ARC EM Wuhan SoC"
+	select HAS_I2C_DW if I2C
+	select HAS_SPI_DW if SPI

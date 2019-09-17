@@ -1,0 +1,15 @@
+identifier: emwh
+name: EM Wuhan
+type: mcu
+arch: arc
+toolchain:
+  - zephyr
+  - xtools
+supported:
+  - i2c
+  - spi
+  - gpio
+testing:
+  ignore_tags:
+    - net
+    - bluetooth

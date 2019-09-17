@@ -1,0 +1,46 @@
+/*
+ * Copyright (c) 2019, Synopsys, Inc. All rights reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/dts-v1/;
+
+#include <mem.h>
+#include <emsk.dtsi>
+#include "emwh.dtsi"
+
+/ {
+	model = "emwh";
+	compatible = "snps,emwh";
+
+	aliases {
+		uart-0 = &uart0;
+		uart-1 = &uart1;
+		uart-2 = &uart2;
+	};
+
+	chosen {
+		zephyr,sram = &dccm0;
+		zephyr,console = &uart1;
+		zephyr,shell-uart = &uart1;
+	};
+
+	iccm@0 {
+		reg = <0x0 DT_SIZE_K(128)>;
+	};
+
+	dccm@80000000 {
+		reg = <0x80000000 DT_SIZE_K(128)>;
+	};
+};
+
+&uart0 {
+	status = "okay";
+	current-speed = <115200>;
+};
+
+&uart1 {
+	status = "okay";
+	current-speed = <115200>;
+};
