@@ -48,7 +48,14 @@ static struct arc_mpu_region mpu_regions[] = {
 	MPU_REGION_ENTRY("PERIPHERAL",
 			 0xF0000000,
 			 64 * 1024,
-			 REGION_KERNEL_RAM_ATTR)
+			 REGION_KERNEL_RAM_ATTR),
+#endif
+
+#if defined(CONFIG_ARC_SECURE_FIRMWARE) && defined(CONFIG_ZTEST)
+	MPU_REGION_ENTRY("NONSENSE AREA",
+			0xFFFF0000,
+			64 * 1024,
+			AUX_MPU_ATTR_KE),
 #endif
 };
 

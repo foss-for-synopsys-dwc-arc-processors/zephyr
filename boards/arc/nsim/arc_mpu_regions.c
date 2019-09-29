@@ -41,6 +41,13 @@ static struct arc_mpu_region mpu_regions[] = {
 			 64 * 1024,
 			 REGION_KERNEL_RAM_ATTR),
 #endif
+/* The following entry is just used for mem_protect/syscall test */
+#if defined(CONFIG_ARC_SECURE_FIRMWARE) && defined(CONFIG_ZTEST)
+	MPU_REGION_ENTRY("NONSENSE AREA",
+			0xFFFF0000,
+			64 * 1024,
+			AUX_MPU_ATTR_KE),
+#endif
 };
 
 struct arc_mpu_config mpu_config = {
