@@ -1,5 +1,6 @@
 tests:
   crypto.tinycrypt:
+    filter: not CONFIG_SOC_NSIM
     tags: tinycrypt crypto aes ccm
     timeout: 300
     platform_whitelist: native_posix
