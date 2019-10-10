@@ -64,6 +64,49 @@ MALLOC_BSS static unsigned char __aligned(CONFIG_NEWLIB_LIBC_ALIGNED_HEAP_SIZE)
 #endif /* CONFIG_USERSPACE*/
 #define USED_RAM_SIZE  (HEAP_BASE - CONFIG_SRAM_BASE_ADDRESS)
 #define MAX_HEAP_SIZE ((KB(CONFIG_SRAM_SIZE)) - USED_RAM_SIZE)
+#elif CONFIG_ARC
+#if defined(CONFIG_USERSPACE)
+/* MPU shall program the heap area as user-accessible; therefore, heap base
+ * (and size) shall take into account the ARC MPU minimum region granularity.
+ */
+#if CONFIG_ARC_MPU_VER == 3
+#define HEAP_BASE ROUND_UP(USED_RAM_END_ADDR, STACK_ALIGN)
+#define USED_RAM_SIZE  (HEAP_BASE - CONFIG_SRAM_BASE_ADDRESS)
+#define MAX_HEAP_SIZE ((KB(CONFIG_SRAM_SIZE)) - USED_RAM_SIZE)
+#elif CONFIG_ARC_MPU_VER == 2
+/*
+ * ARC MPUv2 requires region size must be aligned to power of 2 and >= 2048
+ * region start address should be aligned to the region size.
+ *
+ *  ----CONFIG_SRAM_BASE_ADDRESS----
+ *              ...
+ *       used ram by kernel and application
+ *              ...
+ *  ----end of  used ram whoes size is power of 2 aligned----
+ *              ...
+ *              unused
+ *  -----HEAP BASE aligned with MAX_HEAP_SIZE
+ *              ...
+ *              heap with power of 2 aligned size
+ *              ....
+ *  -----SRAM END--------------------
+ */
+#define USED_RAM_SIZE	Z_ARC_MPUV2_SIZE_ALIGN(USED_RAM_END_ADDR - \
+			CONFIG_SRAM_BASE_ADDRESS)
+/* (+ STACK_ALIGN) is used to avoid the case that
+ * KB(CONFIG_SRAM_SIZE) - USED_RAM_SIZE is just power of 2
+ */
+#define MAX_HEAP_SIZE ((Z_ARC_MPUV2_SIZE_ALIGN((KB(CONFIG_SRAM_SIZE)) \
+			- USED_RAM_SIZE + STACK_ALIGN)) >> 1)
+
+#define HEAP_BASE (CONFIG_SRAM_BASE_ADDRESS + KB(CONFIG_SRAM_SIZE) - \
+		  MAX_HEAP_SIZE)
+#endif
+#else
+#define HEAP_BASE USED_RAM_END_ADDR
+#define USED_RAM_SIZE  (HEAP_BASE - CONFIG_SRAM_BASE_ADDRESS)
+#define MAX_HEAP_SIZE ((KB(CONFIG_SRAM_SIZE)) - USED_RAM_SIZE)
+#endif /* CONFIG_USERSPACE*/
 #elif CONFIG_XTENSA
 extern void *_heap_sentry;
 #define MAX_HEAP_SIZE  (POINTER_TO_UINT(&_heap_sentry) - USED_RAM_END_ADDR)
