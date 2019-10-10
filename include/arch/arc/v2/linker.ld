@@ -194,6 +194,19 @@ SECTIONS {
 		__data_ram_start = .;
 		*(.data)
 		*(".data.*")
+/* for gnuarcemb toolchain, newlibc is built wiht -msdata option by default,
+ * so need to consider the sdata case.
+ *  \todo it's better that do not use -msdata option for gnuarcemb's newlibc
+ *  \todo if -msdata used and CONFIG_USERSPACE, .sdata, .sbss should be placed
+ *           into user accessible memory
+ */
+#ifndef CONFIG_USERSPACE
+		__SDATA_BEGIN__ = .;
+		*(.sdata .sdata.* .gnu.linkonce.s.*)
+		*(.dynsbss)
+		*(.sbss .sbss.* .gnu.linkonce.sb.*)
+		*(.scommon)
+#endif
 		*(".kernel.*")
 
 /* Located in generated directory. This file is populated by the

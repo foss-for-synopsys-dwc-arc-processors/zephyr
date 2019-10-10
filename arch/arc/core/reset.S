@@ -172,6 +172,8 @@ _master_core_startup:
 
 	mov_s sp, INIT_STACK
 	add sp, sp, INIT_STACK_SIZE
+	.weak __SDATA_BEGIN__
+	mov gp, __SDATA_BEGIN__
 
 #if defined(CONFIG_ARC_FIRQ_STACK)
 	jl z_arc_firq_stack_set

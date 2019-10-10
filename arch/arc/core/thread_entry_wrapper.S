@@ -34,5 +34,7 @@ z_thread_entry_wrapper1:
 	pop_s r2
 	pop_s r1
 	pop_s r0
+	.weak __SDATA_BEGIN__
+	mov gp, __SDATA_BEGIN__
 	j z_thread_entry
 	nop

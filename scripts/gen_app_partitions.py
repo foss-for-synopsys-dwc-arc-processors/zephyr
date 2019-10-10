@@ -57,6 +57,13 @@ data_template = """
 
 library_data_template = """
 		*{0}:*(.data .data.*)
+#if defined(CONFIG_USERSPACE) && defined(CONFIG_CPU_ARCV2)
+        __SDATA_BEGIN__ = .;
+        *{0}:*(.sdata .sdata.* .gnu.linkonce.s.*)
+        *{0}:*(.dynsbss)
+        *{0}:*(.sbss .sbss.* .gnu.linkonce.sb.*)
+        *{0}:*(.scommon)
+#endif
 """
 
 bss_template = """
