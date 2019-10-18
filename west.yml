@@ -21,6 +21,8 @@ manifest:
   remotes:
     - name: upstream
       url-base: https://github.com/zephyrproject-rtos
+    - name: embarc
+      url-base: https://github.com/vonhust
 
   #
   # Please add items below based on alphabetical order
@@ -46,6 +48,10 @@ manifest:
     - name: esp-idf
       revision: 6835bfc741bf15e98fb7971293913f770df6081f
       path: modules/hal/esp-idf
+    - name: embarc_mli
+      remote: embarc
+      path: modules/lib/embarc-mli
+      revision: de656d0ab0c0e096d49817ab9394e3d12ea161ac
     - name: fatfs
       revision: 9ee6b9b9511151d0d64a74d532d39c6f2bbd4f16
       path: modules/fs/fatfs
