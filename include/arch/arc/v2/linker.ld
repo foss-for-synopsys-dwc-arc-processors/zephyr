@@ -73,6 +73,14 @@ MEMORY {
 #ifdef DCCM_START
 	DCCM  (rw)  : ORIGIN = DCCM_START,  LENGTH = DCCM_SIZE
 #endif
+
+#if DT_XCCM_BASE_ADDRESS > 0
+	XCCM  (rw)  : ORIGIN = DT_XCCM_BASE_ADDRESS, LENGTH = DT_XCCM_SIZE
+#endif
+
+#if DT_YCCM_BASE_ADDRESS > 0
+	YCCM  (rw)  : ORIGIN = DT_YCCM_BASE_ADDRESS, LENGTH = DT_YCCM_SIZE
+#endif
 	/* Used by and documented in include/linker/intlist.ld */
 	IDT_LIST  (wx)      : ORIGIN = 0xFFFFF7FF, LENGTH = 2K
 }

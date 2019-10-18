@@ -5,7 +5,7 @@
  */
 
 /dts-v1/;
-
+#include <mem.h>
 #include "nsim.dtsi"
 
 / {
@@ -18,5 +18,15 @@
 			compatible = "snps,arcem";
 			reg = <0>;
 		};
+	};
+
+	xccm@c0000000 {
+		compatible = "arc,dccm";
+		reg = <0xc0000000 DT_SIZE_K(32)>;
+	};
+
+	yccm@e0000000 {
+		compatible = "arc,dccm";
+		reg = <0xe0000000 DT_SIZE_K(32)>;
 	};
 };

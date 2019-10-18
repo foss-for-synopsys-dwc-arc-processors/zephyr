@@ -5,7 +5,7 @@
  */
 
 /dts-v1/;
-
+#include <mem.h>
 #include <emsdp.dtsi>
 #include "board.dtsi"
 
@@ -21,6 +21,16 @@
 		zephyr,sram = &sram0;
 		zephyr,console = &uart0;
 		zephyr,shell-uart = &uart0;
+	};
+
+	xccm@90000000 {
+		compatible = "arc,dccm";
+		reg = <0x90000000 DT_SIZE_K(16)>;
+	};
+
+	yccm@a0000000 {
+		compatible = "arc,dccm";
+		reg = <0xa0000000 DT_SIZE_K(16)>;
 	};
 };
 
