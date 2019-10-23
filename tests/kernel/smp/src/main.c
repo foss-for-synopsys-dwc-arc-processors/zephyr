@@ -249,8 +249,14 @@ void test_coop_resched_threads(void)
 	 * since we don't give up current CPU, last thread
 	 * will not get scheduled
 	 */
+#ifdef CONFIG_SCHED_IPI_SUPPORTED
+	/* no need to dealy  if ipi is supported */
+	spawn_threads(K_PRIO_COOP(10), THREADS_NUM, !EQUAL_PRIORITY,
+		      &thread_entry, 0);
+#else
 	spawn_threads(K_PRIO_COOP(10), THREADS_NUM, !EQUAL_PRIORITY,
 		      &thread_entry, THREAD_DELAY);
+#endif
 
 	/* Wait for some time to let other core's thread run */
 	k_busy_wait(DELAY_US);
@@ -267,10 +273,6 @@ void test_coop_resched_threads(void)
 	}
 	zassert_true(tinfo[THREADS_NUM - 1].executed == 0,
 		     "cooperative thread is preempted");
-
-	/* Abort threads created */
-	abort_threads(THREADS_NUM);
-	cleanup_resources();
 }
 
 /**
@@ -284,6 +286,9 @@ void test_coop_resched_threads(void)
  */
 void test_preempt_resched_threads(void)
 {
+	/* wait threads in test_coop_resched_threads terminated */
+	spin_for_threads_exit();
+	cleanup_resources();
 	/* Spawn threads  equal to number of cores,
 	 * lower priority thread should
 	 * be preempted by higher ones
