@@ -28,6 +28,16 @@
 	current-speed = <115200>;
 };
 
+&uart1 {
+	status = "okay";
+	current-speed = <115200>;
+};
+
+&uart2 {
+	status = "okay";
+	current-speed = <115200>;
+};
+
 &gpio0 {
 	status = "okay";
 	interrupts = <56 1>;
@@ -46,4 +56,16 @@
 &spi2 {
 	status = "okay";
 	clock-frequency = <33333333>;
+};
+
+&i2c0 {
+	status = "okay";
+};
+
+&i2c1 {
+	status = "okay";
+};
+
+&i2c2 {
+	status = "okay";
 };

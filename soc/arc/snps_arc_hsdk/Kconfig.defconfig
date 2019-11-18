@@ -48,6 +48,12 @@ if UART_CONSOLE
 config UART_NS16550_PORT_0
 	default y
 
+config UART_NS16550_PORT_1
+	default y
+
+config UART_NS16550_PORT_2
+	default y
+
 config UART_NS16550_ACCESS_WORD_ONLY
 	default y
 
