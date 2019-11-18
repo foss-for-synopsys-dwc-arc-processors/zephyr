@@ -80,4 +80,17 @@
 
 #define DT_INST_0_ILITEK_ILI9340_LABEL	"DISPLAY"
 
+/*
+ * ADT7420 temperature sensor configuration
+ */
+
+#define DT_INST_0_ADI_ADT7420_LABEL "adt7420"
+#define DT_INST_0_ADI_ADT7420_BUS_NAME  DT_INST_1_SNPS_DESIGNWARE_I2C_LABEL
+
+#define ADT7420_A0_PIN		1	/*!< I2C Serial Bus Address Selection Pin */
+#define ADT7420_A1_PIN		1	/*!< I2C Serial Bus Address Selection Pin */
+#define ADT7420_IIC_ADDRESS	(0x48 + (ADT7420_A1_PIN << 1) + ADT7420_A0_PIN)
+
+#define DT_INST_0_ADI_ADT7420_BASE_ADDRESS  ADT7420_IIC_ADDRESS
+
 /* End of SoC Level DTS fixup file */

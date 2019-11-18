@@ -23,10 +23,10 @@ static int board_pinmux_init(struct device *device)
 	 */
 	pinmux_pin_set(pinmux, HSDK_PINMUX_SEL0, HSDK_PINMUX_FUN0);
 	pinmux_pin_set(pinmux, HSDK_PINMUX_SEL1, HSDK_PINMUX_FUN0);
-	pinmux_pin_set(pinmux, HSDK_PINMUX_SEL2, HSDK_PINMUX_FUN0);
+	pinmux_pin_set(pinmux, HSDK_PINMUX_SEL2, HSDK_PINMUX_FUN3);
 	pinmux_pin_set(pinmux, HSDK_PINMUX_SEL3, HSDK_PINMUX_FUN2);
-	pinmux_pin_set(pinmux, HSDK_PINMUX_SEL4, HSDK_PINMUX_FUN0);
-	pinmux_pin_set(pinmux, HSDK_PINMUX_SEL5, HSDK_PINMUX_FUN0);
+	pinmux_pin_set(pinmux, HSDK_PINMUX_SEL4, HSDK_PINMUX_FUN1);
+	pinmux_pin_set(pinmux, HSDK_PINMUX_SEL5, HSDK_PINMUX_FUN1);
 	pinmux_pin_set(pinmux, HSDK_PINMUX_SEL6, HSDK_PINMUX_FUN0);
 	pinmux_pin_set(pinmux, HSDK_PINMUX_SEL7, HSDK_PINMUX_FUN0);
 
