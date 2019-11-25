@@ -47,7 +47,8 @@
 #define MAX_TICKS ((COUNTER_MAX / CYC_PER_TICK) - 1)
 #define MAX_CYCLES (MAX_TICKS * CYC_PER_TICK)
 
-#define TICKLESS (IS_ENABLED(CONFIG_TICKLESS_KERNEL))
+#define TICKLESS (IS_ENABLED(CONFIG_TICKLESS_KERNEL) &&		\
+		  !IS_ENABLED(CONFIG_QEMU_TICKLESS_WORKAROUND))
 
 static struct k_spinlock lock;
 
@@ -247,7 +248,7 @@ void z_clock_set_timeout(s32_t ticks, bool idle)
 		return;
 	}
 
-#if defined(CONFIG_TICKLESS_KERNEL)
+#if defined(CONFIG_TICKLESS_KERNEL) && !defined(CONFIG_QEMU_TICKLESS_WORKAROUND)
 	u32_t delay;
 	u32_t key;
 
@@ -274,7 +275,7 @@ void z_clock_set_timeout(s32_t ticks, bool idle)
 		return;
 	}
 
-#if defined(CONFIG_TICKLESS_KERNEL)
+#if defined(CONFIG_TICKLESS_KERNEL) && !defined(CONFIG_QEMU_TICKLESS_WORKAROUND)
 	u32_t delay;
 
 	ticks = MIN(MAX_TICKS, MAX(ticks - 1, 0));
