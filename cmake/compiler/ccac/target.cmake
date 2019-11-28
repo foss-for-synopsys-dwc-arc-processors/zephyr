@@ -41,16 +41,17 @@ set(NOSTDINC "")
 #  set(NOSYSDEF_CFLAG -undef)
 #endif()
 
-#foreach(file_name include/stddef.h)
-#  execute_process(
-#    COMMAND ${CMAKE_C_COMPILER} --print-file-name=${file_name}
-#    OUTPUT_VARIABLE _OUTPUT
-#    )
-#  get_filename_component(_OUTPUT "${_OUTPUT}" DIRECTORY)
-#  string(REGEX REPLACE "\n" "" _OUTPUT "${_OUTPUT}")
+list(APPEND NOSTDINC ${METAWARE_ROOT}/arc/inc)
 
-#  list(APPEND NOSTDINC ${_OUTPUT})
-#endforeach()
+# For CMake to be able to test if a compiler flag is supported by the
+# toolchain we need to give CMake the necessary flags to compile and
+# link a dummy C file.
+#
+# CMake checks compiler flags with check_c_compiler_flag() (Which we
+# wrap with target_cc_option() in extentions.cmake)
+foreach(isystem_include_dir ${NOSTDINC})
+  list(APPEND isystem_include_flags -isystem "\"${isystem_include_dir}\"")
+endforeach()
 
 # Load toolchain_cc-family macros
 # Significant overlap with freestanding gcc compiler so reuse it
@@ -65,7 +66,7 @@ include(${ZEPHYR_BASE}/cmake/compiler/gcc/target_optimizations.cmake)
 include(${ZEPHYR_BASE}/cmake/compiler/ccac/target_cpp.cmake)
 include(${ZEPHYR_BASE}/cmake/compiler/gcc/target_asm.cmake)
 include(${ZEPHYR_BASE}/cmake/compiler/ccac/target_baremetal.cmake)
-#include(${ZEPHYR_BASE}/cmake/compiler/gcc/target_warnings.cmake)
+include(${ZEPHYR_BASE}/cmake/compiler/ccac/target_warnings.cmake)
 include(${ZEPHYR_BASE}/cmake/compiler/gcc/target_imacros.cmake)
 include(${ZEPHYR_BASE}/cmake/compiler/gcc/target_base.cmake)
 #include(${ZEPHYR_BASE}/cmake/compiler/gcc/target_coverage.cmake)
