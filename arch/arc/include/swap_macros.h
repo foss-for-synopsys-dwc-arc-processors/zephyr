@@ -298,7 +298,7 @@
  * after increase, check whether nest counter == 1
  * the result will be EQ bit of status32
  */
-.macro _check_and_inc_int_nest_counter reg1 reg2
+.macro _check_and_inc_int_nest_counter, reg1, reg2
 #ifdef CONFIG_SMP
 	_get_cpu_id \reg1
 	ld.as \reg1, [@_curr_cpu, \reg1]
@@ -317,7 +317,7 @@
 .endm
 
 /* decrease interrupt nest counter */
-.macro _dec_int_nest_counter reg1 reg2
+.macro _dec_int_nest_counter, reg1, reg2
 #ifdef CONFIG_SMP
 	_get_cpu_id \reg1
 	ld.as \reg1, [@_curr_cpu, \reg1]
@@ -337,7 +337,7 @@
 /* If multi bits in IRQ_ACT are set, i.e. last bit != fist bit, it's
  * in nest interrupt. The result will be EQ bit of status32
  */
-.macro _check_nest_int_by_irq_act  reg1, reg2
+.macro _check_nest_int_by_irq_act, reg1, reg2
 	lr \reg1, [_ARC_V2_AUX_IRQ_ACT]
 #ifdef CONFIG_ARC_SECURE_FIRMWARE
 	and \reg1, \reg1, ((1 << ARC_N_IRQ_START_LEVEL) - 1)
@@ -349,12 +349,12 @@
 	cmp \reg1, \reg2
 .endm
 
-.macro _get_cpu_id reg
+.macro _get_cpu_id, reg
 	lr \reg, [_ARC_V2_IDENTITY]
 	xbfu \reg, \reg, 0xe8
 .endm
 
-.macro _get_curr_cpu_irq_stack irq_sp
+.macro _get_curr_cpu_irq_stack, irq_sp
 #ifdef CONFIG_SMP
 	_get_cpu_id \irq_sp
 	ld.as \irq_sp, [@_curr_cpu, \irq_sp]
@@ -366,13 +366,13 @@
 .endm
 
 /* macro to push aux reg through reg */
-.macro PUSHAX reg aux
+.macro PUSHAX, reg, aux
 	lr \reg, [\aux]
 	st.a \reg, [sp, -4]
 .endm
 
 /* macro to pop aux reg through reg */
-.macro POPAX reg aux
+.macro POPAX, reg, aux
 	ld.ab \reg, [sp, 4]
 	sr \reg, [\aux]
 .endm
