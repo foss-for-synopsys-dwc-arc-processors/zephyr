@@ -7,7 +7,7 @@ macro(toolchain_cc_nostdinc)
   if (NOT CONFIG_NEWLIB_LIBC AND
     NOT COMPILER STREQUAL "xcc" AND
     NOT CONFIG_NATIVE_APPLICATION)
-    zephyr_compile_options( -Hno_default_include -Hnoarcexlib)
+    zephyr_compile_options( -Hno_default_include -Hnoarcexlib -Hnocopyr)
     zephyr_system_include_directories(${NOSTDINC})
   endif()
 
