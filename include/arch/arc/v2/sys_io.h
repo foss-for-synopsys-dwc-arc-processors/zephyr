@@ -67,7 +67,7 @@ static ALWAYS_INLINE
 			 "sr	%1, [%0];\n\t"
 			 :
 			 : "ir" (port),
-			   "r" (reg), "Mr" (bit)
+			   "r" (reg), "r" (bit)
 			 : "memory", "cc");
 }
 
@@ -81,7 +81,7 @@ static ALWAYS_INLINE
 			 "sr	%1, [%0];\n\t"
 			 :
 			 : "ir" (port),
-			   "r" (reg), "Mr" (bit)
+			   "r" (reg), "r" (bit)
 			 : "memory", "cc");
 }
 
@@ -97,7 +97,7 @@ static ALWAYS_INLINE
 			 "lr	%0, [%4];\n\t"
 			 : "=r" (ret)
 			 : "ir" (port),
-			   "r" (reg), "Mr" (bit), "i" (status)
+			   "r" (reg), "r" (bit), "i" (status)
 			 : "memory", "cc");
 
 	return !(ret & _ARC_V2_STATUS32_Z);
@@ -200,7 +200,7 @@ static ALWAYS_INLINE
 			 "bset	%1, %1, %2\n"
 			 "st	%1, %0;\n\t"
 			 : "+m" (*(volatile u32_t *) addr)
-			 : "r" (reg), "Mr" (bit)
+			 : "r" (reg), "r" (bit)
 			 : "memory", "cc");
 }
 
@@ -213,7 +213,7 @@ static ALWAYS_INLINE
 			 "bclr	%1, %1, %2\n"
 			 "st	%1, %0;\n\t"
 			 : "+m" (*(volatile u32_t *) addr)
-			 : "r" (reg), "Mr" (bit)
+			 : "r" (reg), "r" (bit)
 			 : "memory", "cc");
 }
 
@@ -229,7 +229,7 @@ static ALWAYS_INLINE
 			 "lr	%0, [%4];\n\t"
 			 : "=r" (ret)
 			 : "m" (*(volatile u32_t *) addr),
-			   "r" (reg), "Mr" (bit), "i" (status)
+			   "r" (reg), "r" (bit), "i" (status)
 			 : "memory", "cc");
 
 	return !(ret & _ARC_V2_STATUS32_Z);
