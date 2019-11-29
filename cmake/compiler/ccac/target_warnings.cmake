@@ -7,7 +7,33 @@ macro(toolchain_cc_warning_base)
   zephyr_compile_options(
     -Weverything
     -Wformat
-    -Wextra-semi-stmt
+    -Wno-extra-semi-stmt
+    -Wno-reserved-id-macro
+    -Wno-sign-conversion
+    -Wno-documentation
+    -Wno-c11-extensions
+    -Wno-implicit-cast-widening
+    -Wno-gnu-zero-variadic-macro-arguments
+    -Wno-padded
+    -Wno-gnu-statement-expression
+    -Wno-shorten-64-to-32
+    -Wno-unused-macros
+    -Wno-strict-prototypes
+    -Wno-unused-parameter
+    -Wno-c++-compat
+    -Wno-documentation-unknown-command
+    -Wno-gnu-empty-struct
+    -Wno-typedef-redefinition
+    -Wno-cast-align
+    -Wno-shadow
+    -Wno-missing-variable-declarations
+    -Wno-implicit-int-conversion
+    -Wno-extra-semi
+    -Wno-bad-function-cast
+    -Wno-packed
+    -Wno-undef
+    -Wno-gnu-empty-initializer
+    -Wno-static-in-inline
   )
 
 if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER "9.1.0")
