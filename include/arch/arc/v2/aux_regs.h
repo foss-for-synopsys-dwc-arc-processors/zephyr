@@ -168,21 +168,9 @@
 
 #else /* __CCAC__ */
 
-#define z_arc_v2_aux_reg_read(reg)                                \
-	({                                               \
-		unsigned int __ret;                      \
-		__asm__ __volatile__("       lr %0, [%1]" \
-				     : "=r"(__ret)       \
-				     : "i"(reg));        \
-		__ret;                                   \
-	})
+#define z_arc_v2_aux_reg_read(reg) _lr(reg)
+#define z_arc_v2_aux_reg_write(reg, val) _sr(val, reg)
 
-#define z_arc_v2_aux_reg_write(reg, val)                              \
-	({                                                   \
-		__asm__ __volatile__("       sr %0, [%1]"    \
-				     :                       \
-				     : "ir"(val), "i"(reg)); \
-	})
 #endif /* __CCAC__ */
 
 #endif /* _ASMLANGUAGE */
