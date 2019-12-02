@@ -301,7 +301,7 @@ _firq_reschedule:
 _firq_return_from_coop:
 	/* pc into ilink */
 	pop_s r0
-	mov_s ilink, r0
+	mov ilink, r0
 
 	pop_s r0 /* status32 into r0 */
 	sr r0, [_ARC_V2_STATUS32_P0]
