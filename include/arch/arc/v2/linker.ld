@@ -79,7 +79,7 @@ MEMORY {
 
 SECTIONS {
 
-#include <linker/rel-sections.ld>
+/* #include <linker/rel-sections.ld> */
 
 	GROUP_START(ROMABLE_REGION)
 
