@@ -22,7 +22,11 @@ GTEXT(arch_cpu_atomic_idle)
 GDATA(z_arc_cpu_sleep_mode)
 
 SECTION_VAR(BSS, z_arc_cpu_sleep_mode)
+#ifdef __CCAC__
 	.align 4
+#else
+	.balign 4
+#endif
 	.word 0
 
 /*

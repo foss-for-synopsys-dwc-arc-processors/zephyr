@@ -295,7 +295,11 @@ SECTION_FUNC(TEXT, _rirq_exit)
 
 	/* cached thread to run is in r0, fall through */
 #endif
+#ifdef __CCAC__
+.align 4
+#else
 .balign 4
+#endif
 _rirq_reschedule:
 
 #ifdef CONFIG_ARC_SECURE_FIRMWARE
@@ -316,7 +320,11 @@ _rirq_reschedule:
 	st_s r2, [r1, _kernel_offset_to_current]
 #endif
 
+#ifdef __CCAC__
+.align 4
+#else
 .balign 4
+#endif
 _rirq_common_interrupt_swap:
 	/* r2 contains pointer to new thread */
 
@@ -361,7 +369,11 @@ _rirq_common_interrupt_swap:
 
 	/* fall through */
 
+#ifdef __CCAC__
+.align 4
+#else
 .balign 4
+#endif
 _rirq_return_from_coop:
 
 #ifdef CONFIG_ARC_SECURE_FIRMWARE
@@ -397,7 +409,11 @@ _rirq_return_from_coop:
 
 #endif /* CONFIG_PREEMPT_ENABLED */
 
+#ifdef __CCAC__
+.align 4
+#else
 .balign 4
+#endif
 _rirq_return_from_firq:
 _rirq_return_from_rirq:
 #ifdef CONFIG_ARC_SECURE_FIRMWARE

@@ -173,7 +173,11 @@ SECTION_FUNC(TEXT, _firq_exit)
 
 #endif /* CONFIG_PREEMPT_ENABLED */
 
+#ifdef __CCAC__
+.align 4
+#else
 .balign 4
+#endif
 _firq_no_reschedule:
 	pop sp
 
@@ -188,7 +192,11 @@ _firq_no_reschedule:
 
 #ifdef CONFIG_PREEMPT_ENABLED
 
+#ifdef __CCAC__
+.align 4
+#else
 .balign 4
+#endif
 _firq_reschedule:
 	pop sp
 
@@ -285,7 +293,11 @@ _firq_reschedule:
 
 	/* fall through */
 
+#ifdef __CCAC__
+.align 4
+#else
 .balign 4
+#endif
 _firq_return_from_coop:
 	/* pc into ilink */
 	pop_s r0
@@ -296,7 +308,11 @@ _firq_return_from_coop:
 
 	rtie
 
+#ifdef __CCAC__
+.align 4
+#else
 .balign 4
+#endif
 _firq_return_from_rirq:
 _firq_return_from_firq:
 

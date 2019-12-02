@@ -138,7 +138,11 @@ _switch_to_target_thread:
 
 	/* fall through to _switch_return_from_coop */
 
+#ifdef __CCAC__
+.align 4
+#else
 .balign 4
+#endif
 _switch_return_from_coop:
 
 	pop_s blink /* pc into blink */
@@ -158,7 +162,11 @@ return_loc:
 	j_s [blink]
 
 
+#ifdef __CCAC__
+.align 4
+#else
 .balign 4
+#endif
 _switch_return_from_rirq:
 _switch_return_from_firq:
 
@@ -187,7 +195,11 @@ _switch_return_from_firq:
 	rtie
 
 #ifdef CONFIG_EXECUTION_BENCHMARKING
+	#ifdef __CCAC__
+	.align 4
+	#else
 	.balign 4
+	#endif
 _capture_value_for_benchmarking:
 	push_s blink
 
