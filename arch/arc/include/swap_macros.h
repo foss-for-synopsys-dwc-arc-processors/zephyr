@@ -300,37 +300,37 @@
  */
 .macro _check_and_inc_int_nest_counter, reg1, reg2
 #ifdef CONFIG_SMP
-	_get_cpu_id \reg1
-	ld.as \reg1, [@_curr_cpu, \reg1]
-	ld \reg2, [\reg1, ___cpu_t_nested_OFFSET]
+	_get_cpu_id reg1
+	ld.as reg1, [@_curr_cpu, reg1]
+	ld reg2, [reg1, ___cpu_t_nested_OFFSET]
 #else
-	mov \reg1, _kernel
-	ld \reg2, [\reg1, ___kernel_t_nested_OFFSET]
+	mov reg1, _kernel
+	ld reg2, [reg1, ___kernel_t_nested_OFFSET]
 #endif
-	add \reg2, \reg2, 1
+	add reg2, reg2, 1
 #ifdef CONFIG_SMP
-	st \reg2, [\reg1, ___cpu_t_nested_OFFSET]
+	st reg2, [reg1, ___cpu_t_nested_OFFSET]
 #else
-	st \reg2, [\reg1, ___kernel_t_nested_OFFSET]
+	st reg2, [reg1, ___kernel_t_nested_OFFSET]
 #endif
-	cmp \reg2, 1
+	cmp reg2, 1
 .endm
 
 /* decrease interrupt nest counter */
 .macro _dec_int_nest_counter, reg1, reg2
 #ifdef CONFIG_SMP
-	_get_cpu_id \reg1
-	ld.as \reg1, [@_curr_cpu, \reg1]
-	ld \reg2, [\reg1, ___cpu_t_nested_OFFSET]
+	_get_cpu_id reg1
+	ld.as reg1, [@_curr_cpu, reg1]
+	ld reg2, [reg1, ___cpu_t_nested_OFFSET]
 #else
-	mov \reg1, _kernel
-	ld \reg2, [\reg1, ___kernel_t_nested_OFFSET]
+	mov reg1, _kernel
+	ld reg2, [reg1, ___kernel_t_nested_OFFSET]
 #endif
-	sub \reg2, \reg2, 1
+	sub reg2, reg2, 1
 #ifdef CONFIG_SMP
-	st \reg2, [\reg1, ___cpu_t_nested_OFFSET]
+	st reg2, [reg1, ___cpu_t_nested_OFFSET]
 #else
-	st \reg2, [\reg1, ___kernel_t_nested_OFFSET]
+	st reg2, [reg1, ___kernel_t_nested_OFFSET]
 #endif
 .endm
 
@@ -338,43 +338,43 @@
  * in nest interrupt. The result will be EQ bit of status32
  */
 .macro _check_nest_int_by_irq_act, reg1, reg2
-	lr \reg1, [_ARC_V2_AUX_IRQ_ACT]
+	lr reg1, [_ARC_V2_AUX_IRQ_ACT]
 #ifdef CONFIG_ARC_SECURE_FIRMWARE
-	and \reg1, \reg1, ((1 << ARC_N_IRQ_START_LEVEL) - 1)
+	and reg1, reg1, ((1 << ARC_N_IRQ_START_LEVEL) - 1)
 #else
-	and \reg1, \reg1, 0xffff
+	and reg1, reg1, 0xffff
 #endif
-	ffs \reg2, \reg1
-	fls \reg1, \reg1
-	cmp \reg1, \reg2
+	ffs reg2, reg1
+	fls reg1, reg1
+	cmp reg1, reg2
 .endm
 
 .macro _get_cpu_id, reg
-	lr \reg, [_ARC_V2_IDENTITY]
-	xbfu \reg, \reg, 0xe8
+	lr reg, [_ARC_V2_IDENTITY]
+	xbfu reg, reg, 0xe8
 .endm
 
 .macro _get_curr_cpu_irq_stack, irq_sp
 #ifdef CONFIG_SMP
-	_get_cpu_id \irq_sp
-	ld.as \irq_sp, [@_curr_cpu, \irq_sp]
-	ld \irq_sp, [\irq_sp, ___cpu_t_irq_stack_OFFSET]
+	_get_cpu_id irq_sp
+	ld.as irq_sp, [@_curr_cpu, irq_sp]
+	ld irq_sp, [irq_sp, ___cpu_t_irq_stack_OFFSET]
 #else
-	mov \irq_sp, _kernel
-	ld \irq_sp, [\irq_sp, _kernel_offset_to_irq_stack]
+	mov irq_sp, _kernel
+	ld irq_sp, [irq_sp, _kernel_offset_to_irq_stack]
 #endif
 .endm
 
 /* macro to push aux reg through reg */
 .macro PUSHAX, reg, aux
-	lr \reg, [\aux]
-	st.a \reg, [sp, -4]
+	lr reg, [aux]
+	st.a reg, [sp, -4]
 .endm
 
 /* macro to pop aux reg through reg */
 .macro POPAX, reg, aux
-	ld.ab \reg, [sp, 4]
-	sr \reg, [\aux]
+	ld.ab reg, [sp, 4]
+	sr reg, [aux]
 .endm
 
 #endif /* _ASMLANGUAGE */
