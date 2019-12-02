@@ -279,7 +279,7 @@ static void bg_thread_main(void *unused1, void *unused2, void *unused3)
 	z_timestamp_main = k_cycle_get_32();
 #endif
 
-	extern void main(void);
+	extern int main(void);
 
 	main();
 
@@ -292,10 +292,11 @@ static void bg_thread_main(void *unused1, void *unused2, void *unused3)
 
 /* LCOV_EXCL_START */
 
-void __weak main(void)
+int __weak main(void)
 {
 	/* NOP default main() if the application does not provide one. */
 	arch_nop();
+	return 0;
 }
 
 /* LCOV_EXCL_STOP */
