@@ -252,12 +252,12 @@ do {                                                                    \
 #if defined(_ASMLANGUAGE)
 
 #if defined(CONFIG_ARM) || defined(CONFIG_NIOS2) || defined(CONFIG_RISCV) \
-	|| defined(CONFIG_XTENSA) || (defined(CONFIG_ARC) && defined(__CCAC__))
+	|| defined(CONFIG_XTENSA)
 #define GTEXT(sym) .global sym; .type sym, %function
 #define GDATA(sym) .global sym; .type sym, %object
 #define WTEXT(sym) .weak sym; .type sym, %function
 #define WDATA(sym) .weak sym; .type sym, %object
-#elif defined(CONFIG_ARC) && !defined(__CCAC__)
+#elif defined(CONFIG_ARC)
 /*
  * Need to use assembly macros because ';' is interpreted as the start of
  * a single line comment in the ARC assembler.
@@ -282,7 +282,7 @@ do {                                                                    \
 #define GDATA(sym) glbl_data sym
 #define WDATA(sym) weak_data sym
 
-#else  /* !CONFIG_ARM && !(CONFIG_ARC || __CCAC__)*/
+#else  /* !CONFIG_ARM && !CONFIG_ARC */
 #define GTEXT(sym) .globl sym; .type sym, @function
 #define GDATA(sym) .globl sym; .type sym, @object
 #endif
@@ -297,7 +297,7 @@ do {                                                                    \
  *   if all functions in the sub-section are not referenced.
  */
 
-#if defined(CONFIG_ARC) && !defined(__CCAC__)
+#if defined(CONFIG_ARC)
 /*
  * Need to use assembly macros because ';' is interpreted as the start of
  * a single line comment in the ARC assembler.
@@ -329,7 +329,7 @@ do {                                                                    \
 #define SECTION_FUNC(sect, sym) section_func sect, sym
 #define SECTION_SUBSEC_FUNC(sect, subsec, sym) \
 	section_subsec_func sect, subsec, sym
-#else /* !CONFIG_ARC || defined __CCAC__ */
+#else /* !CONFIG_ARC */
 
 #define SECTION_VAR(sect, sym)  .section .sect.##sym; sym :
 #define SECTION_FUNC(sect, sym)						\
