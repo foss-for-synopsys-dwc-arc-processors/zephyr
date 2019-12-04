@@ -261,5 +261,4 @@ SECTIONS {
 	*(.gnu.attributes)
 	}
 
-    /DISCARD/ : { *(.note.GNU-stack) }
 	}
