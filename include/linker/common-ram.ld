@@ -23,7 +23,6 @@
 	{
 		DEVICE_INIT_UNDEFINED_SECTION()
 	}
-	ASSERT(SIZEOF(initlevel_error) == 0, "Undefined initialization levels used.")
 
 	SECTION_DATA_PROLOGUE(initshell,,)
 	{
