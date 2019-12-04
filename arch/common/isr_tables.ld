@@ -36,13 +36,13 @@
 #ifndef LINKER_PASS2
 SECTION_PROLOGUE(.intList,,)
 {
-	KEEP(*(.irq_info))
-	KEEP(*(.intList))
+	*(.irq_info)
+	*(.intList)
 } GROUP_LINK_IN(IDT_LIST)
 #else
 /DISCARD/ :
 {
-	KEEP(*(.irq_info))
-	KEEP(*(.intList))
+	*(.irq_info)
+	*(.intList)
 }
 #endif

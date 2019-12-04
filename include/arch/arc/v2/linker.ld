@@ -10,9 +10,12 @@
 
 #include <linker/sections.h>
 
-#if defined(CONFIG_UART_NSIM)
-	EXTERN(_VectorTable)
-#endif
+/*
+ *#if defined(CONFIG_UART_NSIM)
+ *	EXTERN(_VectorTable)
+ *#endif
+ *
+ */
 
 #include <linker/linker-defs.h>
 #include <linker/linker-tool.h>
@@ -57,7 +60,7 @@
 	#define _DATA_IN_ROM
 #endif
 
-OUTPUT_ARCH(arc)
+/* OUTPUT_ARCH(arc) */
 ENTRY(CONFIG_KERNEL_ENTRY)
 
 MEMORY {
@@ -89,9 +92,9 @@ SECTIONS {
 
 /* when !XIP, .text is in RAM, and vector table must be at its very start */
 
-		KEEP(*(.exc_vector_table))
-		KEEP(*(".exc_vector_table.*"))
-		KEEP(*(IRQ_VECTOR_TABLE))
+		*(.exc_vector_table)
+		*(".exc_vector_table.*")
+		*(IRQ_VECTOR_TABLE)
 
 		*(.text)
 		*(".text.*")
@@ -106,8 +109,8 @@ SECTIONS {
 #include <linker/common-rom.ld>
 
 	SECTION_PROLOGUE(_RODATA_SECTION_NAME,,) {
-		KEEP(*(.openocd_dbg))
-		KEEP(*(".openocd_dbg.*"))
+		*(.openocd_dbg)
+		*(".openocd_dbg.*")
 		*(.rodata)
 		*(".rodata.*")
 		*(.gnu.linkonce.r.*)
@@ -255,8 +258,8 @@ SECTIONS {
 
     SECTION_PROLOGUE(.ARC.attributes, 0,)
 	{
-	KEEP(*(.ARC.attributes))
-	KEEP(*(.gnu.attributes))
+	*(.ARC.attributes)
+	*(.gnu.attributes)
 	}
 
     /DISCARD/ : { *(.note.GNU-stack) }

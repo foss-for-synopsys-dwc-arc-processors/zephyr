@@ -33,14 +33,14 @@
 	SECTION_DATA_PROLOGUE(log_dynamic_sections,,)
 	{
 		__log_dynamic_start = .;
-		KEEP(*(SORT(.log_dynamic_*)));
+		*(SORT(.log_dynamic_*));
 		__log_dynamic_end = .;
 	} GROUP_DATA_LINK_IN(RAMABLE_REGION, ROMABLE_REGION)
 
 	SECTION_DATA_PROLOGUE(_static_thread_area,,SUBALIGN(4))
 	{
 		__static_thread_data_list_start = .;
-		KEEP(*(SORT_BY_NAME(".__static_thread_data.static.*")))
+		*(SORT_BY_NAME(".__static_thread_data.static.*"))
 		__static_thread_data_list_end = .;
 	} GROUP_DATA_LINK_IN(RAMABLE_REGION, ROMABLE_REGION)
 
@@ -58,87 +58,87 @@
 	SECTION_DATA_PROLOGUE(_k_timer_area,,SUBALIGN(4))
 	{
 		_k_timer_list_start = .;
-		KEEP(*("._k_timer.static.*"))
+		*("._k_timer.static.*")
 		_k_timer_list_end = .;
 	} GROUP_DATA_LINK_IN(RAMABLE_REGION, ROMABLE_REGION)
 
 	SECTION_DATA_PROLOGUE(_k_mem_slab_area,,SUBALIGN(4))
 	{
 		_k_mem_slab_list_start = .;
-		KEEP(*("._k_mem_slab.static.*"))
+		*("._k_mem_slab.static.*")
 		_k_mem_slab_list_end = .;
 	} GROUP_DATA_LINK_IN(RAMABLE_REGION, ROMABLE_REGION)
 
 	SECTION_DATA_PROLOGUE(_k_mem_pool_area,,SUBALIGN(4))
 	{
 		_k_mem_pool_list_start = .;
-		KEEP(*("._k_mem_pool.static.*"))
+		*("._k_mem_pool.static.*")
 		_k_mem_pool_list_end = .;
 	} GROUP_DATA_LINK_IN(RAMABLE_REGION, ROMABLE_REGION)
 
 	SECTION_DATA_PROLOGUE(_k_sem_area,,SUBALIGN(4))
 	{
 		_k_sem_list_start = .;
-		KEEP(*("._k_sem.static.*"))
-		KEEP(*("._sys_sem.static.*"))
+		*("._k_sem.static.*")
+		*("._sys_sem.static.*")
 		_k_sem_list_end = .;
 	} GROUP_DATA_LINK_IN(RAMABLE_REGION, ROMABLE_REGION)
 
 	SECTION_DATA_PROLOGUE(_k_mutex_area,,SUBALIGN(4))
 	{
 		_k_mutex_list_start = .;
-		KEEP(*("._k_mutex.static.*"))
+		*("._k_mutex.static.*")
 		_k_mutex_list_end = .;
 	} GROUP_DATA_LINK_IN(RAMABLE_REGION, ROMABLE_REGION)
 
 	SECTION_DATA_PROLOGUE(_k_queue_area,,SUBALIGN(4))
 	{
 		_k_queue_list_start = .;
-		KEEP(*("._k_queue.static.*"))
-		KEEP(*("._k_fifo.static.*"))
-		KEEP(*("._k_lifo.static.*"))
+		*("._k_queue.static.*")
+		*("._k_fifo.static.*")
+		*("._k_lifo.static.*")
 		_k_queue_list_end = .;
 	} GROUP_DATA_LINK_IN(RAMABLE_REGION, ROMABLE_REGION)
 
 	SECTION_DATA_PROLOGUE(_k_stack_area,,SUBALIGN(4))
 	{
 		_k_stack_list_start = .;
-		KEEP(*("._k_stack.static.*"))
+		*("._k_stack.static.*")
 		_k_stack_list_end = .;
 	} GROUP_DATA_LINK_IN(RAMABLE_REGION, ROMABLE_REGION)
 
 	SECTION_DATA_PROLOGUE(_k_msgq_area,,SUBALIGN(4))
 	{
 		_k_msgq_list_start = .;
-		KEEP(*("._k_msgq.static.*"))
+		*("._k_msgq.static.*")
 		_k_msgq_list_end = .;
 	} GROUP_DATA_LINK_IN(RAMABLE_REGION, ROMABLE_REGION)
 
 	SECTION_DATA_PROLOGUE(_k_mbox_area,,SUBALIGN(4))
 	{
 		_k_mbox_list_start = .;
-		KEEP(*("._k_mbox.static.*"))
+		*("._k_mbox.static.*")
 		_k_mbox_list_end = .;
 	} GROUP_DATA_LINK_IN(RAMABLE_REGION, ROMABLE_REGION)
 
 	SECTION_DATA_PROLOGUE(_k_pipe_area,,SUBALIGN(4))
 	{
 		_k_pipe_list_start = .;
-		KEEP(*("._k_pipe.static.*"))
+		*("._k_pipe.static.*")
 		_k_pipe_list_end = .;
 	} GROUP_DATA_LINK_IN(RAMABLE_REGION, ROMABLE_REGION)
 
 	SECTION_DATA_PROLOGUE(_net_buf_pool_area,,SUBALIGN(4))
 	{
 		_net_buf_pool_list = .;
-		KEEP(*(SORT_BY_NAME("._net_buf_pool.static.*")))
+		*(SORT_BY_NAME("._net_buf_pool.static.*"))
 	} GROUP_DATA_LINK_IN(RAMABLE_REGION, ROMABLE_REGION)
 
 	SECTION_DATA_PROLOGUE(net_if,,SUBALIGN(4))
 	{
 		__net_if_start = .;
 		*(".net_if.*")
-		KEEP(*(SORT_BY_NAME(".net_if.*")))
+		*(SORT_BY_NAME(".net_if.*"))
 		__net_if_end = .;
 	} GROUP_DATA_LINK_IN(RAMABLE_REGION, ROMABLE_REGION)
 
@@ -146,7 +146,7 @@
 	{
 		__net_if_dev_start = .;
 		*(".net_if_dev.*")
-		KEEP(*(SORT_BY_NAME(".net_if_dev.*")))
+		*(SORT_BY_NAME(".net_if_dev.*"))
 		__net_if_dev_end = .;
 	} GROUP_DATA_LINK_IN(RAMABLE_REGION, ROMABLE_REGION)
 
@@ -155,7 +155,7 @@
 	{
 		__net_stack_start = .;
 		*(".net_stack.*")
-		KEEP(*(SORT_BY_NAME(".net_stack*")))
+		*(SORT_BY_NAME(".net_stack*"))
 		__net_stack_end = .;
 	} GROUP_DATA_LINK_IN(RAMABLE_REGION, ROMABLE_REGION)
 #endif /* CONFIG_NET_SHELL */
@@ -164,7 +164,7 @@
 	{
 		__net_l2_data_start = .;
 		*(".net_l2.data")
-		KEEP(*(SORT_BY_NAME(".net_l2.data*")))
+		*(SORT_BY_NAME(".net_l2.data*"))
 		__net_l2_data_end = .;
 	} GROUP_DATA_LINK_IN(RAMABLE_REGION, ROMABLE_REGION)
 
@@ -173,7 +173,7 @@
 	{
 		__usb_descriptor_start = .;
 		*(".usb.descriptor")
-		KEEP(*(SORT_BY_NAME(".usb.descriptor*")))
+		*(SORT_BY_NAME(".usb.descriptor*"))
 		__usb_descriptor_end = .;
 	} GROUP_DATA_LINK_IN(RAMABLE_REGION, ROMABLE_REGION)
 
@@ -181,7 +181,7 @@
 	{
 		__usb_data_start = .;
 		*(".usb.data")
-		KEEP(*(SORT_BY_NAME(".usb.data*")))
+		*(SORT_BY_NAME(".usb.data*"))
 		__usb_data_end = .;
 	} GROUP_DATA_LINK_IN(RAMABLE_REGION, ROMABLE_REGION)
 #endif /* CONFIG_USB_DEVICE_STACK */
@@ -191,7 +191,7 @@
 	{
 		__usb_bos_desc_start = .;
 		*(".usb.bos_desc")
-		KEEP(*(SORT_BY_NAME(".usb.bos_desc*")))
+		*(SORT_BY_NAME(".usb.bos_desc*"))
 		__usb_bos_desc_end = .;
 	} GROUP_DATA_LINK_IN(RAMABLE_REGION, ROMABLE_REGION)
 #endif /* CONFIG_USB_DEVICE_BOS */
