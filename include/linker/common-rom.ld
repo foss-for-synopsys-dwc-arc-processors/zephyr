@@ -62,7 +62,7 @@
 	SECTION_PROLOGUE(app_shmem_regions,,)
 	{
 		__app_shmem_regions_start = .;
-		*(SORT(".app_regions.*"));
+		*(SORT_BY_NAME(".app_regions.*"));
 		__app_shmem_regions_end = .;
 	} GROUP_LINK_IN(ROMABLE_REGION)
 
@@ -136,7 +136,7 @@
 	SECTION_DATA_PROLOGUE(log_const_sections,,)
 	{
 		__log_const_start = .;
-		*(SORT(.log_const_*));
+		*(SORT_BY_NAME(.log_const_*));
 		__log_const_end = .;
 	} GROUP_LINK_IN(ROMABLE_REGION)
 
@@ -150,7 +150,7 @@
 	SECTION_DATA_PROLOGUE(shell_root_cmds_sections,,)
 	{
 		__shell_root_cmds_start = .;
-		*(SORT(.shell_root_cmd_*));
+		*(SORT_BY_NAME(.shell_root_cmd_*));
 		__shell_root_cmds_end = .;
 	} GROUP_LINK_IN(ROMABLE_REGION)
 

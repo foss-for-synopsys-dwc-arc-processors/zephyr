@@ -53,8 +53,8 @@
 
 #define DEVICE_INIT_LEVEL(level)				\
 		__device_##level##_start = .;			\
-		*(SORT(.init_##level[0-9]));		\
-		*(SORT(.init_##level[1-9][0-9]));	\
+		*(SORT_BY_NAME(.init_##level[0-9]));		\
+		*(SORT_BY_NAME(.init_##level[1-9][0-9]));	\
 
 /*
  * link in device initialization objects for all devices that are automatically
@@ -74,7 +74,7 @@
 
 /* define a section for undefined device initialization levels */
 #define DEVICE_INIT_UNDEFINED_SECTION()		\
-		*(SORT(.init_[_A-Z0-9]*))	\
+		*(SORT_BY_NAME(.init_[_A-Z0-9]*))	\
 
 /*
  * link in shell initialization objects for all modules that use shell and
@@ -94,7 +94,7 @@
  * their shell commands are automatically initialized by the kernel.
  */
 
-#define APP_SMEM_SECTION() *(SORT("data_smem_*"))
+#define APP_SMEM_SECTION() *(SORT_BY_NAME("data_smem_*"))
 
 #ifdef CONFIG_X86 /* LINKER FILES: defines used by linker script */
 /* Should be moved to linker-common-defs.h */

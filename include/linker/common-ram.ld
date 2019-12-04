@@ -33,7 +33,7 @@
 	SECTION_DATA_PROLOGUE(log_dynamic_sections,,)
 	{
 		__log_dynamic_start = .;
-		*(SORT(.log_dynamic_*));
+		*(SORT_BY_NAME(.log_dynamic_*));
 		__log_dynamic_end = .;
 	} GROUP_DATA_LINK_IN(RAMABLE_REGION, ROMABLE_REGION)
 
