@@ -172,4 +172,4 @@ _master_core_startup:
 	jl z_arc_firq_stack_set
 #endif
 
-	j @_PrepC
+	j _PrepC

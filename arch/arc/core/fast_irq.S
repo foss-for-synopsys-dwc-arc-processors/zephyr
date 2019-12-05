@@ -126,7 +126,7 @@ firq_nest_1:
 firq_nest:
 #endif
 	push_s r0
-	j @_isr_demux
+	j _isr_demux
 
 
 
