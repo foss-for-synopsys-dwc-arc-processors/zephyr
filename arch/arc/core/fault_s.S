@@ -19,7 +19,8 @@
 #include <syscall.h>
 
 GTEXT(_Fault)
-GTEXT(z_do_kernel_oops)
+// Undefined
+//GTEXT(z_do_kernel_oops)
 GTEXT(__reset)
 GTEXT(__memory_error)
 GTEXT(__instruction_error)

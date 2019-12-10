@@ -427,6 +427,8 @@ static FUNC_NORETURN void switch_to_main_thread(void)
 }
 #endif /* CONFIG_MULTITHREADING */
 
+
+#if 0 /* HACK: Remove mention of sys_rand32_get() */
 static void z_early_boot_rand_get(u8_t *buf, size_t length)
 {
 	int n = sizeof(u32_t);
@@ -491,7 +493,7 @@ u32_t z_early_boot_rand32_get(void)
 
 	return retval;
 }
-
+#endif /* HACK: Remove mention of sys_rand32_get() */
 /**
  *
  * @brief Initialize kernel

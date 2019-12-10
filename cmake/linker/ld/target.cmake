@@ -84,11 +84,11 @@ function(toolchain_ld_link_elf)
   target_link_libraries(
     ${TOOLCHAIN_LD_LINK_ELF_TARGET_ELF}
     ${TOOLCHAIN_LD_LINK_ELF_LIBRARIES_PRE_SCRIPT}
-    ${TOPT}
+#    ${TOPT}
     ${TOOLCHAIN_LD_LINK_ELF_LINKER_SCRIPT}
     ${TOOLCHAIN_LD_LINK_ELF_LIBRARIES_POST_SCRIPT}
 
-    ${LINKERFLAGPREFIX},-Map=${TOOLCHAIN_LD_LINK_ELF_OUTPUT_MAP}
+    -Hldopt=-Coutput=${TOOLCHAIN_LD_LINK_ELF_OUTPUT_MAP}
     ${LINKERFLAGPREFIX},--whole-archive
     ${ZEPHYR_LIBS_PROPERTY}
     ${LINKERFLAGPREFIX},--no-whole-archive
@@ -99,6 +99,8 @@ function(toolchain_ld_link_elf)
     ${TOOLCHAIN_LIBS}
 
     ${TOOLCHAIN_LD_LINK_ELF_DEPENDENCIES}
+
+    -Hnocrt -Hnolib
   )
 endfunction(toolchain_ld_link_elf)
 

@@ -25,10 +25,12 @@ extern "C" {
 #endif
 
 #ifdef _ASMLANGUAGE
-GTEXT(_irq_exit);
+//GTEXT(_irq_exit);
 GTEXT(arch_irq_enable)
 GTEXT(arch_irq_disable)
-GTEXT(z_arc_firq_stack_set)
+// Is not implemented (by default) due to unset CONFIG_FIRQ_STACK
+// but definition creates undefined symbol in arch/arch/arc/core/libarch__arc__core.a(thread_entry_wrapper.S.obj)
+//GTEXT(z_arc_firq_stack_set)
 #else
 
 extern void z_arc_firq_stack_set(void);

@@ -23,7 +23,7 @@
 #endif
 	OUTPUT_FORMAT(OUTPUT_FORMAT_)
 #elif defined(CONFIG_ARC)
-	OUTPUT_FORMAT("elf32-littlearc", "elf32-bigarc", "elf32-littlearc")
+//	OUTPUT_FORMAT("elf32-littlearc", "elf32-bigarc", "elf32-littlearc")
 #elif defined(CONFIG_X86)
 	#if defined(CONFIG_X86_64)
 		OUTPUT_FORMAT("elf64-x86-64")
@@ -109,7 +109,7 @@
  * If not required, the <options> and <align> parameters should be left blank.
  */
 
-#define SECTION_PROLOGUE(name, options, align) name options : align
+#define SECTION_PROLOGUE(name, options, align) name options align :
 
 /*
  * As for SECTION_PROLOGUE(), except that this one must (!) be used
@@ -125,7 +125,9 @@
 #define SECTION_DATA_PROLOGUE(name, options, align) name options : align
 #endif
 
-#define SORT_BY_NAME(x) SORT(x)
+#define SORT_BY_NAME(x) x
+#define KEEP(x)		x
+#define SUBALIGN(x)	
 
 #define COMMON_SYMBOLS *(COMMON)
 

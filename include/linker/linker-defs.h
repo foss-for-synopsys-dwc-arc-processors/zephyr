@@ -53,8 +53,8 @@
 
 #define DEVICE_INIT_LEVEL(level)				\
 		__device_##level##_start = .;			\
-		*(SORT_BY_NAME(.init_##level[0-9]));		\
-		*(SORT_BY_NAME(.init_##level[1-9][0-9]));	\
+		*(SORT_BY_NAME(".init_##level[0-9]"));		\
+		*(SORT_BY_NAME(".init_##level[1-9][0-9]"));	\
 
 /*
  * link in device initialization objects for all devices that are automatically
@@ -74,7 +74,7 @@
 
 /* define a section for undefined device initialization levels */
 #define DEVICE_INIT_UNDEFINED_SECTION()		\
-		*(SORT_BY_NAME(.init_[_A-Z0-9]*))	\
+		*(SORT_BY_NAME(".init_[_A-Z0-9]*"))	\
 
 /*
  * link in shell initialization objects for all modules that use shell and

@@ -293,10 +293,11 @@ toolchain_cc_warning_error_implicit_int()
 # 'cmake -DEXTRA_CFLAGS="-Werror -Wno-deprecated-declarations" ..'
 include(cmake/extra_flags.cmake)
 
-zephyr_cc_option(-fno-asynchronous-unwind-tables)
-zephyr_cc_option(-fno-pie)
-zephyr_cc_option(-fno-pic)
-zephyr_cc_option(-fno-strict-overflow)
+# CCAC doesn't support those
+#zephyr_cc_option(-fno-asynchronous-unwind-tables)
+#zephyr_cc_option(-fno-pie)
+#zephyr_cc_option(-fno-pic)
+#zephyr_cc_option(-fno-strict-overflow)
 
 if(CONFIG_OVERRIDE_FRAME_POINTER_DEFAULT)
   if(CONFIG_OMIT_FRAME_POINTER)
@@ -332,11 +333,11 @@ zephyr_cc_option_ifdef(CONFIG_STACK_USAGE            -fstack-usage)
 # If several match then the last one wins. This matters for instances
 # like tests/ and samples/: they're inside all of them! Then let's
 # strip as little as possible.
-zephyr_cc_option(-fmacro-prefix-map=${CMAKE_SOURCE_DIR}=CMAKE_SOURCE_DIR)
-zephyr_cc_option(-fmacro-prefix-map=${ZEPHYR_BASE}=ZEPHYR_BASE)
-if(WEST_TOPDIR)
-  zephyr_cc_option(-fmacro-prefix-map=${WEST_TOPDIR}=WEST_TOPDIR)
-endif()
+#zephyr_cc_option(-fmacro-prefix-map=${CMAKE_SOURCE_DIR}=CMAKE_SOURCE_DIR)
+#zephyr_cc_option(-fmacro-prefix-map=${ZEPHYR_BASE}=ZEPHYR_BASE)
+#if(WEST_TOPDIR)
+#  zephyr_cc_option(-fmacro-prefix-map=${WEST_TOPDIR}=WEST_TOPDIR)
+#endif()
 
 # TODO: Archiver arguments
 # ar_option(D)

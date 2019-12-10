@@ -42,7 +42,7 @@ extern "C" {
  *
  * @return 32-bit random value.
  */
-extern u32_t sys_rand32_get(void);
+//extern u32_t sys_rand32_get(void);
 /**
  * @brief Fill the destination buffer with random data values that should
  * pass general randomness tests.
