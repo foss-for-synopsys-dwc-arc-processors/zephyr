@@ -263,19 +263,19 @@ do {                                                                    \
  * a single line comment in the ARC assembler.
  */
 
-.macro glbl_text symbol
-	.globl \symbol
-	.type \symbol, %function
+.macro glbl_text, symbol
+	.globl symbol
+	.type symbol, @function
 .endm
 
-.macro glbl_data symbol
-	.globl \symbol
-	.type \symbol, %object
+.macro glbl_data, symbol
+	.globl symbol
+	.type symbol, @object
 .endm
 
-.macro weak_data symbol
-	.weak \symbol
-	.type \symbol, %object
+.macro weak_data, symbol
+	.weak symbol
+	.type symbol, @object
 .endm
 
 #define GTEXT(sym) glbl_text sym
@@ -306,23 +306,23 @@ do {                                                                    \
  * correct substitution of the 'section' variable.
  */
 
-.macro section_var section, symbol
-	.section .\section\().\symbol
-	\symbol :
+.macro section_var, section, symbol
+	.section .\&section\&.\&symbol
+	symbol :
 .endm
 
-.macro section_func section, symbol
-	.section .\section\().\symbol, "ax"
+.macro section_func, section, symbol
+	.section .\&section\&.\&symbol, "ax"
 	FUNC_CODE()
 	PERFOPT_ALIGN
-	\symbol :
-	FUNC_INSTR(\symbol)
+	symbol :
+	FUNC_INSTR(symbol)
 .endm
 
-.macro section_subsec_func section, subsection, symbol
-	.section .\section\().\subsection, "ax"
+.macro section_subsec_func, section, subsection, symbol
+	.section .\&section\&.\&subsection, "ax"
 	PERFOPT_ALIGN
-	\symbol :
+	symbol :
 .endm
 
 #define SECTION_VAR(sect, sym) section_var sect, sym
