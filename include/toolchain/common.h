@@ -68,7 +68,7 @@
 
   #elif defined(CONFIG_ARC)
 
-    #define PERFOPT_ALIGN .balign  4
+    #define PERFOPT_ALIGN .align  4
 
   #elif defined(CONFIG_NIOS2) || defined(CONFIG_RISCV) || \
 	  defined(CONFIG_XTENSA)
