@@ -558,6 +558,16 @@ void test_main(void)
 			      &timer2, &timer3, &timer4);
 
 	ztest_test_suite(timer_api,
-			 ztest_user_unit_test(test_timer_duration_period));
+			 ztest_unit_test(test_time_conversions),
+			 ztest_user_unit_test(test_timer_duration_period),
+			 ztest_user_unit_test(test_timer_period_0),
+			 ztest_user_unit_test(test_timer_expirefn_null),
+			 ztest_user_unit_test(test_timer_periodicity),
+			 ztest_user_unit_test(test_timer_status_get),
+			 ztest_user_unit_test(test_timer_status_get_anytime),
+			 ztest_user_unit_test(test_timer_status_sync),
+			 ztest_user_unit_test(test_timer_k_define),
+			 ztest_user_unit_test(test_timer_user_data),
+			 ztest_user_unit_test(test_timer_remaining_get));
 	ztest_run_test_suite(timer_api);
 }
