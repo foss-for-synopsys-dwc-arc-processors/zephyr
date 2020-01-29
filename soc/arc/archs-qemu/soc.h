@@ -14,16 +14,12 @@
 #ifndef _SOC__H_
 #define _SOC__H_
 
-#include <misc/util.h>
-
-
 /* ARC HS Core IRQs */
 #define IRQ_TIMER0			16
 #define IRQ_TIMER1			17
 
 #ifndef _ASMLANGUAGE
 
-#include <misc/util.h>
 #include <random/rand32.h>
 
 #define INT_ENABLE_ARC				~(0x00000001 << 8)

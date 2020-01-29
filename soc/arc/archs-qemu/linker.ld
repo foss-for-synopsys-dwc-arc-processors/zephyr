@@ -4,14 +4,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <generated_dts_board.h>
+#include <devicetree.h>
 #include <autoconf.h>
 
-#define SRAM_START	DT_SRAM_BASE_ADDRESS
-#define SRAM_SIZE	DT_SRAM_SIZE
-#define FLASH_START	DT_FLASH_BASE_ADDRESS
-#define FLASH_SIZE      DT_FLASH_SIZE
-
-
+/*
+ * SRAM base address and size
+ */
+#if defined(CONFIG_SRAM_BASE_ADDRESS) && (CONFIG_SRAM_SIZE > 0)
+#define SRAM_START		CONFIG_SRAM_BASE_ADDRESS
+#define SRAM_SIZE		CONFIG_SRAM_SIZE
+#endif
 
 #include <arch/arc/v2/linker.ld>
