@@ -137,7 +137,6 @@ void test_timer_duration_period(void)
 	/** TESTPOINT: check expire and stop times */
 	TIMER_ASSERT(tdata.expire_cnt == EXPIRE_TIMES, &duration_timer);
 	TIMER_ASSERT(tdata.stop_cnt == 1, &duration_timer);
-
 	/* cleanup environemtn */
 	k_timer_stop(&duration_timer);
 }
@@ -570,4 +569,5 @@ void test_main(void)
 			 ztest_user_unit_test(test_timer_user_data),
 			 ztest_user_unit_test(test_timer_remaining_get));
 	ztest_run_test_suite(timer_api);
+	__builtin_arc_flag(1);
 }

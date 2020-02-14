@@ -31,6 +31,7 @@ static inline void z_zassert_(bool cond, const char *file, int line)
 	if (cond == false) {
 		PRINT("\n    Assertion failed at %s:%d\n",
 		      file, line);
+		__builtin_arc_flag(1);
 		ztest_test_fail();
 	}
 }
