@@ -3,6 +3,7 @@ set(EMU_PLATFORM qemu)
 set(QEMU_CPU_TYPE_${ARCH} arc)
 
 set(QEMU_FLAGS_${ARCH}
+  -cpu archs
   -M simhs
   -m 128M
   -nographic
