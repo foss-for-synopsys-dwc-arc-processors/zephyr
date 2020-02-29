@@ -6,6 +6,7 @@
 
 #include <device.h>
 #include <kernel.h>
+#include <ksched.h>
 #include <errno.h>
 #include <zephyr/types.h>
 #include <init.h>
@@ -78,6 +79,35 @@ FUNC_NORETURN void z_arch_go_to_normal(u32_t entry)
 	normal_container_thread = k_current_get();
 	arc_go_to_normal(entry);
 	CODE_UNREACHABLE;
+}
+
+/*
+ * @brief secure service for sleep instruction in normal world
+ */
+void arc_s_service_sleep(u32_t arg)
+{
+	u32_t prio_level = arg & 0xf;
+	u32_t key;
+
+	if (prio_level >= ARC_N_IRQ_START_LEVEL &&
+	    prio_level < CONFIG_NUM_IRQ_PRIO_LEVELS) {
+		/* set valid irq prio level according to sleep
+		 * instruction
+		 */
+		key = arch_irq_lock();
+		if ((key & 0xf) >= ARC_N_IRQ_START_LEVEL) {
+			key = ((key & 0x30) | prio_level);
+		}
+		arch_irq_unlock(key);
+	}
+	/* normal world runs in the context of secure thread, the sleep of
+	 * normal world means suspending of current running secure thread.
+	 * When normal interrupts want to wake up the normal wold, it needs
+	 * notify the secure world by secure software irq to resume the
+	 * suspended secure thread, then returns from this function to normal
+	 * world.
+	 */
+	k_thread_suspend(k_current_get());
 }
 
 /*

@@ -55,6 +55,9 @@ static int32_t arc_s_aux_write(uint32_t aux_reg, uint32_t val)
 	return -1;
 }
 
+/* Secure sleep service */
+extern void arc_s_service_sleep(u32_t arg);
+
 /* Secure service to check normal world's switch request */
 extern u32_t arc_s_service_n_switch(void);
 
@@ -64,5 +67,6 @@ extern u32_t arc_s_service_n_switch(void);
 const _arc_s_call_handler_t arc_s_call_table[ARC_S_CALL_LIMIT] = {
 	[ARC_S_CALL_AUX_READ] = (_arc_s_call_handler_t)arc_s_aux_read,
 	[ARC_S_CALL_AUX_WRITE] = (_arc_s_call_handler_t)arc_s_aux_write,
+	[ARC_S_CALL_SLEEP] = (_arc_s_call_handler_t)arc_s_service_sleep,
 	[ARC_S_CALL_N_SWITCH] = (_arc_s_call_handler_t)arc_s_service_n_switch,
 };
