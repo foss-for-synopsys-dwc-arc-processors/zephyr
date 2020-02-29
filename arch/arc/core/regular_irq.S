@@ -345,5 +345,17 @@ _rirq_switch_from_rirq:
 	_raise_normal_switch_req_by_irq r3
 4 :
 #endif
+	rtie
 _rirq_no_switch:
+#ifdef CONFIG_ARC_SECURE_FIRMWARE
+/* when there is normal irq pending, return directly and
+ * raise the helper sw secure int to handle possible
+ * thread switch request in secure world
+ */
+	lr r3, [_ARC_V2_SEC_STAT]
+	bbit1 r3, _ARC_V2_SEC_STAT_IRM_BIT, _rirq_ret_from_secure
+	mov r3, CONFIG_SECURE_SOFT_IRQ
+	sr r3, [_ARC_V2_AUX_IRQ_HINT]
+_rirq_ret_from_secure:
+#endif
 	rtie
