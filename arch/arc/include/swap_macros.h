@@ -46,14 +46,13 @@
  */
 .macro _macro_clri, reg
 #if defined(CONFIG_ARC_NORMAL_FIRMWARE)
-	MOVR r6, ARC_S_CALL_CLRI
+	mov r6, ARC_S_CALL_CLRI
 	sjli SJLI_CALL_ARC_SECURE
 	mov MACRO_ARG(reg), r0
 #else
 	clri MACRO_ARG(reg)
 #endif
 .endm
-
 
 /*  save callee regs of current thread in r2*/
 .macro _save_callee_saved_regs

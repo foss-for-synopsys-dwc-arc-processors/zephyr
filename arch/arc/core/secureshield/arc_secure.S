@@ -40,6 +40,11 @@
 	mov r13, 0
 .endm
 
+/* macro to return normal world from secure call */
+.macro _return_to_normal
+	j [blink]
+.endm
+
 GTEXT(arc_go_to_normal)
 GTEXT(_arc_do_secure_call)
 GDATA(arc_s_call_table)
@@ -52,6 +57,8 @@ SECTION_FUNC(TEXT, _arc_do_secure_call)
 	beq _s_clri
 	cmp r6, ARC_S_CALL_SETI
 	beq _s_seti
+	cmp r6, ARC_S_CALL_N_SWITCH
+	beq _s_check_n_switch
 _arc_call_secure_call_handler:
 	push_s blink
 	mov	blink, arc_s_call_table
@@ -72,7 +79,7 @@ _arc_call_secure_call_handler:
 _arc_do_secure_call_exit:
 	pop_s blink
 
-	j [blink]
+	_return_to_normal
 
 /* secure service for clri
  * normal world only can disable interrupts belonging to normal
@@ -88,7 +95,7 @@ _s_clri:
 
 	seti r6
 
-	j [blink]
+	_return_to_normal
 
 _s_clri_disabled:
 
@@ -97,7 +104,7 @@ _s_clri_disabled:
 
 	seti r6
 
-	j [blink]
+	_return_to_normal
 
 /* secure service for seti
  * normal world only can disable/enable interrupts belonging to normal
@@ -134,7 +141,16 @@ __seti_update_priority:
 
 	mov r0, 0
 
+	_return_to_normal
+
+_s_check_n_switch:
+	/* quick check and quick return */
+	lr r0, [_ARC_V2_SEC_STAT]
+	bbit1 r0, _ARC_V2_SEC_STAT_IRM_BIT, _n_no_switch
+	mov r0, 1
 	j [blink]
+_n_no_switch:
+	b _arc_call_secure_call_handler
 
 /* go to normal world, r0 is the entry */
 SECTION_FUNC(TEXT, arc_go_to_normal)

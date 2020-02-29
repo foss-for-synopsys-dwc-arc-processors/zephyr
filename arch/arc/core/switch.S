@@ -107,10 +107,9 @@ SECTION_FUNC(TEXT, z_arc_switch)
 .align 4
 _switch_return_from_coop:
 
-
 	POPR blink /* pc into blink */
 #ifdef CONFIG_ARC_HAS_SECURE
-	POPR r3    /* pop SEC_STAT */
+	pop_s r3    /* pop SEC_STAT */
 #ifdef CONFIG_ARC_SECURE_FIRMWARE
 	sflag r3
 #endif

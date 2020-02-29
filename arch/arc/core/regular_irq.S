@@ -249,12 +249,32 @@ SECTION_FUNC(TEXT, _rirq_exit)
 	/* sp is struct k_thread **old of z_arc_switch_in_isr
 	 * which is a wrapper of z_get_next_switch_handle.
 	 * r0 contains the 1st thread in ready queue. if
-	 * it equals _current(r2) ,then do swap, or no swap.
+	 * it equals _current(r2), then do swap, otherwise no swap.
 	 */
 	_get_next_switch_handle
 
 	CMPR r0, r2
 	beq _rirq_no_switch
+
+#ifdef CONFIG_ARC_NORMAL_FIRMWARE
+/* need to tell secure firmware we want to do switch,
+ * if secure firmware allows it (r0 == 1), then do swich
+ * or direclty return. If normal world try to bypass,
+ * the normal world will crash
+ */
+
+	push r0
+	push r1
+	push r2
+	mov r6, ARC_S_CALL_N_SWITCH
+	sjli SJLI_CALL_ARC_SECURE
+	mov r6, r0
+	pop r2
+	pop r1
+	pop r0
+	cmp r6, 1
+	bne _rirq_no_switch
+#endif
 
 #ifdef CONFIG_ARC_SECURE_FIRMWARE
 	/* here need to remember SEC_STAT.IRM bit */
