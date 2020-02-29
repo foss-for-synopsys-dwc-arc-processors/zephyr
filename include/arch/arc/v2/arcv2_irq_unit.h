@@ -119,19 +119,14 @@ bool z_arc_v2_irq_unit_int_enabled(int irq)
  */
 
 static ALWAYS_INLINE
-void z_arc_v2_irq_unit_prio_set(int irq, unsigned char prio)
+void z_arc_v2_irq_unit_prio_set(int irq, unsigned int prio)
 {
 
 	unsigned int key = arch_irq_lock();
 
 	z_arc_v2_aux_reg_write(_ARC_V2_IRQ_SELECT, irq);
-#if defined(CONFIG_ARC_SECURE_FIRMWARE)
-	z_arc_v2_aux_reg_write(_ARC_V2_IRQ_PRIORITY,
-	(z_arc_v2_aux_reg_read(_ARC_V2_IRQ_PRIORITY) & (~_ARC_V2_INT_PRIO_MASK))
-	| prio);
-#else
 	z_arc_v2_aux_reg_write(_ARC_V2_IRQ_PRIORITY, prio);
-#endif
+
 	arch_irq_unlock(key);
 }
 
