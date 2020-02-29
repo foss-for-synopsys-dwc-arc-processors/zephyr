@@ -136,22 +136,12 @@ void arch_new_thread(struct k_thread *thread, k_thread_stack_t *stack,
 	pInitCtx = (struct init_stack_frame *)(
 		priv_stack_end - sizeof(struct init_stack_frame));
 
-	/* fill init context */
-	pInitCtx->status32 = 0U;
 	if (options & K_USER) {
 		pInitCtx->pc = ((u32_t)z_user_thread_entry_wrapper);
 	} else {
 		pInitCtx->pc = ((u32_t)z_thread_entry_wrapper);
 	}
 
-	/*
-	 * enable US bit, US is read as zero in user mode. This will allow use
-	 * mode sleep instructions, and it enables a form of denial-of-service
-	 * attack by putting the processor in sleep mode, but since interrupt
-	 * level/mask can't be set from user space that's not worse than
-	 * executing a loop without yielding.
-	 */
-	pInitCtx->status32 |= _ARC_V2_STATUS32_US;
 #else /* For no USERSPACE feature */
 	pStackMem += STACK_GUARD_SIZE;
 	stackEnd = pStackMem + stackSize;
@@ -164,9 +154,21 @@ void arch_new_thread(struct k_thread *thread, k_thread_stack_t *stack,
 		Z_STACK_PTR_ALIGN(priv_stack_end) -
 		sizeof(struct init_stack_frame));
 
-	pInitCtx->status32 = 0U;
 	pInitCtx->pc = ((u32_t)z_thread_entry_wrapper);
 #endif
+
+	/*
+	 * enable US bit, US is read as zero in user mode. This will allow use
+	 * mode sleep instructions, and it enables a form of denial-of-service
+	 * attack by putting the processor in sleep mode, but since interrupt
+	 * level/mask can't be set from user space that's not worse than
+	 * executing a loop without yielding.
+	 * Even USERSPACE is not configured, enabling US bit will not bring
+	 * bad effect, and is required for the case:
+	 *   (secure firmware (no userspace) + normal firmwre (userspace))
+	 */
+	pInitCtx->status32 = _ARC_V2_STATUS32_US;
+
 
 #ifdef CONFIG_ARC_SECURE_FIRMWARE
 	pInitCtx->sec_stat = z_arc_v2_aux_reg_read(_ARC_V2_SEC_STAT);
