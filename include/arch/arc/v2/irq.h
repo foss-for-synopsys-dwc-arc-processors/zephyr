@@ -19,6 +19,7 @@
 #include <irq.h>
 #include <sys/util.h>
 #include <sw_isr_table.h>
+#include <arch/arc/v2/secureshield/arc_secure.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -167,15 +168,43 @@ extern void arch_isr_direct_header(void);
 
 static ALWAYS_INLINE unsigned int arch_irq_lock(void)
 {
+#if defined(CONFIG_ARC_NORMAL_FIRMWARE)
+	register u32_t key __asm__("r0");
+	register u32_t r6 __asm__("r6") = ARC_S_CALL_CLRI;
+
+	__asm__ volatile(
+			 "push blink\n"
+			 "sjli %[id]\n"
+			 "pop blink\n"
+			 : "=r"(key)
+			 : [id] "i" (SJLI_CALL_ARC_SECURE),
+			   "r" (r6));
+	return key;
+#else
+
 	unsigned int key;
 
 	__asm__ volatile("clri %0" : "=r"(key):: "memory");
 	return key;
+#endif
 }
 
 static ALWAYS_INLINE void arch_irq_unlock(unsigned int key)
 {
+#if defined(CONFIG_ARC_NORMAL_FIRMWARE)
+	register u32_t val __asm__("r0") = key;
+	register u32_t r6 __asm__("r6") = ARC_S_CALL_SETI;
+
+	__asm__ volatile(
+			 "push blink\n"
+			 "sjli %[id]\n"
+			 "pop blink\n"
+			 :
+			 : [id] "i" (SJLI_CALL_ARC_SECURE), "r"(val),
+			   "r" (r6));
+#else
 	__asm__ volatile("seti %0" : : "ir"(key) : "memory");
+#endif
 }
 
 static ALWAYS_INLINE bool arch_irq_unlocked(unsigned int key)
@@ -184,7 +213,11 @@ static ALWAYS_INLINE bool arch_irq_unlocked(unsigned int key)
 	 * r0 ==  {26’d0, 1’b1, STATUS32.IE, STATUS32.E[3:0] }
 	 * bit4 is used to record IE (Interrupt Enable) bit
 	 */
+#ifdef CONFIG_ARC_NORMAL_FIRMWARE
+	return (key >= ARC_N_IRQ_START_LEVEL);
+#else
 	return (key & 0x10)  ==  0x10;
+#endif
 }
 
 #endif /* _ASMLANGUAGE */

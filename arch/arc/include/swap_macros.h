@@ -17,7 +17,59 @@
 
 #ifdef _ASMLANGUAGE
 
-/* save callee regs of current thread in r2 */
+/* write a val to aux reg which is secure only accessible
+ * r0, r1, r6 and blink must be free to use, before call this macro
+ */
+.macro _write_aux_reg_ns aux_reg aux_val
+	mov r1, \aux_val
+	mov r0, \aux_reg
+	mov_s r6, ARC_S_CALL_AUX_WRITE
+	sjli SJLI_CALL_ARC_SECURE
+.endm
+
+/* call secure sleep service.
+ * r0, r6 and blink must be free to use, before call this macro
+ */
+.macro _macro_sleep reg
+#if defined(CONFIG_ARC_NORMAL_FIRMWARE)
+	push blink
+	mov r0, \reg
+	mov r6, ARC_S_CALL_SLEEP
+	sjli SJLI_CALL_ARC_SECURE
+	pop blink
+#else
+	sleep \reg
+#endif
+.endm
+
+/* call secure seti service.
+ * r0, r6 and blink must be free to use, before call this macro
+ */
+.macro _macro_seti reg
+#if defined(CONFIG_ARC_NORMAL_FIRMWARE)
+	mov r0, \reg
+	mov r6, ARC_S_CALL_SETI
+	sjli SJLI_CALL_ARC_SECURE
+#else
+	seti \reg
+#endif
+.endm
+
+/* call secure clri service.
+ * r0, r6 and blink must be free to use, before call this macro
+ */
+.macro _macro_clri reg
+#if defined(CONFIG_ARC_NORMAL_FIRMWARE)
+	mov r6, ARC_S_CALL_CLRI
+	sjli SJLI_CALL_ARC_SECURE
+	mov \reg, r0
+#else
+	clri \reg
+#endif
+.endm
+
+
+/*  save callee regs of current thread in r2*/
 .macro _save_callee_saved_regs
 
 	sub_s sp, sp, ___callee_saved_stack_t_SIZEOF
@@ -450,6 +502,26 @@
 
 /* when switch to thread caused by coop, some status regs need to set */
 .macro _set_misc_regs_irq_switch_from_coop
+#if defined(CONFIG_USERSPACE)
+/*
+ * when USERSPACE is enabled, according to ARCv2 ISA, SP will be switched
+ * if interrupt comes out in user mode, and will be recorded in bit 31
+ * (U bit) of IRQ_ACT. when interrupt exits, SP will be switched back
+ * according to U bit.
+ *
+ * For the case that context switches in interrupt, the target sp must be
+ * thread's kernel stack, no need to do hardware sp switch. so, U bit should
+ * be cleared.
+ */
+	lr r0, [_ARC_V2_AUX_IRQ_ACT]
+	bclr r0, r0, 31
+#ifdef CONFIG_ARC_NORMAL_FIRMWARE
+	_write_aux_reg_ns _ARC_V2_AUX_IRQ_ACT, r0
+#else
+	sr r0, [_ARC_V2_AUX_IRQ_ACT]
+#endif
+#endif
+
 #ifdef CONFIG_ARC_SECURE_FIRMWARE
 	/* must return to secure mode, so set IRM bit to 1 */
 	lr r0, [_ARC_V2_SEC_STAT]
@@ -467,7 +539,11 @@
 	pop_s r3
 	lr r2, [_ARC_V2_AUX_IRQ_ACT]
 	or r2, r2, r3
+#ifdef CONFIG_ARC_NORMAL_FIRMWARE
+	_write_aux_reg_ns _ARC_V2_AUX_IRQ_ACT, r2
+#else
 	sr r2, [_ARC_V2_AUX_IRQ_ACT]
+#endif
 #endif
 
 #ifdef CONFIG_ARC_SECURE_FIRMWARE

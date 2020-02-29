@@ -34,7 +34,7 @@ static void _default_sjli_entry(void)
 }
 
 /*
- * @brief initializaiton of sjli related functions
+ * @brief initialization of sjli related functions
  *
  */
 static void sjli_table_init(void)
@@ -42,27 +42,25 @@ static void sjli_table_init(void)
 	/* install SJLI table */
 	z_arc_v2_aux_reg_write(_ARC_V2_NSC_TABLE_BASE, _sjli_vector_table);
 	z_arc_v2_aux_reg_write(_ARC_V2_NSC_TABLE_TOP,
-		(_sjli_vector_table + CONFIG_SJLI_TABLE_SIZE));
+			       (_sjli_vector_table + CONFIG_SJLI_TABLE_SIZE));
 }
 
 /*
- * @brief initializaiton of secureshield related functions.
+ * @brief initialization of secureshield related functions.
  */
 static int arc_secureshield_init(const struct device *arg)
 {
+	ARG_UNUSED(arg);
+
 	sjli_table_init();
 
-	/* set nic bit to enable seti/clri and
-	 * sleep/wevt in normal mode.
-	 * If not set, direct call of seti/clri etc. will raise exception.
-	 * Then, these seti/clri instructions should be replaced with secure
-	 * secure services (sjli call)
-	 *
+	/* disable nic bit to disable seti/clri and
+	 * sleep/wevt in normal mode, use secure service to replace
 	 */
-	__asm__ volatile("sflag  0x20");
+	__asm__ volatile("sflag  0");
 
 	return 0;
 }
 
-SYS_INIT(arc_secureshield_init, PRE_KERNEL_1,
-		CONFIG_KERNEL_INIT_PRIORITY_DEFAULT);
+SYS_INIT(arc_secureshield_init, PRE_KERNEL_2,
+	 CONFIG_KERNEL_INIT_PRIORITY_DEFAULT);
