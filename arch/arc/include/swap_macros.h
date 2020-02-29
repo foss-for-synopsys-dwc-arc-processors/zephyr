@@ -68,6 +68,20 @@
 #endif
 .endm
 
+#if defined(CONFIG_ARC_SECURE_FIRMWARE)
+/* rasie a normal context switch context from secure
+ * world
+ */
+.macro _raise_normal_switch_req_by_irq reg
+	ld \reg, [normal_irq_switch_request]
+	breq \reg, 0, 3f
+	mov \reg, 0
+	st \reg, [normal_irq_switch_request]
+	mov \reg, CONFIG_NORMAL_SOFT_IRQ
+	sr \reg, [_ARC_V2_AUX_IRQ_HINT]
+3 :
+.endm
+#endif
 
 /*  save callee regs of current thread in r2*/
 .macro _save_callee_saved_regs

@@ -55,10 +55,14 @@ static int32_t arc_s_aux_write(uint32_t aux_reg, uint32_t val)
 	return -1;
 }
 
+/* Secure service to check normal world's switch request */
+extern u32_t arc_s_service_n_switch(void);
+
 /*
  * \todo, how to add secure service easily
  */
 const _arc_s_call_handler_t arc_s_call_table[ARC_S_CALL_LIMIT] = {
 	[ARC_S_CALL_AUX_READ] = (_arc_s_call_handler_t)arc_s_aux_read,
 	[ARC_S_CALL_AUX_WRITE] = (_arc_s_call_handler_t)arc_s_aux_write,
+	[ARC_S_CALL_N_SWITCH] = (_arc_s_call_handler_t)arc_s_service_n_switch,
 };

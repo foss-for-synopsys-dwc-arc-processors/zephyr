@@ -135,12 +135,19 @@ _switch_return_from_firq:
 
 	_set_misc_regs_irq_switch_from_irq
 
+#ifdef CONFIG_ARC_SECURE_FIRMWARE
+	/* r3 has SEC_STAT set in _set_misc_regs_irq_switch_from_irq */
+	bbit1 r3, _ARC_V2_SEC_STAT_IRM_BIT, 7f
+	_raise_normal_switch_req_by_irq r3
+7 :
+#endif
 	/* use lowest interrupt priority to simulate
 	 * a interrupt return to load left regs of new
 	 * thread
 	 */
 
 	lr r3, [_ARC_V2_AUX_IRQ_ACT]
+
 
 #ifdef CONFIG_ARC_SECURE_FIRMWARE
 	or r3, r3, (1 << (ARC_N_IRQ_START_LEVEL - 1))

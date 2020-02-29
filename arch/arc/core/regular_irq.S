@@ -255,6 +255,26 @@ SECTION_FUNC(TEXT, _rirq_exit)
 	cmp r0, r2
 	beq _rirq_no_switch
 
+#ifdef CONFIG_ARC_NORMAL_FIRMWARE
+/* need to tell secure firmware we want to do switch,
+ * if secure firmware allows it (r0 == 1), then do swich
+ * or direclty return. If normal world try to bypass,
+ * the normal world will crash
+ */
+
+	push r0
+	push r1
+	push r2
+	mov r6, ARC_S_CALL_N_SWITCH
+	sjli SJLI_CALL_ARC_SECURE
+	mov r6, r0
+	pop r2
+	pop r1
+	pop r0
+	cmp r6, 0
+	beq _rirq_no_switch
+#endif
+
 #ifdef CONFIG_ARC_SECURE_FIRMWARE
 	/* here need to remember SEC_STAT.IRM bit */
 	lr r3, [_ARC_V2_SEC_STAT]
@@ -326,13 +346,19 @@ _rirq_switch_from_firq:
 _rirq_switch_from_rirq:
 
 	_set_misc_regs_irq_switch_from_irq
+#ifdef CONFIG_ARC_SECURE_FIRMWARE
+	/* r3 has SEC_STAT set in _set_misc_regs_irq_switch_from_irq */
+	bbit1 r3, _ARC_V2_SEC_STAT_IRM_BIT, 4f
+	_raise_normal_switch_req_by_irq r3
+4 :
+#endif
 
 #ifdef CONFIG_INSTRUMENT_THREAD_SWITCHING
 	push_s blink
 
 	bl z_thread_mark_switched_in
 
-	pop_s blink
+    pop_s blink
 #endif
 _rirq_no_switch:
 	rtie
