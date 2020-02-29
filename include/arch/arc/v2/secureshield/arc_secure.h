@@ -13,7 +13,6 @@
 
 #define ARC_S_CALL_AUX_READ		0
 #define ARC_S_CALL_AUX_WRITE		1
-#define ARC_S_CALL_IRQ_ALLOC		2
 #define ARC_S_CALL_CLRI			3
 #define ARC_S_CALL_SETI			4
 #define ARC_S_CALL_MPU			5

@@ -55,35 +55,9 @@ static int32_t arc_s_aux_write(uint32_t aux_reg, uint32_t val)
 }
 
 /*
- * @brief allocate interrupt for normal world
- *
- * @param intno, the interrupt to be allocated to normal world
- *
- * By default, most interrupts are configured to be secure in initialization.
- * If normal world wants to use an interrupt, through this secure service to
- * apply one. Necessary check should be done to decide whether the apply is
- * valid
- */
-static int32_t arc_s_irq_alloc(uint32_t intno)
-{
-	z_arc_v2_irq_uinit_secure_set(intno, 0);
-	return 0;
-}
-
-
-/*
- * \todo, to access MPU from normal mode, secure mpu service should be
- * created. In the secure mpu service, the parameters should be checked
- * (e.g., not overwrite the mpu regions for secure world)that operations
- * are valid
- */
-
-
-/*
  * \todo, how to add secure service easily
  */
 const _arc_s_call_handler_t arc_s_call_table[ARC_S_CALL_LIMIT] = {
 	[ARC_S_CALL_AUX_READ] = (_arc_s_call_handler_t)arc_s_aux_read,
 	[ARC_S_CALL_AUX_WRITE] = (_arc_s_call_handler_t)arc_s_aux_write,
-	[ARC_S_CALL_IRQ_ALLOC] = (_arc_s_call_handler_t)arc_s_irq_alloc,
 };

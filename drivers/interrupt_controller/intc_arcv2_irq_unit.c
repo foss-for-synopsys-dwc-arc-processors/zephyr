@@ -73,9 +73,13 @@ static int arc_v2_irq_unit_init(const struct device *unused)
 
 		z_arc_v2_aux_reg_write(_ARC_V2_IRQ_SELECT, irq);
 #ifdef CONFIG_ARC_SECURE_FIRMWARE
+	/* all interrupts are configured as normal first, then
+	 * all irqs in IRQ_CONNECT will be configured secure again.
+	 * This will avoid to set application sepciifc normal irq
+	 * to normal in secure world.
+	 */
 		z_arc_v2_aux_reg_write(_ARC_V2_IRQ_PRIORITY,
-			 (CONFIG_NUM_IRQ_PRIO_LEVELS-1) |
-			 _ARC_V2_IRQ_PRIORITY_SECURE); /* lowest priority */
+				       CONFIG_NUM_IRQ_PRIO_LEVELS - 1);
 #else
 		z_arc_v2_aux_reg_write(_ARC_V2_IRQ_PRIORITY,
 			 (CONFIG_NUM_IRQ_PRIO_LEVELS-1)); /* lowest priority */
