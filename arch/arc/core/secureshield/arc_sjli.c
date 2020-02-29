@@ -51,6 +51,23 @@ static void sjli_table_init(void)
 }
 
 /*
+ * @brief the handler of secure software helper irq
+ *
+ *  see comments in arc_secureshield_init for details
+ */
+static void secure_soft_int_handler(void *unused)
+{
+	ARG_UNUSED(unused);
+
+	/* this is for the case where normal world slept and is waken up by
+	 * normal irq.
+	 */
+	if (z_is_thread_state_set(normal_container_thread, _THREAD_SUSPENDED)) {
+		k_thread_resume(normal_container_thread);
+	}
+}
+
+/*
  * @brief initialization of secureshield related functions.
  */
 static int arc_secureshield_init(const struct device *arg)
@@ -58,6 +75,26 @@ static int arc_secureshield_init(const struct device *arg)
 	ARG_UNUSED(arg);
 
 	sjli_table_init();
+
+	/*  here set up a software triggered interrupt to help raise secure
+	 * world's thread switch request from normal world, e.g., from normal
+	 * interrupt. This is useful for the following case
+	 *  - secure int preempted normal int and raise a thread switch
+	 *    request which only can be handled when all irq, including normal
+	 *    irq returns. This interrupt will help to do this.
+	 *  - idle case: when normal world goes idle, the container thread of
+	 *    normal world will suspend itself. Then if a normal irq comes and
+	 *    wants to wake up the normal world. This interrupt will be raised
+	 *   and resume the container thread.
+	 * This interrupt is a secure interrupt with lowest irq priority which
+	 * will guarantee all other interrupts are handled before it.
+	 */
+	IRQ_CONNECT(CONFIG_SECURE_SOFT_IRQ, CONFIG_NUM_IRQ_PRIO_LEVELS - 1,
+		    secure_soft_int_handler, NULL, 0);
+	z_arc_v2_irq_unit_prio_set(CONFIG_SECURE_SOFT_IRQ,
+				   (CONFIG_NUM_IRQ_PRIO_LEVELS - 1) |
+				   _ARC_V2_IRQ_PRIORITY_SECURE);
+	irq_enable(CONFIG_SECURE_SOFT_IRQ);
 
 	/* disable nic bit to disable seti/clri and
 	 * sleep/wevt in normal mode, use secure service to replace
@@ -123,6 +160,24 @@ u32_t arc_s_service_n_switch(void)
 		return 0;
 	}
 
+	current = k_current_get();
+	/* not in the container thread of normal world
+	 * record it and replay it when the container thread
+	 * comes back to run.
+	 */
+	if (normal_container_thread != current) {
+		if (z_is_thread_state_set(normal_container_thread,
+					  _THREAD_SUSPENDED)) {
+			/* raise normal world from sleep by the helper irq
+			 * the normal world switch request will be handled
+			 * at the scheduling point when returning to normal
+			 * world by secure function call return
+			 */
+			z_arc_v2_aux_reg_write(_ARC_V2_AUX_IRQ_HINT,
+					       CONFIG_SECURE_SOFT_IRQ);
+
+		}
+	}
 	normal_irq_switch_request = 1;
 
 	return 0;

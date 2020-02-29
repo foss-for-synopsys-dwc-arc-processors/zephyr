@@ -20,3 +20,12 @@ config NORMAL_SOFT_IRQ
 	  This helper interrupt is used to raise possible thread switch
 	  request when secure firmware returns to normal firmware by
 	  secure interrupt.
+
+config SECURE_SOFT_IRQ
+	int "the secure helper interrupt no"
+	depends on ARC_SECURE_FIRMWARE
+	range 18 256
+	default 18
+	help
+	  This helper interrupt is used to rasie thread switch request
+	  from normal irq and nested secure irq.s
