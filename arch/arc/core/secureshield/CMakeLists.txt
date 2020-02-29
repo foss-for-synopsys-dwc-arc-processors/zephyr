@@ -5,7 +5,8 @@
 
 zephyr_library()
 
-zephyr_library_sources(
+zephyr_library_sources_ifdef(
+  CONFIG_ARC_SECURE_FIRMWARE
   arc_sjli.c
   arc_secure.S
   secure_sys_services.c
