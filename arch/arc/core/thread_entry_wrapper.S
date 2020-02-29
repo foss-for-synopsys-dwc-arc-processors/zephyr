@@ -29,7 +29,7 @@ GTEXT(z_thread_entry_wrapper1)
  */
 
 SECTION_FUNC(TEXT, z_thread_entry_wrapper)
-	seti _ARC_V2_INIT_IRQ_LOCK_KEY
+	_macro_seti _ARC_V2_INIT_IRQ_LOCK_KEY
 z_thread_entry_wrapper1:
 	POPR r3
 	POPR r2

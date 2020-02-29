@@ -17,9 +17,8 @@
 #define ARC_S_CALL_CLRI			3
 #define ARC_S_CALL_SETI			4
 #define ARC_S_CALL_MPU			5
-#define ARC_S_CALL_SLEEP		6
-#define ARC_S_CALL_N_SWITCH		7
-#define ARC_S_CALL_LIMIT		8
+#define ARC_S_CALL_N_SWITCH		6
+#define ARC_S_CALL_LIMIT		7
 
 
 

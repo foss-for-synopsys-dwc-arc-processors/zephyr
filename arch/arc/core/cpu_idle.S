@@ -17,6 +17,7 @@
 #include <linker/sections.h>
 #include <arch/cpu.h>
 #include <arch/arc/asm-compat/assembler.h>
+#include <swap_macros.h>
 
 GTEXT(arch_cpu_idle)
 GTEXT(arch_cpu_atomic_idle)
@@ -69,4 +70,4 @@ SECTION_FUNC(TEXT, arch_cpu_atomic_idle)
 	or r1, r1, (1 << 4) /* set IRQ-enabled bit */
 	sleep r1
 	j_s.d [blink]
-	seti r0
+	_macro_seti r0

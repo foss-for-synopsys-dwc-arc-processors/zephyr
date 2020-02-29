@@ -59,7 +59,7 @@ GTEXT(z_arc_user_string_nlen_fixup)
  * @return N/A
  */
 SECTION_FUNC(TEXT, z_user_thread_entry_wrapper)
-	seti _ARC_V2_INIT_IRQ_LOCK_KEY
+	_macro_seti _ARC_V2_INIT_IRQ_LOCK_KEY
 	pop_s r3
 	pop_s r2
 	pop_s r1

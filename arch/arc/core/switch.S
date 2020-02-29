@@ -67,7 +67,9 @@ SECTION_FUNC(TEXT, z_arc_switch)
 	_st32_huge_offset _CAUSE_COOP, r2, _thread_offset_to_relinquish_cause, r3
 
 	/*
-	 * Save status32 and blink on the stack before the callee-saved registers.
+	 * Save status32,  secure stat(for secureshield only, if processor is
+	 * in normal state, just a placeholder) and blink on the
+	 * stack before the callee-saved registers.
 	 * This is the same layout as the start of an IRQ stack frame.
 	 */
 	LRR r3, [_ARC_V2_STATUS32]
@@ -105,9 +107,10 @@ SECTION_FUNC(TEXT, z_arc_switch)
 .align 4
 _switch_return_from_coop:
 
+
 	POPR blink /* pc into blink */
 #ifdef CONFIG_ARC_HAS_SECURE
-	pop_s r3    /* pop SEC_STAT */
+	POPR r3    /* pop SEC_STAT */
 #ifdef CONFIG_ARC_SECURE_FIRMWARE
 	sflag r3
 #endif
@@ -144,10 +147,7 @@ _switch_return_from_firq:
 #endif
 
 #ifdef CONFIG_ARC_NORMAL_FIRMWARE
-	mov_s r0, _ARC_V2_AUX_IRQ_ACT
-	mov_s r1, r3
-	mov_s r6, ARC_S_CALL_AUX_WRITE
-	sjli SJLI_CALL_ARC_SECURE
+	_write_aux_reg_ns _ARC_V2_AUX_IRQ_ACT, r3
 #else
 	SRR r3, [_ARC_V2_AUX_IRQ_ACT]
 #endif

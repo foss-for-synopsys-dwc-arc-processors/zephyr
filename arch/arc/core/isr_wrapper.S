@@ -247,7 +247,9 @@ rirq_path:
 /* r0, r1, and r3 will be used in exit_tickless_idle macro */
 .macro exit_tickless_idle
 #if defined(CONFIG_PM)
-	clri r0 /* do not interrupt exiting tickless idle operations */
+	_macro_clri r0 /* do not interrupt exiting tickless idle operations */
+	PUSHR r1
+	PUSHR r0
 	MOVR r1, _kernel
 	/* z_kernel.idle is 32 bit despite of platform bittnes */
 	ld_s r3, [r1, _kernel_offset_to_idle] /* requested idle duration */
@@ -259,7 +261,9 @@ rirq_path:
 	POPR blink
 
 _skip_pm_save_idle_exit:
-	seti r0
+	POPR r0
+	POPR r1
+	_macro_seti r0
 #endif
 .endm
 

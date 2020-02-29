@@ -6,6 +6,7 @@
 #include <toolchain.h>
 #include <linker/sections.h>
 #include <arch/cpu.h>
+#include <swap_macros.h>
 
 .macro clear_scratch_regs
 	mov r1, 0
@@ -47,10 +48,11 @@ GDATA(arc_s_call_table)
 SECTION_FUNC(TEXT, _arc_do_secure_call)
 	/* r0-r5: arg1-arg6, r6 is call id */
 	/* the call id should be checked */
-	/* disable normal interrupt happened when processor in secure mode ? */
-	/* seti (0x30 | (ARC_N_IRQ_START_LEVEL-1)) */
-	breq r6, ARC_S_CALL_CLRI, _s_clri
-	breq r6, ARC_S_CALL_SETI, _s_seti
+	cmp r6, ARC_S_CALL_CLRI
+	beq _s_clri
+	cmp r6, ARC_S_CALL_SETI
+	beq _s_seti
+_arc_call_secure_call_handler:
 	push_s blink
 	mov	blink, arc_s_call_table
 	ld.as r6, [blink, r6]
@@ -71,42 +73,70 @@ _arc_do_secure_call_exit:
 	pop_s blink
 
 	j [blink]
-	/* enable normal interrupt */
-	/*
-	 * j.d [blink]
-	 * seti (0x30 | (CONFIG_NUM_IRQ_PRIO_LEVELS - 1))
-	 */
 
+/* secure service for clri
+ * normal world only can disable interrupts belonging to normal
+ */
 _s_clri:
-	lr r0, [_ARC_V2_STATUS32]
-	and r0, r0, 0x1e
-	asr r0, r0
-	or r0, r0, 0x30
-	mov r6, (0x30 | (ARC_N_IRQ_START_LEVEL-1))
+	clri r6
+	and r0, r6, 0xf
 
-	j.d [blink]
+	bbit0 r6, 4, _s_clri_disabled
+
+	cmp r6, (0x30 | (ARC_N_IRQ_START_LEVEL - 1))
+	mov.gt r6, (0x30 | (ARC_N_IRQ_START_LEVEL - 1))
+
 	seti r6
 
+	j [blink]
+
+_s_clri_disabled:
+
+	cmp r6, (0x20 | (ARC_N_IRQ_START_LEVEL - 1))
+	mov.gt r6, (0x20 | (ARC_N_IRQ_START_LEVEL - 1))
+
+	seti r6
+
+	j [blink]
+
+/* secure service for seti
+ * normal world only can disable/enable interrupts belonging to normal
+ */
 _s_seti:
-	btst r0, 4
-	jnz __seti_0
-	mov r0, (CONFIG_NUM_IRQ_PRIO_LEVELS - 1)
+	/* process the arg */
+	cmp r0, 0
+	mov.z r0, CONFIG_NUM_IRQ_PRIO_LEVELS
+
+	/* get current int prio */
 	lr r6, [_ARC_V2_STATUS32]
 	and r6, r6, 0x1e
 	asr r6, r6
-	cmp r0, r6
-	mov.hs r0, r6
-__seti_0:
-	and r0, r0, 0xf
-	brhs r0, ARC_N_IRQ_START_LEVEL, __seti_1
-	mov r0, ARC_N_IRQ_START_LEVEL
-__seti_1:
-	or r0, r0, 0x30
 
-	j.d [blink]
+	/* no update of current priority if r0 is invalid */
+	brlo r0, ARC_N_IRQ_START_LEVEL, __seti_update_priority
+
+	cmp r6, (ARC_N_IRQ_START_LEVEL - 1)
+	mov.z r6, r0
+	beq __seti_update_priority
+
+	/* no update of irq prio when seti/seti 0 */
+	brge r0, CONFIG_NUM_IRQ_PRIO_LEVELS, __seti_update_priority
+	mov r6, r0
+__seti_update_priority:
+	/* only update valid priority level */
+	cmp r6, (CONFIG_NUM_IRQ_PRIO_LEVELS - 1)
+	mov.gt r6, (CONFIG_NUM_IRQ_PRIO_LEVELS -1)
+
+	clri r0
+	and r0, r0, 0x30
+	or r0, r0, r6
 	seti r0
 
+	mov r0, 0
 
+	j [blink]
+
+/* go to normal world, r0 is the entry */
 SECTION_FUNC(TEXT, arc_go_to_normal)
 	clear_callee_regs
 	clear_scratch_regs
