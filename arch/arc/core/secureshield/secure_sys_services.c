@@ -12,11 +12,12 @@
 
 #include <arch/arc/v2/secureshield/arc_secure.h>
 
-#define IRQ_PRIO_MASK (0xffff << ARC_N_IRQ_START_LEVEL)
+/* IRQ_ACT.U bit can also be set by normal world */
+#define IRQ_PRIO_MASK (0xffffffff << ARC_N_IRQ_START_LEVEL)
 /*
  * @brief read secure auxiliary regs on behalf of normal mode
  *
- * @param aux_reg  address of aux reg
+ * @param aux_reg address of aux reg
  *
  * Some aux regs require secure privilege, this function implements
  * an secure service to access secure aux regs. Check should be done
@@ -33,20 +34,20 @@ static int32_t arc_s_aux_read(uint32_t aux_reg)
  * @param aux_reg address of aux reg
  * @param val, the val to write
  *
- *  Some aux regs require secure privilege, this function implements
+ * Some aux regs require secure privilege, this function implements
  * an secure service to access secure aux regs. Check should be done
  * to decide whether the access is valid.
  */
 static int32_t arc_s_aux_write(uint32_t aux_reg, uint32_t val)
 {
 	if (aux_reg == _ARC_V2_AUX_IRQ_ACT) {
-		/* 0 -> CONFIG_NUM_IRQ_PRIO_LEVELS allocated to secure world
+		/* 0 -> ARC_N_IRQ_START_LEVEL allocated to secure world
 		 * left prio levels allocated to normal world
 		 */
 		val &= IRQ_PRIO_MASK;
-		z_arc_v2_aux_reg_write(_ARC_V2_AUX_IRQ_ACT, val |
-		(z_arc_v2_aux_reg_read(_ARC_V2_AUX_IRQ_ACT) &
-			(~IRQ_PRIO_MASK)));
+		val |= (z_arc_v2_aux_reg_read(_ARC_V2_AUX_IRQ_ACT) &
+		       (~IRQ_PRIO_MASK));
+		z_arc_v2_aux_reg_write(_ARC_V2_AUX_IRQ_ACT, val);
 
 		return  0;
 	}
