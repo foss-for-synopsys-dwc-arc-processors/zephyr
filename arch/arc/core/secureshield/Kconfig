@@ -12,3 +12,11 @@ config SECURE_NUM_IRQ_PRIO_LEVELS
 	  priority level is always higher than normal secure irq priority
 	  level.
 
+config NORMAL_SOFT_IRQ
+	int "the normal helper interrupt no"
+	range 18 256
+	default 19
+	help
+	  This helper interrupt is used to raise possible thread switch
+	  request when secure firmware returns to normal firmware by
+	  secure interrupt.

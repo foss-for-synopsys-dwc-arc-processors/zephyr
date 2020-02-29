@@ -12,6 +12,37 @@
 #include <toolchain.h>
 
 /*
+ * @brief the handler of normal software helper irq
+ *
+ * do nothing, just for handling context switch request in
+ * the epilogue of interrupt handling.
+ */
+static void normal_soft_int_handler(void *unused)
+{
+	ARG_UNUSED(unused);
+
+}
+
+/*
+ * @brief normal firmware initialization
+ *
+ */
+static int arc_normal_firmware_init(struct device *arg)
+{
+	ARG_UNUSED(arg);
+
+	/* here set up a software triggered interrupt to help raise the
+	 * delayed context switch request
+	 */
+	IRQ_CONNECT(CONFIG_NORMAL_SOFT_IRQ, CONFIG_NUM_IRQ_PRIO_LEVELS - 1,
+		    normal_soft_int_handler, NULL, 0);
+
+	irq_enable(CONFIG_NORMAL_SOFT_IRQ);
+
+	return 0;
+}
+
+/*
  * @brief secure call wrapper
  *
  * Currently, the secure call in secure world can accept maximum 6
@@ -41,5 +72,13 @@ u32_t z_arc_s_call_invoke6(u32_t arg1, u32_t arg2, u32_t arg3,
 			   "r" (ret), "r" (r1), "r" (r2), "r" (r3),
 			   "r" (r4), "r" (r5), "r" (r6));
 
+	/* in current design, normal context switch cannot happen in secure
+	 * world which works like a scheduler lock, secure world needs to
+	 * notify this context switch request through CONFIG_NORMAL_SOFT_IRQ
+	 */
+
 	return ret;
 }
+
+SYS_INIT(arc_normal_firmware_init, PRE_KERNEL_2,
+	 CONFIG_KERNEL_INIT_PRIORITY_DEFAULT);
