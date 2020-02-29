@@ -11,3 +11,8 @@ zephyr_library_sources_ifdef(
   arc_secure.S
   secure_sys_services.c
   )
+
+zephyr_library_sources_ifdef(
+  CONFIG_ARC_NORMAL_FIRMWARE
+  arc_normal.c
+  )
