@@ -14,6 +14,7 @@
 #include <toolchain.h>
 #include <linker/sections.h>
 #include <v2/irq.h>
+#include <swap_macros.h>
 
 GTEXT(z_thread_entry_wrapper)
 GTEXT(z_thread_entry_wrapper1)
@@ -28,7 +29,7 @@ GTEXT(z_thread_entry_wrapper1)
  */
 
 SECTION_FUNC(TEXT, z_thread_entry_wrapper)
-	seti _ARC_V2_INIT_IRQ_LOCK_KEY
+	_macro_seti _ARC_V2_INIT_IRQ_LOCK_KEY
 z_thread_entry_wrapper1:
 	pop_s r3
 	pop_s r2

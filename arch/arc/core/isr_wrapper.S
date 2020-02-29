@@ -245,7 +245,9 @@ rirq_path:
 
 #if defined(CONFIG_SYS_POWER_MANAGEMENT)
 .macro exit_tickless_idle
-	clri r0 /* do not interrupt exiting tickless idle operations */
+	_macro_clri r0 /* do not interrupt exiting tickless idle operations */
+	push_s r1
+	push_s r0
 	mov_s r1, _kernel
 	ld_s r0, [r1, _kernel_offset_to_idle] /* requested idle duration */
 	breq r0, 0, _skip_sys_power_save_idle_exit
@@ -256,7 +258,9 @@ rirq_path:
 	pop_s blink
 
 _skip_sys_power_save_idle_exit:
-	seti r0
+	pop_s r0
+	pop_s r1
+	_macro_seti r0
 .endm
 #else
 	#define exit_tickless_idle

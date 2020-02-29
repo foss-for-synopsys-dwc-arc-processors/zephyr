@@ -203,12 +203,13 @@ will be corrupted.
 
 SECTION_FUNC(TEXT, _rirq_enter)
 
+
 /* the ISR will be handled in separate interrupt stack,
  * so stack checking must be diabled, or exception will
  * be caused
  */
 	_disable_stack_checking r2
-	clri
+	_macro_clri r0
 
 	/* check whether irq stack is used, if
 	 * not switch to isr stack
@@ -222,7 +223,7 @@ SECTION_FUNC(TEXT, _rirq_enter)
 rirq_nest:
 	push_s r0
 
-	seti
+	_macro_seti 0
 	j _isr_demux
 
 
@@ -234,7 +235,7 @@ rirq_nest:
  */
 
 SECTION_FUNC(TEXT, _rirq_exit)
-	clri
+	_macro_clri r0
 
 	pop sp
 

@@ -16,6 +16,7 @@
 #include <toolchain.h>
 #include <linker/sections.h>
 #include <arch/cpu.h>
+#include <swap_macros.h>
 
 GTEXT(arch_cpu_idle)
 GTEXT(arch_cpu_atomic_idle)
@@ -49,8 +50,8 @@ SECTION_FUNC(TEXT, arch_cpu_idle)
  * although it's pending and interrupts are enabled.
  * here is a workround
  */
-#if !defined(CONFIG_SOC_NSIM) && !defined(CONFIG_SMP)
-	sleep r1
+#if !defined(CONFIG_SOC_NSIM) || !defined(CONFIG_SMP)
+	_macro_sleep r1
 #else
 	seti r1
 _z_arc_idle_loop:

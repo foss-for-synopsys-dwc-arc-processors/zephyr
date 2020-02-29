@@ -163,10 +163,7 @@ _exc_return:
 
 #ifdef CONFIG_ARC_NORMAL_FIRMWARE
 	push_s r2
-	mov_s r0, _ARC_V2_AUX_IRQ_ACT
-	mov_s r1, r3
-	mov_s r6, ARC_S_CALL_AUX_WRITE
-	sjli SJLI_CALL_ARC_SECURE
+	_write_aux_reg_ns _ARC_V2_AUX_IRQ_ACT, r3
 	pop_s r2
 #else
 	sr r3, [_ARC_V2_AUX_IRQ_ACT]
