@@ -8,18 +8,27 @@
 #ifndef ZEPHYR_INCLUDE_ARCH_ARC_V2_SJLI_H
 #define ZEPHYR_INCLUDE_ARCH_ARC_V2_SJLI_H
 
+/* SJLI ID for system secure service */
 #define SJLI_CALL_ARC_SECURE	0
 
 #define ARC_S_CALL_AUX_READ		0
-#define ARC_S_CALL_AUX_WRITE	1
-#define ARC_S_CALL_IRQ_ALLOC	2
+#define ARC_S_CALL_AUX_WRITE		1
+#define ARC_S_CALL_IRQ_ALLOC		2
 #define ARC_S_CALL_CLRI			3
 #define ARC_S_CALL_SETI			4
-#define ARC_S_CALL_LIMIT		5
+#define ARC_S_CALL_MPU			5
+#define ARC_S_CALL_SLEEP		6
+#define ARC_S_CALL_N_SWITCH		7
+#define ARC_S_CALL_LIMIT		8
 
 
 
+/* the start irq priorirty used by normal firmware */
+#if CONFIG_NUM_IRQ_PRIO_LEVELS <= CONFIG_SECURE_NUM_IRQ_PRIO_LEVELS
 #define ARC_N_IRQ_START_LEVEL ((CONFIG_NUM_IRQ_PRIO_LEVELS + 1) / 2)
+#else
+#define ARC_N_IRQ_START_LEVEL	CONFIG_SECURE_NUM_IRQ_PRIO_LEVELS
+#endif
 
 #ifndef _ASMLANGUAGE
 
@@ -40,7 +49,7 @@ extern "C" {
 typedef uint32_t (*_arc_s_call_handler_t)(uint32_t arg1, uint32_t arg2, uint32_t arg3,
 				      uint32_t arg4, uint32_t arg5, uint32_t arg6);
 
-
+extern FUNC_NORETURN void z_arch_go_to_normal(uint32_t entry);
 extern void arc_go_to_normal(uint32_t addr);
 extern void _arc_do_secure_call(void);
 extern const _arc_s_call_handler_t arc_s_call_table[ARC_S_CALL_LIMIT];
@@ -198,8 +207,9 @@ static inline bool _arch_is_user_context(void)
 	return !(status & _ARC_V2_STATUS32_US) ? true : false;
 }
 
-
-
+extern uint32_t z_arc_s_call_invoke6(uint32_t arg1, uint32_t arg2, uint32_t arg3,
+			   uint32_t arg4, uint32_t arg5, uint32_t arg6,
+			   uint32_t call_id);
 
 #endif /* CONFIG_ARC_NORMAL_FIRMWARE */
 
