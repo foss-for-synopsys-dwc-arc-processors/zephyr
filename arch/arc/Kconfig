@@ -279,6 +279,12 @@ source "arch/arc/core/mpu/Kconfig"
 
 endmenu
 
+menu "ARC Secure Firmware Options"
+depends on ARC_HAS_SECURE
+
+source "arch/arc/core/secureshield/Kconfig"
+endmenu
+
 config CACHE_LINE_SIZE_DETECT
 	bool "Detect d-cache line size at runtime"
 	help

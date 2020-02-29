@@ -1,0 +1,14 @@
+# Secure firmware configuration options
+
+# Copyright (c) 2020 Synopsys
+# SPDX-License-Identifier: Apache-2.0
+
+config SECURE_NUM_IRQ_PRIO_LEVELS
+	int "the secure interrupt levels"
+	range 1 14
+	default 1
+	help
+	  The irq priority levels used by secure firmware. The secure irq
+	  priority level is always higher than normal secure irq priority
+	  level.
+
