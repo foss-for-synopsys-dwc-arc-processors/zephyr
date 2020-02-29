@@ -36,6 +36,7 @@
 #endif
 #ifdef CONFIG_ARC_HAS_SECURE
 #include <arch/arc/v2/secureshield/arc_secure.h>
+#include <arch/arc/v2/secureshield/arc_ss_mpu.h>
 #endif
 #endif
 

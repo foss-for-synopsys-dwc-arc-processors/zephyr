@@ -29,3 +29,12 @@ config SECURE_SOFT_IRQ
 	help
 	  This helper interrupt is used to rasie thread switch request
 	  from normal irq and nested secure irq.s
+
+config NORMAL_NUM_MPU_ENTRIES
+	int "the mpu entires reserved for normal firmware"
+	range 1 16
+	default 8
+	help
+	  The MPU entires reserved for normal firmware. Secure firmware's
+	  mpu request has higher priority, so the final allocated num may
+	  be less than the configured one.

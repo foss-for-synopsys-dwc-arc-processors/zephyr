@@ -7,10 +7,23 @@
 #define ZEPHYR_ARCH_ARC_CORE_MPU_ARC_MPU_V3_INTERNAL_H_
 
 #define AUX_MPU_RPER_SID1       0x10000
-/* valid mask: SID1+secure+valid */
-#define AUX_MPU_RPER_VALID_MASK ((0x1) | AUX_MPU_RPER_SID1 | AUX_MPU_ATTR_S)
 
+#define AUX_MPU_RPER_VALID_MASK (0x1 | AUX_MPU_RPER_SID1)
 #define AUX_MPU_RPER_ATTR_MASK (0x1FF)
+
+/* valid attribute: SID1+secure+valid */
+#define ARC_MPU_S_ATTR(x) ((x & AUX_MPU_RPER_ATTR_MASK) | \
+			 (AUX_MPU_RPER_VALID_MASK | AUX_MPU_ATTR_S))
+/* valid attribute: SID1+valid */
+#define ARC_MPU_N_ATTR(x) ((x & AUX_MPU_RPER_ATTR_MASK) | \
+			 AUX_MPU_RPER_VALID_MASK)
+
+
+#if defined(CONFIG_ARC_SECURE_FIRMWARE)
+#define ARC_MPU_ATTR(x)	ARC_MPU_S_ATTR(x)
+#elif defined(CONFIG_ARC_NORMAL_FIRMWARE)
+#define ARC_MPU_ATTR(x)	(x)
+#endif
 
 /* For MPU version 3, the minimum protection region size is 32 bytes */
 #define ARC_FEATURE_MPU_ALIGNMENT_BITS 5
@@ -72,91 +85,79 @@ static struct dynamic_region_info dyn_reg_info[MPU_DYNAMIC_REGION_AREAS_NUM];
 static uint8_t static_regions_num;
 
 #ifdef CONFIG_ARC_NORMAL_FIRMWARE
-/* \todo through secure service to access mpu */
-static inline void _region_init(uint32_t index, uint32_t region_addr, uint32_t size,
-				uint32_t region_attr)
+/* secure mpu is secure only accessible, so need secure service here */
+static inline void _region_init(uint32_t index, uint32_t start, uint32_t size,
+				uint32_t attr)
 {
+	ss_region_init(index, start, size, attr);
 }
 
 static inline void _region_set_attr(uint32_t index, uint32_t attr)
 {
-
+	ss_region_set_attr(index, attr);
 }
 
 static inline uint32_t _region_get_attr(uint32_t index)
 {
-	return 0;
+	return ss_region_get_attr(index);
 }
 
 static inline uint32_t _region_get_start(uint32_t index)
 {
-	return 0;
+	return ss_region_get_start(index);
 }
 
 static inline void _region_set_start(uint32_t index, uint32_t start)
 {
-
+	ss_region_set_start(index, start);
 }
 
 static inline uint32_t _region_get_end(uint32_t index)
 {
-	return 0;
+	return ss_region_get_end(index);
 }
 
 static inline void _region_set_end(uint32_t index, uint32_t end)
 {
+	ss_region_set_end(index, end);
 }
 
 /**
  * This internal function probes the given addr's MPU index.if not
  * in MPU, returns error
  */
-static inline int _mpu_probe(uint32_t addr)
+static inline int32_t _mpu_probe(uint32_t addr)
 {
-	return -EINVAL;
+	return ss_mpu_probe(addr);
 }
 
-/**
- * This internal function checks if MPU region is enabled or not
- */
-static inline bool _is_enabled_region(uint32_t r_index)
-{
-	return false;
-}
-
-/**
- * This internal function check if the region is user accessible or not
- */
-static inline bool _is_user_accessible_region(uint32_t r_index, int write)
-{
-	return false;
-}
 #else /* CONFIG_ARC_NORMAL_FIRMWARE */
+
+static int32_t normal_mpu_index_start;
+
 /* the following functions are prepared for SECURE_FRIMWARE */
-static inline void _region_init(uint32_t index, uint32_t region_addr, uint32_t size,
-				uint32_t region_attr)
+static inline void _region_init(uint32_t index, uint32_t start, uint32_t size,
+				uint32_t attr)
 {
 	if (size < (1 << ARC_FEATURE_MPU_ALIGNMENT_BITS)) {
 		size = (1 << ARC_FEATURE_MPU_ALIGNMENT_BITS);
 	}
 
-	if (region_attr) {
-		region_attr &= AUX_MPU_RPER_ATTR_MASK;
-		region_attr |=  AUX_MPU_RPER_VALID_MASK;
+	if ((attr & AUX_MPU_RPER_ATTR_MASK) == 0) {
+		attr = 0;
 	}
 
 	z_arc_v2_aux_reg_write(_ARC_V2_MPU_INDEX, index);
-	z_arc_v2_aux_reg_write(_ARC_V2_MPU_RSTART, region_addr);
+	z_arc_v2_aux_reg_write(_ARC_V2_MPU_RSTART, start);
 	z_arc_v2_aux_reg_write(_ARC_V2_MPU_REND,
-			CALC_REGION_END_ADDR(region_addr, size));
-	z_arc_v2_aux_reg_write(_ARC_V2_MPU_RPER, region_attr);
+			CALC_REGION_END_ADDR(start, size));
+	z_arc_v2_aux_reg_write(_ARC_V2_MPU_RPER, attr);
 }
 
 static inline void _region_set_attr(uint32_t index, uint32_t attr)
 {
 	z_arc_v2_aux_reg_write(_ARC_V2_MPU_INDEX, index);
-	z_arc_v2_aux_reg_write(_ARC_V2_MPU_RPER, attr |
-				 AUX_MPU_RPER_VALID_MASK);
+	z_arc_v2_aux_reg_write(_ARC_V2_MPU_RPER, attr);
 }
 
 static inline uint32_t _region_get_attr(uint32_t index)
@@ -198,7 +199,7 @@ static inline void _region_set_end(uint32_t index, uint32_t end)
  * This internal function probes the given addr's MPU index.if not
  * in MPU, returns error
  */
-static inline int _mpu_probe(uint32_t addr)
+static inline int32_t _mpu_probe(uint32_t addr)
 {
 	uint32_t val;
 
@@ -213,13 +214,14 @@ static inline int _mpu_probe(uint32_t addr)
 	}
 }
 
+#endif /* CONFIG_ARC_NORMAL_FIRMWARE */
+
 /**
  * This internal function checks if MPU region is enabled or not
  */
 static inline bool _is_enabled_region(uint32_t r_index)
 {
-	z_arc_v2_aux_reg_write(_ARC_V2_MPU_INDEX, r_index);
-	return ((z_arc_v2_aux_reg_read(_ARC_V2_MPU_RPER) &
+	return ((_region_get_attr(r_index) &
 		 AUX_MPU_RPER_VALID_MASK) == AUX_MPU_RPER_VALID_MASK);
 }
 
@@ -230,8 +232,7 @@ static inline bool _is_user_accessible_region(uint32_t r_index, int write)
 {
 	uint32_t r_ap;
 
-	z_arc_v2_aux_reg_write(_ARC_V2_MPU_INDEX, r_index);
-	r_ap = z_arc_v2_aux_reg_read(_ARC_V2_MPU_RPER);
+	r_ap = _region_get_attr(r_index);
 	r_ap &= AUX_MPU_RPER_ATTR_MASK;
 
 	if (write) {
@@ -243,7 +244,6 @@ static inline bool _is_user_accessible_region(uint32_t r_index, int write)
 		(AUX_MPU_ATTR_UR | AUX_MPU_ATTR_KR));
 }
 
-#endif /* CONFIG_ARC_NORMAL_FIRMWARE */
 
 /**
  * This internal function checks the area given by (start, size)
@@ -300,7 +300,8 @@ static int _dynamic_region_allocate_and_init(uint32_t base, uint32_t size,
 
 		if (region_index > 0) {
 		/* a new region */
-			_region_init(region_index, base, size, attr);
+			_region_init(region_index, base, size,
+				     ARC_MPU_ATTR(attr));
 		}
 
 		return region_index;
@@ -324,7 +325,7 @@ static int _dynamic_region_allocate_and_init(uint32_t base, uint32_t size,
 		 * underlying region with those of the new
 		 * region.
 		 */
-		_region_init(u_region_index, base, size, attr);
+		_region_init(u_region_index, base, size, ARC_MPU_ATTR(attr));
 		region_index = u_region_index;
 	} else if (base == u_region_start) {
 		/* The new region starts exactly at the start of the
@@ -332,12 +333,13 @@ static int _dynamic_region_allocate_and_init(uint32_t base, uint32_t size,
 		 * region needs to be set to the end of the new region.
 		 */
 		_region_set_start(u_region_index, base + size);
-		_region_set_attr(u_region_index, u_region_attr);
+		_region_set_attr(u_region_index, ARC_MPU_ATTR(u_region_attr));
 
 		region_index = _dynamic_region_allocate_index();
 
 		if (region_index > 0) {
-			_region_init(region_index, base, size, attr);
+			_region_init(region_index, base, size,
+				     ARC_MPU_ATTR(attr));
 		}
 
 	} else if (end == u_region_end) {
@@ -347,12 +349,13 @@ static int _dynamic_region_allocate_and_init(uint32_t base, uint32_t size,
 		 * new region.
 		 */
 		_region_set_end(u_region_index, base);
-		_region_set_attr(u_region_index, u_region_attr);
+		_region_set_attr(u_region_index, ARC_MPU_ATTR(u_region_attr));
 
 		region_index = _dynamic_region_allocate_index();
 
 		if (region_index > 0) {
-			_region_init(region_index, base, size, attr);
+			_region_init(region_index, base, size,
+				     ARC_MPU_ATTR(attr));
 		}
 
 	} else {
@@ -362,18 +365,21 @@ static int _dynamic_region_allocate_and_init(uint32_t base, uint32_t size,
 		 */
 
 		_region_set_end(u_region_index, base);
-		_region_set_attr(u_region_index, u_region_attr);
+		_region_set_attr(u_region_index,
+				 ARC_MPU_ATTR(u_region_attr));
 
 		region_index = _dynamic_region_allocate_index();
 
 		if (region_index > 0) {
-			_region_init(region_index, base, size, attr);
+			_region_init(region_index, base, size,
+				     ARC_MPU_ATTR(attr));
 
 			region_index = _dynamic_region_allocate_index();
 
 			if (region_index > 0) {
 				_region_init(region_index, base + size,
-				 u_region_end - end, u_region_attr);
+					     u_region_end - end,
+					     ARC_MPU_ATTR(u_region_attr));
 			}
 		}
 	}
@@ -399,7 +405,7 @@ static void _mpu_reset_dynamic_regions(void)
 			dyn_reg_info[i].index,
 			dyn_reg_info[i].base,
 			dyn_reg_info[i].size,
-			dyn_reg_info[i].attr);
+			ARC_MPU_ATTR(dyn_reg_info[i].attr));
 	}
 
 	/* dynamic regions are after static regions */
@@ -477,7 +483,7 @@ static inline int _mpu_configure(uint8_t type, uint32_t base, uint32_t size)
 		return -EINVAL;
 	}
 
-	_region_init(region_index, base, size, region_attr);
+	_region_init(region_index, base, size, ARC_MPU_ATTR(region_attr));
 
 	return 0;
 }
@@ -492,9 +498,10 @@ void arc_core_mpu_enable(void)
 {
 #ifdef CONFIG_ARC_SECURE_FIRMWARE
 /* the default region:
- * secure:0x8000, SID:0x10000, KW:0x100 KR:0x80
+ * secure:0x8000, SID:0x10000, KW:0x100 KR:0x80 KE: 0x40
+ * (Note: to let normal firmware run, enable KE and NS)
  */
-#define MPU_ENABLE_ATTR	0x18180
+#define MPU_ENABLE_ATTR	0x1018C
 #else
 #define MPU_ENABLE_ATTR	0
 #endif
@@ -614,7 +621,7 @@ void arc_core_mpu_configure_thread(struct k_thread *thread)
 void arc_core_mpu_default(uint32_t region_attr)
 {
 #ifdef CONFIG_ARC_NORMAL_FIRMWARE
-/* \todo through secure service to access mpu */
+/* normal world cannot access default mpu */
 #else
 	z_arc_v2_aux_reg_write(_ARC_V2_MPU_EN, region_attr);
 #endif
@@ -635,9 +642,7 @@ int arc_core_mpu_region(uint32_t index, uint32_t base, uint32_t size,
 		return -EINVAL;
 	}
 
-	region_attr &= AUX_MPU_RPER_ATTR_MASK;
-
-	_region_init(index, base, size, region_attr);
+	_region_init(index, base, size, ARC_MPU_ATTR(region_attr));
 
 	return 0;
 }
@@ -684,7 +689,7 @@ void arc_core_mpu_configure_mem_domain(struct k_thread *thread)
 			LOG_DBG("set region 0x%x 0x%lx 0x%x",
 				region_index, pparts->start, pparts->size);
 			_region_init(region_index, pparts->start,
-				     pparts->size, pparts->attr);
+				     pparts->size, ARC_MPU_ATTR(pparts->attr));
 			region_index++;
 		}
 		pparts++;
@@ -727,7 +732,7 @@ void arc_core_mpu_remove_mem_domain(struct k_mem_domain *mem_domain)
 			if (index > 0) {
 #if defined(CONFIG_MPU_GAP_FILLING)
 				_region_set_attr(index,
-				REGION_KERNEL_RAM_ATTR);
+				ARC_MPU_ATTR(REGION_KERNEL_RAM_ATTR));
 #else
 				_region_init(index, 0, 0, 0);
 #endif
@@ -756,7 +761,7 @@ void arc_core_mpu_remove_mem_partition(struct k_mem_domain *domain,
 
 	LOG_DBG("remove region 0x%x", region_index);
 #if defined(CONFIG_MPU_GAP_FILLING)
-	_region_set_attr(region_index, REGION_KERNEL_RAM_ATTR);
+	_region_set_attr(region_index, ARC_MPU_ATTR(REGION_KERNEL_RAM_ATTR));
 #else
 	_region_init(region_index, 0, 0, 0);
 #endif
@@ -822,6 +827,7 @@ static int arc_mpu_init(const struct device *arg)
 
 	num_regions = get_num_regions();
 
+
 	/* ARC MPU supports up to 16 Regions */
 	if (mpu_config.num_regions > num_regions) {
 		__ASSERT(0,
@@ -831,7 +837,6 @@ static int arc_mpu_init(const struct device *arg)
 	}
 
 	static_regions_num = 0;
-
 	/* Disable MPU */
 	arc_core_mpu_disable();
 
@@ -844,7 +849,7 @@ static int arc_mpu_init(const struct device *arg)
 		_region_init(static_regions_num,
 			     mpu_config.mpu_regions[i].base,
 			     mpu_config.mpu_regions[i].size,
-			     mpu_config.mpu_regions[i].attr);
+			     ARC_MPU_ATTR(mpu_config.mpu_regions[i].attr));
 
 		/* record the static region which can be split */
 		if (mpu_config.mpu_regions[i].attr & REGION_DYNAMIC) {
@@ -874,7 +879,7 @@ static int arc_mpu_init(const struct device *arg)
 			_region_init(static_regions_num,
 			     mpu_config.mpu_regions[i].base,
 			     mpu_config.mpu_regions[i].size,
-			     mpu_config.mpu_regions[i].attr);
+			     ARC_MPU_ATTR(mpu_config.mpu_regions[i].attr));
 			static_regions_num++;
 		}
 #endif
@@ -884,6 +889,15 @@ static int arc_mpu_init(const struct device *arg)
 		_region_init(i, 0, 0, 0);
 	}
 
+#if defined(CONFIG_ARC_SECURE_FIRMWARE)
+/* half of mpu entries are reserved for normal world
+ * secure world's mpu request has higher priority than normal world
+ * needs better allocation.
+ */
+	normal_mpu_index_start = MIN(CONFIG_NORMAL_NUM_MPU_ENTRIES,
+		MIN(num_regions - static_regions_num, num_regions >> 1));
+#endif
+
 	/* Enable MPU */
 	arc_core_mpu_enable();
 
@@ -892,5 +906,108 @@ static int arc_mpu_init(const struct device *arg)
 
 SYS_INIT(arc_mpu_init, PRE_KERNEL_1,
 	 CONFIG_KERNEL_INIT_PRIORITY_DEFAULT);
+
+#if defined(CONFIG_ARC_SECURE_FIRMWARE)
+
+/*
+ * @brief check the address whether in normal world
+ */
+static uint32_t addr_is_normal(uint32_t addr)
+{
+	uint32_t ret;
+
+	int key = arch_irq_lock();
+
+	_mpu_probe(addr);
+
+	if (z_arc_v2_aux_reg_read(_ARC_V2_MPU_RPER) & AUX_MPU_ATTR_S) {
+		ret = 0; /* addr is in secure world */
+	} else {
+		ret = 1;
+	}
+
+	arch_irq_unlock(key);
+
+	return ret;
+}
+
+/*
+ * @brief secure mpu service
+ *
+ * offer mpu service for normal world which cannot access mpu regs.
+ * this service will check the input args and make sure the operations only
+ * can be applied to normal address
+ */
+uint32_t arc_secure_service_mpu(uint32_t arg1, uint32_t arg2, uint32_t arg3, uint32_t arg4,
+			     uint32_t ops)
+{
+	uint32_t ret = 0;
+	int32_t index;
+
+	if (ops == SS_MPU_OP_PROBE) {
+		index = _mpu_probe(arg1);
+	} else {
+		index = arg1 + normal_mpu_index_start;
+	}
+
+	/* validate index, index must be in normal range and cannot access
+	 * secure mpu entries
+	 */
+	if (index < normal_mpu_index_start || index >= get_num_regions()) {
+		return (uint32_t)-EINVAL;
+	}
+
+	if (_region_get_attr(index) & AUX_MPU_ATTR_S) {
+		return (uint32_t)-EINVAL;
+	}
+
+	switch (ops) {
+	case SS_MPU_OP_INIT_ENTRY:
+		/* only can set for normal world's address */
+		if ((arg4 & AUX_MPU_RPER_ATTR_MASK) == 0 ||
+		    (addr_is_normal(arg2) &&
+		     addr_is_normal((arg2 + arg3 - 1)))) {
+			_region_init(index, arg2, arg3, ARC_MPU_N_ATTR(arg4));
+		} else {
+			ret = (uint32_t)-EINVAL;
+		}
+		break;
+	case SS_MPU_OP_WRITE_ATTR:
+		_region_set_attr(index, ARC_MPU_N_ATTR(arg2));
+		break;
+	case SS_MPU_OP_READ_ATTR:
+		ret = _region_get_attr(index);
+		break;
+	case SS_MPU_OP_WRITE_START:
+		if (addr_is_normal(arg1)) {
+			_region_set_start(index, arg1);
+		} else {
+			ret = (uint32_t)-EINVAL;
+		}
+		break;
+	case SS_MPU_OP_READ_START:
+		ret = _region_get_start(index);
+		break;
+	case SS_MPU_OP_WRITE_END:
+		if (addr_is_normal(arg1)) {
+			_region_set_end(index, arg1);
+		} else {
+			ret = (uint32_t)-EINVAL;
+		}
+		break;
+	case SS_MPU_OP_READ_END:
+		ret = _region_get_end(index);
+		break;
+	case SS_MPU_OP_PROBE:
+		ret = index - normal_mpu_index_start;
+		break;
+	default:
+		ret = 0;
+		break;
+	}
+
+	return ret;
+}
+#endif
 
 #endif /* ZEPHYR_ARCH_ARC_CORE_MPU_ARC_MPU_V3_INTERNAL_H_ */

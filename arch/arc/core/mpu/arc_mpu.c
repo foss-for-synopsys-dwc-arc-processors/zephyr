@@ -26,8 +26,11 @@ static inline uint8_t get_num_regions(void)
 	uint32_t num = z_arc_v2_aux_reg_read(_ARC_V2_MPU_BUILD);
 
 	num = (num & 0xFF00U) >> 8U;
-
+#ifdef CONFIG_ARC_NORMAL_FIRMWARE
+	return (uint8_t)MIN(CONFIG_NORMAL_NUM_MPU_ENTRIES, num);
+#else
 	return (uint8_t)num;
+#endif
 }
 
 /**
