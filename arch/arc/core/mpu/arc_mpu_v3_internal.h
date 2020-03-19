@@ -256,7 +256,6 @@ static inline bool _is_user_accessible_region(u32_t r_index, int write)
 		(AUX_MPU_ATTR_UR | AUX_MPU_ATTR_KR));
 }
 
-
 /**
  * This internal function checks the area given by (start, size)
  * and returns the index if the area match one MPU entry
@@ -328,7 +327,6 @@ static int _dynamic_region_allocate_and_init(u32_t base, u32_t size,
 	u32_t u_region_end = _region_get_end(u_region_index);
 	u32_t u_region_attr = _region_get_attr(u_region_index);
 	u32_t end = base + size;
-
 
 	if ((base == u_region_start) && (end == u_region_end)) {
 		/* The new region overlaps entirely with the
@@ -660,7 +658,7 @@ void arc_core_mpu_default(u32_t region_attr)
  * @param region_attr region attribute
  */
 int arc_core_mpu_region(u32_t index, u32_t base, u32_t size,
-			 u32_t region_attr)
+			u32_t region_attr)
 {
 	if (index >= get_num_regions()) {
 		return -EINVAL;
@@ -772,12 +770,12 @@ void arc_core_mpu_remove_mem_domain(struct k_mem_domain *mem_domain)
  * @param partition_id  memory partition id
  */
 void arc_core_mpu_remove_mem_partition(struct k_mem_domain *domain,
-			u32_t partition_id)
+				       u32_t partition_id)
 {
 	struct k_mem_partition *partition = &domain->partitions[partition_id];
 
 	int region_index = _get_region_index(partition->start,
-			 partition->size);
+					     partition->size);
 
 	if (region_index < 0) {
 		return;
