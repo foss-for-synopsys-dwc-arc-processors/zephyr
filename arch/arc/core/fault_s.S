@@ -38,7 +38,7 @@ GTEXT(z_irq_do_offload);
 #endif
 
 .macro _save_exc_regs_into_stack
-#ifdef CONFIG_ARC_HAS_SECURE
+#ifdef CONFIG_ARC_SECURE_FIRMWARE
 	/* ERSEC_STAT is IOW/RAZ in normal mode */
 	lr r0,[_ARC_V2_ERSEC_STAT]
 	st_s r0, [sp, ___isf_t_sec_stat_OFFSET]

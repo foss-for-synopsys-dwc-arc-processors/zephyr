@@ -24,6 +24,7 @@
 GTEXT(_rirq_enter)
 GTEXT(_rirq_exit)
 GTEXT(_rirq_newthread_switch)
+GDATA(normal_irq_switch_request)
 
 /*
 
@@ -263,22 +264,22 @@ SECTION_FUNC(TEXT, _rirq_exit)
  */
 
 	push r0
-	push r1
 	push r2
 	mov r6, ARC_S_CALL_N_SWITCH
 	sjli SJLI_CALL_ARC_SECURE
 	mov r6, r0
 	pop r2
-	pop r1
 	pop r0
 	cmp r6, 0
-	beq _rirq_no_switch
-#endif
-
-#ifdef CONFIG_ARC_SECURE_FIRMWARE
-	/* here need to remember SEC_STAT.IRM bit */
-	lr r3, [_ARC_V2_SEC_STAT]
-	push_s r3
+	bnz _normal_rirq_switch
+	/* _kernel.current is set in _get_next_switch_handle
+	 * need to reverse the set as no switch is allowed
+	 * no support for SMP.
+	 */
+	mov_s r1, _kernel
+	st r2, [r1, _kernel_offset_to_current]
+	b _rirq_no_switch
+_normal_rirq_switch:
 #endif
 
 	/* r2 is old thread */

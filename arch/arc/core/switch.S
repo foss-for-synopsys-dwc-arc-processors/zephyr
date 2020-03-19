@@ -148,7 +148,6 @@ _switch_return_from_firq:
 
 	lr r3, [_ARC_V2_AUX_IRQ_ACT]
 
-
 #ifdef CONFIG_ARC_SECURE_FIRMWARE
 	or r3, r3, (1 << (ARC_N_IRQ_START_LEVEL - 1))
 #else

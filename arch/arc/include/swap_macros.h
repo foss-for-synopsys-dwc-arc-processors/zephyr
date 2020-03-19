@@ -472,6 +472,11 @@
 
 /* macro to store old thread call regs  in interrupt*/
 .macro _irq_store_old_thread_callee_regs
+#ifdef CONFIG_ARC_SECURE_FIRMWARE
+	/* here need to remember SEC_STAT.IRM bit */
+	lr r3, [_ARC_V2_SEC_STAT]
+	push_s r3
+#endif
 #if defined(CONFIG_USERSPACE)
 /*
  * when USERSPACE is enabled, according to ARCv2 ISA, SP will be switched
