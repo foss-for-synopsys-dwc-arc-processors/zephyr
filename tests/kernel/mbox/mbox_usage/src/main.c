@@ -104,7 +104,6 @@ void test_msg_receiver(void)
 			      K_PRIO_PREEMPT(0), 0, K_NO_WAIT);
 
 	msg_receiver(&mbox, K_ANY, K_MSEC(2));
-	k_thread_abort(tid);
 }
 
 void test_send_un(void *p1, void *p2, void *p3)
@@ -124,7 +123,6 @@ void test_msg_receiver_unlimited(void)
 			      K_PRIO_PREEMPT(0), 0, K_NO_WAIT);
 
 	msg_receiver(&mbox, tid1, K_FOREVER);
-	k_thread_abort(tid1);
 }
 
 /*test case main entry*/
