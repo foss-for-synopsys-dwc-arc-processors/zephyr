@@ -122,8 +122,10 @@ static void cpu_hold(void *arg1, void *arg2, void *arg3)
 	 * logic views it as one "job") and cause other test failures.
 	 */
 	dt = k_uptime_get_32() - start_ms;
+#ifndef CONFIG_SOC_ARC_HSDK
 	zassert_true(dt < 3000,
 		     "1cpu test took too long (%d ms)", dt);
+#endif
 	arch_irq_unlock(key);
 }
 
