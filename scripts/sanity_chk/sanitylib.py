@@ -407,7 +407,7 @@ class BinaryHandler(Handler):
             if not self.lsan:
                 env["ASAN_OPTIONS"] += "detect_leaks=0"
 
-        with subprocess.Popen(['stdbuf', '-o0'] + command, stdout=subprocess.PIPE,
+        with subprocess.Popen(command, stdout=subprocess.PIPE,
                               stderr=subprocess.PIPE, cwd=self.build_dir, env=env) as proc:
             logger.debug("Spawning BinaryHandler Thread for %s" % self.name)
             t = threading.Thread(target=self._output_reader, args=(proc, harness,), daemon=True)
