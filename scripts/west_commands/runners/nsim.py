@@ -69,7 +69,7 @@ class NsimBinaryRunner(ZephyrBinaryRunner):
     def do_flash(self, **kwargs):
         config = kwargs['nsim-cfg']
 
-        cmd = ('strace -f -o strace.log' + self.nsim_cmd + ['-propsfile', config, self.cfg.elf_file])
+        cmd = (self.nsim_cmd + ['-propsfile', config, self.cfg.elf_file])
         self.check_call(cmd)
 
     def do_debug(self, **kwargs):

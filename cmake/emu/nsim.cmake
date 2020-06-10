@@ -15,7 +15,7 @@ endif()
 
 add_custom_target(run
   COMMAND
-  strace -f -o strace.log ${NSIM}
+  ${NSIM}
   -propsfile
   ${BOARD_DIR}/support/${NSIM_PROPS}
   ${APPLICATION_BINARY_DIR}/zephyr/${KERNEL_ELF_NAME}
