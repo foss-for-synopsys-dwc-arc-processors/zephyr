@@ -68,5 +68,3 @@
 	nsim_isa_dmac_int_config=single_internal
 	nsim_mem-dev=uart0,base=0xf0000000,irq=24
 	nsim_isa_unaligned_option=1
-	nsim_trace=1
-	nsim_trace-output=instructions.log

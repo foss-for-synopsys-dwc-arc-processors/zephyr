@@ -44,5 +44,3 @@
 	iccm0_size=0x40000
 	iccm0_base=0x70000000
 	nsim_mem-dev=uart0,base=0xf0000000,irq=24
-	nsim_trace=1
-	nsim_trace-output=instructions.log
