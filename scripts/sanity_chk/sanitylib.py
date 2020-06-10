@@ -1369,7 +1369,7 @@ class TestCase(DisablePyTestCollectionMixin):
         self.toolchain_exclude = None
         self.toolchain_whitelist = None
         self.tc_filter = None
-        self.timeout = 180
+        self.timeout = 60
         self.harness = ""
         self.harness_config = {}
         self.build_only = True
@@ -2207,7 +2207,7 @@ class TestSuite(DisablePyTestCollectionMixin):
                        "build_on_all": {"type": "bool", "default": False},
                        "skip": {"type": "bool", "default": False},
                        "slow": {"type": "bool", "default": False},
-                       "timeout": {"type": "int", "default": 180},
+                       "timeout": {"type": "int", "default": 60},
                        "min_ram": {"type": "int", "default": 8},
                        "depends_on": {"type": "set"},
                        "min_flash": {"type": "int", "default": 32},
