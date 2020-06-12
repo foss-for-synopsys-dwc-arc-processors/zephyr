@@ -8,6 +8,7 @@
 #include <sys/printk.h>
 #include <soc.h>
 
+#include "arch/arc/v2/secureshield/arc_ss_audit_logging.h"
 #if defined(CONFIG_SOC_NSIM_SEM)
 #define NORMAL_FIRMWARE_ENTRY 0x40000
 #elif defined(CONFIG_SOC_EMSK)
@@ -18,14 +19,19 @@
 #define STACKSIZE 1024
 #define PRIORITY 7
 #define SLEEPTIME 1000
-
+static struct audit_record record={
+	.id = 0xABCD0000, .size = sizeof(struct audit_record) - 4};
 
 void threadA(void *dummy1, void *dummy2, void *dummy3)
 {
 	ARG_UNUSED(dummy1);
 	ARG_UNUSED(dummy2);
 	ARG_UNUSED(dummy3);
-
+	for(u8_t idx = 0; idx<36; idx++)
+	{
+		ss_audit_add_record(&record);
+		record.id++;
+	}
 
 	printk("Go to normal application\n");
 

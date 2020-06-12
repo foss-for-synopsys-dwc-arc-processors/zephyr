@@ -42,7 +42,6 @@
 #else
 #include <sys/printk.h>
 #endif
-
 #include <sys/__assert.h>
 
 #define SEMAPHORES 1
@@ -85,6 +84,7 @@
 
 #define STACK_SIZE (768 + CONFIG_TEST_EXTRA_STACKSIZE)
 
+#include "arch/arc/v2/secureshield/arc_ss_audit_logging.h"
 #include "phil_obj_abstract.h"
 
 #define fork(x) (forks[x])
@@ -137,6 +137,10 @@ static inline int is_last_philosopher(int id)
 	return id == (NUM_PHIL - 1);
 }
 
+u8_t local_buffer[80];
+// static struct audit_record record={
+// 	.id = 0xABCD0000, .size = sizeof(struct audit_record) - 4};
+
 void philosopher(void *id, void *unused1, void *unused2)
 {
 	ARG_UNUSED(unused1);
@@ -151,6 +155,11 @@ void philosopher(void *id, void *unused1, void *unused2)
 	if (is_last_philosopher(my_id)) {
 		fork1 = fork(0);
 		fork2 = fork(my_id);
+		// for(u8_t idx = 0; idx<36; idx++)
+		// {
+		// 	ss_audit_add_record(&record);
+		// 	record.id++;
+		// }
 	} else {
 		fork1 = fork(my_id);
 		fork2 = fork(my_id + 1);
@@ -165,6 +174,14 @@ void philosopher(void *id, void *unused1, void *unused2)
 		take(fork2);
 
 		delay = get_random_delay(my_id, 25);
+		if (is_last_philosopher(my_id)) {
+			u32_t read_size;
+			read_size = ss_audit_retrieve_record(delay%36, NULL, 80, &local_buffer);
+			if(read_size!=28)
+			{
+				ss_audit_retrieve_record(delay%36, NULL, 80, &local_buffer);
+			}
+		}
 		print_phil_state(my_id, "  EATING  [ %s%d ms ] ", delay);
 		k_msleep(delay);
 

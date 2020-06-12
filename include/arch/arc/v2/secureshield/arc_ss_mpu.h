@@ -85,4 +85,4 @@ static inline int ss_mpu_probe(u32_t addr)
 
 #endif /* _ASMLANGUAGE */
 
-#endif /*ZEPHYR_INCLUDE_ARCH_ARV_V2_SS_MPU_H */
+#endif /*ZEPHYR_INCLUDE_ARCH_ARC_V2_SS_MPU_H */

@@ -64,6 +64,10 @@ extern void arc_s_service_sleep(u32_t arg);
 /* Secure service to check normal world's switch request */
 extern u32_t arc_s_service_n_switch(void);
 
+/* Secure service of audit logging, allowing to log critical or security related events */
+extern u32_t arc_s_service_audit_logging(u32_t arg1, u32_t arg2, u32_t arg3,
+				    u32_t arg4, u32_t ops);
+
 /*
  * \todo, how to add secure service easily
  */
@@ -73,4 +77,5 @@ const _arc_s_call_handler_t arc_s_call_table[ARC_S_CALL_LIMIT] = {
 	[ARC_S_CALL_SLEEP] = (_arc_s_call_handler_t)arc_s_service_sleep,
 	[ARC_S_CALL_MPU] = (_arc_s_call_handler_t)arc_secure_service_mpu,
 	[ARC_S_CALL_N_SWITCH] = (_arc_s_call_handler_t)arc_s_service_n_switch,
+	[ARC_S_CALL_AUDIT_LOGGING] = (_arc_s_call_handler_t)arc_s_service_audit_logging,
 };

@@ -27,8 +27,8 @@ In this sample:
 * The interrupts of two internal timers are configure as normal interrupts,
   so the normal zephyr's kernel tick can work correctly.
 
-* Secure interrupts priority > secure threads priority > normal interrupts
-  priority > normal threads priority.
+* Secure interrupts priority > normal interrupts priority > secure
+  threads priority > normal threads priority.
 
 
 Requirements

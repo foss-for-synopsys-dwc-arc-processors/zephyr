@@ -9,16 +9,17 @@
 #define ZEPHYR_INCLUDE_ARCH_ARC_V2_SJLI_H
 
 /* SJLI ID for system secure service */
-#define SJLI_CALL_ARC_SECURE	0
+#define SJLI_CALL_ARC_SECURE		0
 
-#define ARC_S_CALL_AUX_READ		0
+#define ARC_S_CALL_AUX_READ			0
 #define ARC_S_CALL_AUX_WRITE		1
-#define ARC_S_CALL_CLRI			3
-#define ARC_S_CALL_SETI			4
-#define ARC_S_CALL_MPU			5
-#define ARC_S_CALL_SLEEP		6
-#define ARC_S_CALL_N_SWITCH		7
-#define ARC_S_CALL_LIMIT		8
+#define ARC_S_CALL_CLRI				3
+#define ARC_S_CALL_SETI				4
+#define ARC_S_CALL_MPU				5
+#define ARC_S_CALL_SLEEP			6
+#define ARC_S_CALL_N_SWITCH			7
+#define ARC_S_CALL_AUDIT_LOGGING	8
+#define ARC_S_CALL_LIMIT			9
 
 
 

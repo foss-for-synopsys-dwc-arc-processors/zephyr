@@ -16,3 +16,5 @@ zephyr_library_sources_ifdef(
   CONFIG_ARC_NORMAL_FIRMWARE
   arc_normal.c
   )
+
+add_subdirectory(services)
