@@ -22,7 +22,7 @@ config HARVARD
 	default y
 
 config ARC_FIRQ
-	default y
+	default n
 
 config CACHE_FLUSHING
 	default y

@@ -1,8 +1,8 @@
 	-arcv2hs
-	-core2
-	-arcnum=3
-	-rgf_num_banks=2
-	-rgf_banked_regs=32
+	-core4
+	-uarch_rev_major=1
+	-uarch_rev_minor=4
+	-rgf_num_banks=1
 	-rgf_num_wr_ports=2
 	-Xatomic
 	-Xll64
@@ -16,28 +16,87 @@
 	-Xbarrel_shifter
 	-Xfpud_div
 	-Xfpu_mac
+	-Xfpu_hp_option
 	-Xtimer0
-	-Xtimer0_level=1
+	-Xtimer0_level=0
 	-Xtimer1
 	-Xtimer1_level=0
 	-Xrtc
 	-action_points=8
+	-ap_feature=1
 	-Xstack_check
-	-interrupts=72
+	-dmp_per0_base=14
+	-dmp_per0_limit=15
+	-volatile_base=10
+	-volatile_limit=0
+	-volatile_strict_ordering
+	-bpu_bc_entries=512
+	-bpu_pt_entries=8192
+	-bpu_rs_entries=4
+	-bpu_bc_full_tag=0
+	-bpu_bc_tag_size=4
+	-bpu_tosq_entries=5
+	-bpu_fb_entries=2
+	-interrupts=84
 	-interrupt_priorities=2
-	-ext_interrupts=70
-	-firq
+	-ext_interrupts=64
 	-interrupt_base=0x0
-	-dcache=65536,64,2,a
+	-intvbase_ext
+	-dcache=16384,64,2,a
 	-dcache_feature=2
-	-dcache_uncached_region
 	-dcache_mem_cycles=2
-	-icache=65536,64,4,a
+	-icache=16384,64,4,a
 	-icache_feature=2
-	-dccm_size=0x40000
-	-dccm_base=0x80000000
-	-dccm_mem_cycles=2
-	-iccm0_size=0x40000
-	-iccm0_base=0x70000000
+	-watchdog_num=1
+	-watchdog_parity
+	-watchdog_clk
+	-watchdog_size0=32
+	-watchdog_win0
+	-error_prot_ver=5
+	-ic_prot=parity
+	-ic_prot_level=data_addr
+	-dc_prot=parity
+	-dc_prot_level=data_addr
+	-vccm_prot=parity
+	-vccm_prot_level=data_addr
+	-Xpct_counters=16
+	-Xpct_interrupt
+	-arconnect
+	-connect_ici=3
+	-connect_gfrc=4
+	-csm
+	-csm_size0=256K
+	-csm_bank_mcycle=2
+	-csm_prot0=ecc
+	-csm_mpnum=1
+	-csm_base=0xa0000000
+	-stu=2
+	-stu_initiator_num=1
+	-stu_initiator_dbw=64
+	-stu_phy_ch_num=1
+	-stu_req_fifo_depth=32
+	-stu_buffer_size=32
+	-Xvdsp4
+	-Xvec_width=512
+	-Xvec_mem_size=128k
+	-Xvec_mem_banks=32
+	-Xvec_mem_bank_width=16
+	-Xvec_max_fetch_size=16
+	-Xvec_num_slots=3
+	-Xvec_super_with_scalar
+	-Xvec_regs=32
+	-Xvec_fpu=32
+	-Xvec_fpu_math=3
+	-Xvec_fpu_2nd_mul
+	-Xvec_fpu_types=3
+	-Xvec_num_rd_ports=6
+	-Xvec_num_acc=8
+	-Xvec_num_mpy=2
+	-Xvec_mpy32
+	-Xvec_num_alu=3
+	-Xvec_guard_bit_option=0
+	-Xvec_mem_topology=0
+	-Xvec_stack_check
+	-Xvec_mem_base=0x90000000
 	-prop=nsim_mem-dev=uart0,base=0xf0000000,irq=24
 	-noprofile
