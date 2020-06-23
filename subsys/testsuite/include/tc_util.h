@@ -129,7 +129,7 @@ static inline const char *TC_RESULT_TO_STR(int result)
 #if defined(CONFIG_ARCH_POSIX)
 #define TC_END_POST(result) posix_exit(result)
 #else
-#define TC_END_POST(result)
+#define TC_END_POST(result) k_fatal_halt(result)
 #endif /* CONFIG_ARCH_POSIX */
 
 #ifndef TC_END_REPORT

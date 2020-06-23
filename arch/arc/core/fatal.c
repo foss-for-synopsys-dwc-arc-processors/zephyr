@@ -38,7 +38,7 @@ FUNC_NORETURN void arch_system_halt(unsigned int reason)
 {
 	ARG_UNUSED(reason);
 
-	__asm__("brk");
+	__asm__("flag 1");
 
 	CODE_UNREACHABLE;
 }
