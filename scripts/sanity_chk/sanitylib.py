@@ -362,14 +362,14 @@ class BinaryHandler(Handler):
             log_out_fp.write(line.decode('utf-8'))
             log_out_fp.flush()
             harness.handle(line.decode('utf-8').rstrip())
-            if harness.state:
-                try:
-                    # POSIX arch based ztests end on their own,
-                    # so let's give it up to 100ms to do so
-                    proc.wait(0.1)
-                except subprocess.TimeoutExpired:
-                    self.terminate(proc)
-                break
+#            if harness.state:
+#                try:
+#                    # POSIX arch based ztests end on their own,
+#                    # so let's give it up to 100ms to do so
+#                    proc.wait(0.1)
+#                except subprocess.TimeoutExpired:
+#                    self.terminate(proc)
+#                break
 
         log_out_fp.close()
 
@@ -413,9 +413,9 @@ class BinaryHandler(Handler):
             t = threading.Thread(target=self._output_reader, args=(proc, harness,), daemon=True)
             t.start()
             t.join(self.timeout)
-            if t.is_alive():
-                self.terminate(proc)
-                t.join()
+#            if t.is_alive():
+#                self.terminate(proc)
+#                t.join()
             proc.wait()
             self.returncode = proc.returncode
 
