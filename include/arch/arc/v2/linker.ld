@@ -7,7 +7,9 @@
 /**
  * @brief Common parts of the linker scripts for the ARCv2/EM targets.
  */
-
+#if defined(__MWDT_LINKER_CMD__)
+#include <arch/arc/v2/linker_mwdt.ld>
+#else
 #include <linker/sections.h>
 #include <linker/linker-defs.h>
 #include <linker/linker-tool.h>
@@ -233,3 +235,4 @@ SECTIONS {
 
     /DISCARD/ : { *(.note.GNU-stack) }
 	}
+#endif
