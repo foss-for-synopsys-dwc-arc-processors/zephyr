@@ -133,7 +133,7 @@ if(SUPPORTS_DTS)
   # intermediary file *.dts.pre.tmp. Also, generate a dependency file
   # so that changes to DT sources are detected.
   execute_process(
-    COMMAND ${CMAKE_C_COMPILER}
+    COMMAND gcc
     -x assembler-with-cpp
     -nostdinc
     ${DTS_ROOT_SYSTEM_INCLUDE_DIRS}
