@@ -30,12 +30,14 @@
 	} GROUP_LINK_IN(ROMABLE_REGION)
 #endif
 
+#if !defined(__MWDT_LINKER_CMD__)
 	/* verify we don't have rogue .init_<something> initlevel sections */
 	SECTION_PROLOGUE(initlevel_error,,)
 	{
 		KEEP(*(SORT(.init_[_A-Z0-9]*)))
 	}
 	ASSERT(SIZEOF(initlevel_error) == 0, "Undefined initialization levels used.")
+#endif
 
 #ifdef CONFIG_CPLUSPLUS
 	SECTION_PROLOGUE(_CTOR_SECTION_NAME,,)
@@ -82,7 +84,7 @@
 	SECTION_PROLOGUE(app_shmem_regions,,)
 	{
 		__app_shmem_regions_start = .;
-		KEEP(*(SORT(".app_regions.*")));
+		KEEP(*(SORT(.app_regions.*)));
 		__app_shmem_regions_end = .;
 	} GROUP_LINK_IN(ROMABLE_REGION)
 

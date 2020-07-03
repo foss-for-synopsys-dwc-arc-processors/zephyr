@@ -72,10 +72,70 @@
  * (sorted by priority). Ensure the objects aren't discarded if there is
  * no direct reference to them
  */
+#if defined(__MWDT_LINKER_CMD__)
+
+#define CREATE_OBJ_LEVEL(object, level)					\
+		__##object##_##level##_start = .;			\
+		KEEP(*(SORT(.object##_##level[0-9].*)));	\
+		KEEP(*(SORT(.object##_##level[1-9][0-9].*)));
+#else
 #define CREATE_OBJ_LEVEL(object, level)				\
-		__##object##_##level##_start = .;		\
-		KEEP(*(SORT(.##object##_##level[0-9])));	\
+		__##object##_##level##_start = .;		 \
+		KEEP(*(SORT(.##object##_##level[0-9]))); \
 		KEEP(*(SORT(.##object##_##level[1-9][0-9])));
+#endif
+
+/*
+ * link in initialization objects for all objects that are automatically
+ * initialized by the kernel; the objects are sorted in the order they will be
+ * initialized (i.e. ordered by level, sorted by priority within a level)
+ */
+
+#define	INIT_SECTIONS()					\
+		__init_start = .;			\
+		CREATE_OBJ_LEVEL(init, PRE_KERNEL_1)	\
+		CREATE_OBJ_LEVEL(init, PRE_KERNEL_2)	\
+		CREATE_OBJ_LEVEL(init, POST_KERNEL)	\
+		CREATE_OBJ_LEVEL(init, APPLICATION)	\
+		CREATE_OBJ_LEVEL(init, SMP)		\
+		__init_end = .;
+
+/* define a section for undefined device initialization levels */
+#if defined(__MWDT_LINKER_CMD__)
+#define INIT_UNDEFINED_SECTION()	\
+		KEEP(*(MWDT_STRINGIFY(.init_[_A-Z0-9]*)))
+#else
+#define INIT_UNDEFINED_SECTION()		\
+		KEEP(*(SORT(.init_[_A-Z0-9]*)))
+#endif
+
+/*
+ * link in devices objects, which are tied to the init ones;
+ * the objects are thus sorted the same way as their init object parent
+ * see include/device.h
+ */
+#define	DEVICE_SECTIONS()				\
+		__device_start = .;			\
+		CREATE_OBJ_LEVEL(device, PRE_KERNEL_1)	\
+		CREATE_OBJ_LEVEL(device, PRE_KERNEL_2)	\
+		CREATE_OBJ_LEVEL(device, POST_KERNEL)	\
+		CREATE_OBJ_LEVEL(device, APPLICATION)	\
+		CREATE_OBJ_LEVEL(device, SMP)		\
+		__device_end = .;			\
+		DEVICE_BUSY_BITFIELD()
+
+/*
+ * link in shell initialization objects for all modules that use shell and
+ * their shell commands are automatically initialized by the kernel.
+ */
+
+#define	SHELL_INIT_SECTIONS()				\
+		__shell_module_start = .;		\
+		KEEP(*(".shell_module_*"));		\
+		__shell_module_end = .;			\
+		__shell_cmd_start = .;			\
+		KEEP(*(".shell_cmd_*"));		\
+		__shell_cmd_end = .;
 
 /*
  * link in shell initialization objects for all modules that use shell and

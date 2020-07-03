@@ -31,6 +31,7 @@
  * }
  */
 
+#if defined(__GCC_LINKER_CMD__)
 #ifndef LINKER_PASS2
 SECTION_PROLOGUE(.intList,,)
 {
@@ -43,4 +44,19 @@ SECTION_PROLOGUE(.intList,,)
 	KEEP(*(.irq_info))
 	KEEP(*(.intList))
 }
+#endif
+#elif defined(__MWDT_LINKER_CMD__)
+#ifndef LINKER_PASS2
+SECTION_PROLOGUE(.intList,,)
+{
+	KEEP(*(.irq_info.*))
+	KEEP(*(.intList.*))
+} GROUP_LINK_IN(IDT_LIST)
+#else
+/DISCARD/ :
+{
+	KEEP(*(.irq_info.*))
+	KEEP(*(.intList.*))
+}
+#endif
 #endif

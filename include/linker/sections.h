@@ -31,8 +31,13 @@
 #define _UNDEFINED_SECTION_NAME undefined
 
 /* Interrupts */
+#if defined(__MWDT_LINKER_CMD__)
+#define _IRQ_VECTOR_TABLE_SECTION_NAME	.gnu.linkonce.irq_vector_table.*
+#define _SW_ISR_TABLE_SECTION_NAME	.gnu.linkonce.sw_isr_table.*
+#else
 #define _IRQ_VECTOR_TABLE_SECTION_NAME	.gnu.linkonce.irq_vector_table
 #define _SW_ISR_TABLE_SECTION_NAME	.gnu.linkonce.sw_isr_table
+#endif
 
 /* Architecture-specific sections */
 #if defined(CONFIG_ARM)
