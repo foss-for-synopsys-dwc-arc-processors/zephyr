@@ -145,7 +145,14 @@ void isr6(void *param)
  * doesn't support this; we need to tell the compiler not to reorder memory
  * accesses to trigger_check around calls to trigger_irq.
  */
+#if defined(__CCAC__)
+/* MWDT does not support _attribute__((optimize("-O0"))), buf the following
+ * it equals -Os
+ */
+__attribute__((optsize))
+#else
 __attribute__((optimize("-O0")))
+#endif
 #endif
 int test_irq(int offset)
 {
