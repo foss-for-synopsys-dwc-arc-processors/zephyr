@@ -25,18 +25,12 @@ extern "C" {
 #endif
 
 #ifdef _ASMLANGUAGE
-GTEXT(_irq_exit);
-GTEXT(arch_irq_enable)
-GTEXT(arch_irq_disable)
-GTEXT(z_arc_firq_stack_set)
 #else
 
 extern void z_arc_firq_stack_set(void);
 extern void arch_irq_enable(unsigned int irq);
 extern void arch_irq_disable(unsigned int irq);
 extern int arch_irq_is_enabled(unsigned int irq);
-
-extern void _irq_exit(void);
 extern void z_irq_priority_set(unsigned int irq, unsigned int prio,
 			      uint32_t flags);
 extern void _isr_wrapper(void);
@@ -50,11 +44,25 @@ extern void z_irq_spurious(void *unused);
  * We additionally set the priority in the interrupt controller at
  * runtime.
  */
+#if defined(__CCAC__)
+/* in the final linker, .intList will be discarded, but for metaware toolchain
+ * the discarded symbols will not be linked, even __used attribute is applied.
+ * This will cause isr_p will not linked into final image. Because the flags
+ * parameter of z_irq_priority_set is not used now, we use a trick to make isr_p
+ * will be always linked
+ */
+#define ARCH_IRQ_CONNECT(irq_p, priority_p, isr_p, isr_param_p, flags_p) \
+({ \
+	Z_ISR_DECLARE(irq_p, 0, isr_p, isr_param_p); \
+	z_irq_priority_set(irq_p, priority_p, (uint32_t)isr_p); \
+})
+#else
 #define ARCH_IRQ_CONNECT(irq_p, priority_p, isr_p, isr_param_p, flags_p) \
 { \
 	Z_ISR_DECLARE(irq_p, 0, isr_p, isr_param_p); \
 	z_irq_priority_set(irq_p, priority_p, flags_p); \
 }
+#endif
 
 /**
  * Configure a 'direct' static interrupt.
@@ -118,6 +126,17 @@ extern void arch_isr_direct_header(void);
  * Scheduling can not be done in direct isr. If required, please use kernel
  * aware interrupt handling
  */
+#if defined(__CCAC__)
+#define ARCH_ISR_DIRECT_DECLARE(name) \
+	static inline int name##_body(void); \
+	__attribute__ ((__interrupt__))void name(void) \
+	{ \
+		ISR_DIRECT_HEADER(); \
+		name##_body(); \
+		ISR_DIRECT_FOOTER(0); \
+	} \
+	static inline int name##_body(void)
+#else
 #define ARCH_ISR_DIRECT_DECLARE(name) \
 	static inline int name##_body(void); \
 	__attribute__ ((interrupt("ilink")))void name(void) \
@@ -127,6 +146,7 @@ extern void arch_isr_direct_header(void);
 		ISR_DIRECT_FOOTER(0); \
 	} \
 	static inline int name##_body(void)
+#endif
 
 
 /**
