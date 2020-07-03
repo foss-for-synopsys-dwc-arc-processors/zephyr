@@ -86,6 +86,15 @@ struct z_app_region {
 #define Z_PROGBITS_SYM "@"
 #endif
 
+#if defined(__CCAC__)
+#define Z_APPMEM_PLACEHOLDER(name) \
+	__asm__ ( \
+		".pushsect " STRINGIFY(K_APP_DMEM_SECTION(name)) \
+			",\"aw\"," Z_PROGBITS_SYM "progbits\n\t" \
+		".global " STRINGIFY(name) "_placeholder\n\t" \
+		STRINGIFY(name) "_placeholder:\n\t" \
+		".popsect\n\t")
+#else
 #define Z_APPMEM_PLACEHOLDER(name) \
 	__asm__ ( \
 		".pushsection " STRINGIFY(K_APP_DMEM_SECTION(name)) \
@@ -93,6 +102,7 @@ struct z_app_region {
 		".global " STRINGIFY(name) "_placeholder\n\t" \
 		STRINGIFY(name) "_placeholder:\n\t" \
 		".popsection\n\t")
+#endif
 
 /**
  * @brief Define an application memory partition with linker support
