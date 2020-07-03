@@ -52,7 +52,10 @@
 #ifdef __cplusplus
 #define BUILD_ASSERT(EXPR, MSG...) static_assert(EXPR, "" MSG)
 #define BUILD_ASSERT_MSG(EXPR, MSG) __DEPRECATED_MACRO BUILD_ASSERT(EXPR, MSG)
-
+/* Metaware toolchain has no _Static_assert */
+#elif defined(__CCAC__)
+#define BUILD_ASSERT(EXPR, MSG...)
+#define BUILD_ASSERT_MSG(EXPR, MSG) __DEPRECATED_MACRO BUILD_ASSERT(EXPR, MSG)
 /*
  * GCC 4.6 and higher have the C11 _Static_assert built in, and its
  * output is easier to understand than the common BUILD_ASSERT macros.
@@ -274,7 +277,22 @@ do {                                                                    \
  * Need to use assembly macros because ';' is interpreted as the start of
  * a single line comment in the ARC assembler.
  */
+#if defined(__CCAC__)
+.macro glbl_text, symbol
+	.globl symbol
+	.type symbol, @function
+.endm
 
+.macro glbl_data, symbol
+	.globl symbol
+	.type symbol, @object
+.endm
+
+.macro weak_data, symbol
+	.weak symbol
+	.type symbol, @object
+.endm
+#else
 .macro glbl_text symbol
 	.globl \symbol
 	.type \symbol, %function
@@ -289,6 +307,7 @@ do {                                                                    \
 	.weak \symbol
 	.type \symbol, %object
 .endm
+#endif
 
 #define GTEXT(sym) glbl_text sym
 #define GDATA(sym) glbl_data sym
@@ -317,7 +336,26 @@ do {                                                                    \
  * Also, '\()' is needed in the .section directive of these macros for
  * correct substitution of the 'section' variable.
  */
+#if defined(__CCAC__)
+.macro section_var, section, symbol
+	.section .\&section\&.\&symbol, "aw"
+	symbol :
+.endm
 
+.macro section_func, section, symbol
+	.section .\&section\&.\&symbol, "ax"
+	FUNC_CODE()
+	PERFOPT_ALIGN
+	symbol :
+	FUNC_INSTR(symbol)
+.endm
+
+.macro section_subsec_func, section, subsection, symbol
+	.section .\&section\&.\&subsection, "ax"
+	PERFOPT_ALIGN
+	symbol :
+.endm
+#else
 .macro section_var section, symbol
 	.section .\section\().\symbol
 	\symbol :
@@ -336,6 +374,7 @@ do {                                                                    \
 	PERFOPT_ALIGN
 	\symbol :
 .endm
+#endif
 
 #define SECTION_VAR(sect, sym) section_var sect, sym
 #define SECTION_FUNC(sect, sym) section_func sect, sym
