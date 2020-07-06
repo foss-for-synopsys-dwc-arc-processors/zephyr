@@ -39,7 +39,7 @@
 #ifdef _LINKER
 #define Z_LINK_ITERABLE(struct_type) \
 	_CONCAT(_##struct_type, _list_start) = .; \
-	KEEP(*(SORT_BY_NAME(._##struct_type##.static.*))); \
+	KEEP(*(SORT_BY_NAME(Z_STRINGIFY(._##struct_type.static.*)))); \
 	_CONCAT(_##struct_type, _list_end) = .
 
 /* Define an output section which will set up an iterable area
