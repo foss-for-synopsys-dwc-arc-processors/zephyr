@@ -1767,9 +1767,9 @@ class CMake():
     def run_cmake(self, args=[]):
 
         if self.warnings_as_errors:
-            ldflags = "-Wl,--fatal-warnings"
+            ldflags = ""
             cflags = "-Werror"
-            aflags = "-Wa,--fatal-warnings"
+            aflags = ""
         else:
             ldflags = cflags = aflags = ""
 
