@@ -82,6 +82,14 @@ static void tThread_entry(void *p1, void *p2, void *p3)
 {
 	tfifo_get((struct k_fifo *)p1);
 	k_sem_give(&end_sema);
+#if defined(CONFIG_SMP) && CONFIG_MP_NUM_CPUS > 1
+/* tfifo_thread_thread will abort tThread_entry,
+ * no need to abort itself. it may cause some conflicts
+ */
+	while (1) {
+
+	}
+#endif
 }
 
 static void tfifo_thread_thread(struct k_fifo *pfifo)
