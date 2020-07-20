@@ -43,7 +43,7 @@
  * \note Aligned to 4 bytes to keep the wrapping on a 4-byte aligned boundary
  */
 __attribute__ ((aligned(4)))
-static u8_t log_buffer[LOG_SIZE] = {0};
+static uint8_t log_buffer[LOG_SIZE] = {0};
 
 /*!
  * \var scratch_buffer
@@ -51,7 +51,7 @@ static u8_t log_buffer[LOG_SIZE] = {0};
  * \brief Scratch buffers needed to hold plain text (and encrypted, if
  *        available) log items to be added
  */
-static u64_t scratch_buffer[(LOG_SIZE)/8] = {0};
+static uint64_t scratch_buffer[(LOG_SIZE)/8] = {0};
 
 /*!
  * \struct log_vars
@@ -60,14 +60,14 @@ static u64_t scratch_buffer[(LOG_SIZE)/8] = {0};
  *        audit log
  */
 struct log_vars {
-	u32_t first_el_idx; /*!< Index in the log of the first element
+	uint32_t first_el_idx; /*!< Index in the log of the first element
 							    in chronological order */
-	u32_t last_el_idx;  /*!< Index in the log of the last element
+	uint32_t last_el_idx;  /*!< Index in the log of the last element
 							    in chronological order */
-	u32_t num_records;  /*!< Indicates the number of records
+	uint32_t num_records;  /*!< Indicates the number of records
 							    currently stored in the log. It has to be
 							    zero after a reset, i.e. log is empty */
-	u32_t stored_size;  /*!< Indicates the total size of the items
+	uint32_t stored_size;  /*!< Indicates the total size of the items
 							    currently stored in the log */
 };
 
@@ -85,7 +85,7 @@ static struct log_vars log_state = {0};
  *
  * \return Pointer at the beginning of the log item in the log buffer
  */
-static inline struct log_hdr *GET_LOG_POINTER(const u32_t idx)
+static inline struct log_hdr *GET_LOG_POINTER(const uint32_t idx)
 {
 	return (struct log_hdr *)( &log_buffer[idx] );
 }
@@ -97,10 +97,10 @@ static inline struct log_hdr *GET_LOG_POINTER(const u32_t idx)
  *
  * \return Pointer to the size field in the log item header
  */
-static inline u32_t *GET_SIZE_FIELD_POINTER(const u32_t idx)
+static inline uint32_t *GET_SIZE_FIELD_POINTER(const uint32_t idx)
 {
-	return (u32_t *) GET_LOG_POINTER( (idx +
-					    ((u32_t) &((struct log_hdr *) 0)->size)) % LOG_SIZE );
+	return (uint32_t *) GET_LOG_POINTER( (idx +
+					    ((uint32_t) &((struct log_hdr *) 0)->size)) % LOG_SIZE );
 }
 
 /*!
@@ -112,7 +112,7 @@ static inline u32_t *GET_SIZE_FIELD_POINTER(const u32_t idx)
  *
  * \return Full log item size
  */
-static inline u32_t COMPUTE_LOG_ENTRY_SIZE(const u32_t size)
+static inline uint32_t COMPUTE_LOG_ENTRY_SIZE(const uint32_t size)
 {
 	return (LOG_FIXED_FIELD_SIZE + size + LOG_MAC_SIZE);
 }
@@ -125,9 +125,9 @@ static inline u32_t COMPUTE_LOG_ENTRY_SIZE(const u32_t size)
  *
  * \return Index of the next item in the log
  */
-static inline u32_t GET_NEXT_LOG_INDEX(const u32_t idx)
+static inline uint32_t GET_NEXT_LOG_INDEX(const uint32_t idx)
 {
-	return (u32_t) ( (idx + COMPUTE_LOG_ENTRY_SIZE(
+	return (uint32_t) ( (idx + COMPUTE_LOG_ENTRY_SIZE(
 							    *GET_SIZE_FIELD_POINTER(idx)) ) % LOG_SIZE );
 }
 
@@ -141,10 +141,10 @@ static inline u32_t GET_NEXT_LOG_INDEX(const u32_t idx)
  * \param[in] num_records  Number of elements stored
  *
  */
-static void _audit_update_state(const u32_t first_el_idx,
-							    const u32_t last_el_idx,
-							    const u32_t stored_size,
-							    const u32_t num_records)
+static void _audit_update_state(const uint32_t first_el_idx,
+							    const uint32_t last_el_idx,
+							    const uint32_t stored_size,
+							    const uint32_t num_records)
 {
 	/* Update the indexes */
 	log_state.first_el_idx = first_el_idx;
@@ -167,11 +167,11 @@ static void _audit_update_state(const u32_t first_el_idx,
  * \param[out] end   Pointer to the index to end
  *
  */
-static void _audit_replace_record(const u32_t size, u32_t *begin, u32_t *end)
+static void _audit_replace_record(const uint32_t size, uint32_t *begin, uint32_t *end)
 {
-	u32_t first_el_idx = 0, last_el_idx = 0;
-	u32_t num_items = 0, stored_size = 0;
-	u32_t start_pos = 0, stop_pos = 0;
+	uint32_t first_el_idx = 0, last_el_idx = 0;
+	uint32_t num_items = 0, stored_size = 0;
+	uint32_t start_pos = 0, stop_pos = 0;
 
 	/* Retrieve the current state variables of the log */
 	first_el_idx = log_state.first_el_idx;
@@ -223,16 +223,16 @@ static void _audit_replace_record(const u32_t size, u32_t *begin, u32_t *end)
  * \param[out] dest Pointer to the destination buffer
  *
  */
-static u32_t _audit_buffer_copy(const u8_t *src, const u32_t size, u8_t *dest)
+static uint32_t _audit_buffer_copy(const uint8_t *src, const uint32_t size, uint8_t *dest)
 {
-	u32_t idx = 0;
-	u32_t dest_idx = (u32_t)dest - (u32_t)&log_buffer[0];
+	uint32_t idx = 0;
+	uint32_t dest_idx = (uint32_t)dest - (uint32_t)&log_buffer[0];
 
 	if ((dest_idx >= LOG_SIZE) || (size > LOG_SIZE)) {
 		return -ENOSR;
 	}
 
-	/* TODO: This can be an optimized copy using u32_t
+	/* TODO: This can be an optimized copy using uint32_t
 	 *       and enforcing the condition that wrapping
 	 *       happens only on 4-byte boundaries
 	 */
@@ -252,9 +252,9 @@ static u32_t _audit_buffer_copy(const u8_t *src, const u32_t size, u8_t *dest)
  * \param[out] dest Pointer to the destination buffer
  *
  */
-static u32_t _audit_memcpy(const u8_t *src, const u32_t size, u8_t *dest)
+static uint32_t _audit_memcpy(const uint8_t *src, const uint32_t size, uint8_t *dest)
 {
-	u32_t idx = 0;
+	uint32_t idx = 0;
 
 	for (idx = 0; idx < size; idx++) {
 		dest[idx] = src[idx];
@@ -272,15 +272,15 @@ static u32_t _audit_memcpy(const u8_t *src, const u32_t size, u8_t *dest)
  * \param[out] buffer       Pointer to the buffer to format
  *
  */
-static u32_t _audit_format_buffer(const struct audit_record *record,
-								  const u32_t thread_id, u64_t *buffer)
+static uint32_t _audit_format_buffer(const struct audit_record *record,
+								  const uint32_t thread_id, uint64_t *buffer)
 {
-	static u64_t last_timestamp = 0;
+	static uint64_t last_timestamp = 0;
 	struct log_hdr *hdr = NULL;
 	struct log_tlr *tlr = NULL;
-	u32_t size;
-	u8_t idx;
-	u32_t status;
+	uint32_t size;
+	uint8_t idx;
+	uint32_t status;
 
 	/* Get the size from the record */
 	size = record->size;
@@ -306,8 +306,8 @@ static u32_t _audit_format_buffer(const struct audit_record *record,
 	hdr->thread_id = thread_id;
 
 	/* Copy the record into the scratch buffer */
-	status = _audit_memcpy((const u8_t *) record,
-						  size+4, (u8_t *) &(hdr->size));
+	status = _audit_memcpy((const uint8_t *) record,
+						  size+4, (uint8_t *) &(hdr->size));
 	if (status != 0) {
 		return status;
 	}
@@ -315,7 +315,7 @@ static u32_t _audit_format_buffer(const struct audit_record *record,
 	/* FIXME: The MAC here is just a dummy value for prototyping. It will be
 	 *        filled by a call to the crypto interface directly when available.
 	 */
-	tlr = (struct log_tlr *) ((u8_t *)hdr + LOG_FIXED_FIELD_SIZE + size);
+	tlr = (struct log_tlr *) ((uint8_t *)hdr + LOG_FIXED_FIELD_SIZE + size);
 	for (idx=0; idx<LOG_MAC_SIZE; idx++) {
 	    tlr->mac[idx] = idx;
 	}
@@ -325,36 +325,36 @@ static u32_t _audit_format_buffer(const struct audit_record *record,
 
 #ifdef CONFIG_ARC_NORMAL_FIRMWARE
 
-u32_t ss_audit_get_info(u32_t *num_records, u32_t *size)
+uint32_t ss_audit_get_info(uint32_t *num_records, uint32_t *size)
 {
 	return z_zrc_s_call_invoke6(num_records, size, 0, 0,
 				    SS_AUDIT_OP_GET_INFO, 0, ARC_S_CALL_AUDIT_LOGGING);
 }
 
-u32_t ss_audit_get_record_info(const u32_t record_index,
-										   u32_t *size)
+uint32_t ss_audit_get_record_info(const uint32_t record_index,
+										   uint32_t *size)
 {
 	return z_zrc_s_call_invoke6(record_index, size, 0, 0,
 				    SS_AUDIT_OP_GET_RECORD_INFO, 0, ARC_S_CALL_AUDIT_LOGGING);
 }
 
-u32_t ss_audit_retrieve_record(const u32_t record_index,
+uint32_t ss_audit_retrieve_record(const uint32_t record_index,
 												const struct audit_token *token,
-											    const u32_t buffer_size,
-											    u8_t *buffer)
+											    const uint32_t buffer_size,
+											    uint8_t *buffer)
 {
 	return z_arc_s_call_invoke6(record_index, token, buffer_size, buffer,
 				    SS_AUDIT_OP_RETRIEVE_RECORD, 0, ARC_S_CALL_AUDIT_LOGGING);
 }
 
-u32_t ss_audit_add_record(const struct audit_record *record)
+uint32_t ss_audit_add_record(const struct audit_record *record)
 {
 	// it is not permitted to add record from normal world
 	ARG_UNUSED(record);
-	return (u32_t)-EACCES;
+	return (uint32_t)-EACCES;
 }
 
-u32_t ss_audit_delete_record(const u32_t record_index,
+uint32_t ss_audit_delete_record(const uint32_t record_index,
 										 const struct audit_token *token)
 {
 	return z_zrc_s_call_invoke6(record_index, token, 0, 0,
@@ -363,7 +363,7 @@ u32_t ss_audit_delete_record(const u32_t record_index,
 
 #else /* CONFIG_ARC_NORMAL_FIRMWARE */
 
-u32_t ss_audit_get_info(u32_t *num_records, u32_t *size)
+uint32_t ss_audit_get_info(uint32_t *num_records, uint32_t *size)
 {
 	/* Return the number of records that are currently stored */
 	*num_records = log_state.num_records;
@@ -374,10 +374,10 @@ u32_t ss_audit_get_info(u32_t *num_records, u32_t *size)
 	return 0;
 }
 
-u32_t ss_audit_get_record_info(const u32_t record_index,
-										   u32_t *size)
+uint32_t ss_audit_get_record_info(const uint32_t record_index,
+										   uint32_t *size)
 {
-	u32_t start_idx, idx;
+	uint32_t start_idx, idx;
 	if (record_index >= log_state.num_records) {
 		return -EINVAL;
 	}
@@ -395,13 +395,13 @@ u32_t ss_audit_get_record_info(const u32_t record_index,
 	return 0;
 }
 
-u32_t ss_audit_retrieve_record(const u32_t record_index,
+uint32_t ss_audit_retrieve_record(const uint32_t record_index,
 												const struct audit_token *token,
-											    const u32_t buffer_size,
-											    u8_t *buffer)
+											    const uint32_t buffer_size,
+											    uint8_t *buffer)
 {
-	u32_t idx, start_idx, record_size;
-	u32_t status;
+	uint32_t idx, start_idx, record_size;
+	uint32_t status;
 
 	/* FixMe: Currently token and token_size parameters are not evaluated
 	 *        to check if the removal of the desired record_index is
@@ -441,13 +441,13 @@ u32_t ss_audit_retrieve_record(const u32_t record_index,
 	return record_size;
 }
 
-u32_t ss_audit_add_record(const struct audit_record *record)
+uint32_t ss_audit_add_record(const struct audit_record *record)
 {
-	u32_t start_pos = 0, stop_pos = 0;
-	u32_t first_el_idx = 0, last_el_idx = 0, size = 0;
-	u32_t num_items = 0, stored_size = 0;
-	u32_t thread_id;
-	u32_t status;
+	uint32_t start_pos = 0, stop_pos = 0;
+	uint32_t first_el_idx = 0, last_el_idx = 0, size = 0;
+	uint32_t num_items = 0, stored_size = 0;
+	uint32_t thread_id;
+	uint32_t status;
 
 	/* parameter check */
 	// TODO
@@ -492,9 +492,9 @@ u32_t ss_audit_add_record(const struct audit_record *record)
 	/* TODO: At this point, encryption should be called if supported */
 
 	/* Do the copy of the log item to be added in the log */
-	status = _audit_buffer_copy((const u8_t *) &scratch_buffer[0],
+	status = _audit_buffer_copy((const uint8_t *) &scratch_buffer[0],
 							   COMPUTE_LOG_ENTRY_SIZE(size),
-							   (u8_t *) &log_buffer[start_pos]);
+							   (uint8_t *) &log_buffer[start_pos]);
 	if (status != 0) {
 		return status;
 	}
@@ -524,10 +524,10 @@ u32_t ss_audit_add_record(const struct audit_record *record)
 	return 0;
 }
 
-u32_t ss_audit_delete_record(const u32_t record_index,
+uint32_t ss_audit_delete_record(const uint32_t record_index,
 										 const struct audit_token *token)
 {
-	u32_t first_el_idx, size_removed;
+	uint32_t first_el_idx, size_removed;
 	/* FixMe: Currently only the removal of the oldest entry, i.e.
 	 *        record_index 0, is supported. This has to be extended
 	 *        to support removal of random records
@@ -586,10 +586,10 @@ u32_t ss_audit_delete_record(const u32_t record_index,
  * This function provides the default initialization mechanism for
  * Audit logging secure service.
  */
-static u32_t audit_logging_init(void)
+static uint32_t audit_logging_init(void)
 {
 // #if (AUDIT_UART_REDIRECTION == 1U)
-//     s32_t ret = ARM_DRIVER_OK;
+//     int32_t ret = ARM_DRIVER_OK;
 
 //     ret = LOG_UART_NAME.Initialize(NULL);
 //     if (ret != ARM_DRIVER_OK) {
@@ -625,10 +625,10 @@ SYS_INIT(audit_logging_init, PRE_KERNEL_1,
  * this service will check the input args and make sure the operations only
  * can be applied to normal address
  */
-u32_t arc_s_service_audit_logging(u32_t arg1, u32_t arg2, u32_t arg3,
-			     u32_t arg4, u32_t ops)
+uint32_t arc_s_service_audit_logging(uint32_t arg1, uint32_t arg2, uint32_t arg3,
+			     uint32_t arg4, uint32_t ops)
 {
-	u32_t ret = 0;
+	uint32_t ret = 0;
 
 	switch (ops) {
 	case SS_AUDIT_OP_GET_INFO:

@@ -56,17 +56,17 @@ static int32_t arc_s_aux_write(uint32_t aux_reg, uint32_t val)
 }
 
 /* Secure MPU service */
-extern u32_t arc_secure_service_mpu(u32_t arg1, u32_t arg2, u32_t arg3,
-				    u32_t arg4, u32_t ops);
+extern uint32_t arc_secure_service_mpu(uint32_t arg1, uint32_t arg2, uint32_t arg3,
+				    uint32_t arg4, uint32_t ops);
 /* Secure sleep service */
-extern void arc_s_service_sleep(u32_t arg);
+extern void arc_s_service_sleep(uint32_t arg);
 
 /* Secure service to check normal world's switch request */
-extern u32_t arc_s_service_n_switch(void);
+extern uint32_t arc_s_service_n_switch(void);
 
 /* Secure service of audit logging, allowing to log critical or security related events */
-extern u32_t arc_s_service_audit_logging(u32_t arg1, u32_t arg2, u32_t arg3,
-				    u32_t arg4, u32_t ops);
+extern uint32_t arc_s_service_audit_logging(uint32_t arg1, uint32_t arg2, uint32_t arg3,
+				    uint32_t arg4, uint32_t ops);
 
 /*
  * \todo, how to add secure service easily

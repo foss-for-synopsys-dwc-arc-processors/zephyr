@@ -14,7 +14,7 @@
 
 #include <arch/arc/v2/secureshield/arc_secure.h>
 
-u32_t normal_irq_switch_request;
+uint32_t normal_irq_switch_request;
 
 static struct k_thread *normal_container_thread;
 
@@ -107,7 +107,7 @@ static int arc_secureshield_init(const struct device *arg)
 /*
  * @brief go to normal world from secure firmware
  */
-FUNC_NORETURN void z_arch_go_to_normal(u32_t entry)
+FUNC_NORETURN void z_arch_go_to_normal(uint32_t entry)
 {
 /* record the container secure thread which will be used in
  * secure software irq.
@@ -121,10 +121,10 @@ FUNC_NORETURN void z_arch_go_to_normal(u32_t entry)
 /*
  * @brief secure service for sleep instruction in normal world
  */
-void arc_s_service_sleep(u32_t arg)
+void arc_s_service_sleep(uint32_t arg)
 {
-	u32_t prio_level = arg & 0xf;
-	u32_t key;
+	uint32_t prio_level = arg & 0xf;
+	uint32_t key;
 
 	if (prio_level >= ARC_N_IRQ_START_LEVEL &&
 	    prio_level < CONFIG_NUM_IRQ_PRIO_LEVELS) {
@@ -151,7 +151,7 @@ void arc_s_service_sleep(u32_t arg)
  * @brief secure service to handle normal world's context
  * switch request
  */
-u32_t arc_s_service_n_switch(void)
+uint32_t arc_s_service_n_switch(void)
 {
 	struct k_thread *current;
 

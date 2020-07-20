@@ -77,8 +77,8 @@ extern "C" {
  */
 // struct audit_tlv_entry {
 //     enum audit_tlv_type type;
-//     u32_t length;
-//     u8_t value[];
+//     uint32_t length;
+//     uint8_t value[];
 // };
 
 /*!
@@ -95,9 +95,9 @@ extern "C" {
  *        by the requesting secure service
  */
 struct audit_record {
-    u32_t size;      /*!< Size in bytes of the id and payload fields */
-    u32_t id;        /*!< ID of the record */
-    u8_t  payload[]; /*!< Flexible array member for payload */
+    uint32_t size;      /*!< Size in bytes of the id and payload fields */
+    uint32_t id;        /*!< ID of the record */
+    uint8_t  payload[]; /*!< Flexible array member for payload */
 };
 
 /*!
@@ -106,11 +106,11 @@ struct audit_record {
  * \brief Fixed size header for a log record
  */
 struct log_hdr {
-    u64_t timestamp;
-    u32_t iv_counter;
-    u32_t thread_id;
-    u32_t size;
-    u32_t id;
+    uint64_t timestamp;
+    uint32_t iv_counter;
+    uint32_t thread_id;
+    uint32_t size;
+    uint32_t id;
 };
 
 /*!
@@ -119,12 +119,12 @@ struct log_hdr {
  * \brief tailing with Message authentication code (MAC)
  */
 struct log_tlr {
-    u8_t mac[LOG_MAC_SIZE];
+    uint8_t mac[LOG_MAC_SIZE];
 };
 
 struct audit_token {
-	u32_t token_size;
-	u8_t *token;
+	uint32_t token_size;
+	uint8_t *token;
 };
 
 /*!
@@ -146,17 +146,17 @@ struct audit_token {
  * \brief Fixed size logging entry trailer
  */
 
-u32_t ss_audit_get_info(u32_t *num_records, u32_t *size);
+uint32_t ss_audit_get_info(uint32_t *num_records, uint32_t *size);
 
-u32_t ss_audit_get_record_info(const u32_t record_index, u32_t *size);
+uint32_t ss_audit_get_record_info(const uint32_t record_index, uint32_t *size);
 
-u32_t ss_audit_retrieve_record(const u32_t record_index,
+uint32_t ss_audit_retrieve_record(const uint32_t record_index,
 							   const struct audit_token *token,
-							   const u32_t buffer_size, u8_t *buffer);
+							   const uint32_t buffer_size, uint8_t *buffer);
 
-u32_t ss_audit_add_record(const struct audit_record *record);
+uint32_t ss_audit_add_record(const struct audit_record *record);
 
-u32_t ss_audit_delete_record(const u32_t record_index,
+uint32_t ss_audit_delete_record(const uint32_t record_index,
 							 const struct audit_token *token);
 
 

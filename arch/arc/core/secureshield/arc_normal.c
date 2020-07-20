@@ -49,17 +49,17 @@ static int arc_normal_firmware_init(struct device *arg)
  * args. Through this wrapper, the caller saved regs will be saved
  * and restored by toolchain.
  */
-u32_t z_arc_s_call_invoke6(u32_t arg1, u32_t arg2, u32_t arg3,
-			   u32_t arg4, u32_t arg5, u32_t arg6,
-			   u32_t call_id)
+uint32_t z_arc_s_call_invoke6(uint32_t arg1, uint32_t arg2, uint32_t arg3,
+			   uint32_t arg4, uint32_t arg5, uint32_t arg6,
+			   uint32_t call_id)
 {
-	register u32_t ret __asm__("r0") = arg1;
-	register u32_t r1 __asm__("r1") = arg2;
-	register u32_t r2 __asm__("r2") = arg3;
-	register u32_t r3 __asm__("r3") = arg4;
-	register u32_t r4 __asm__("r4") = arg5;
-	register u32_t r5 __asm__("r5") = arg6;
-	register u32_t r6 __asm__("r6") = call_id;
+	register uint32_t ret __asm__("r0") = arg1;
+	register uint32_t r1 __asm__("r1") = arg2;
+	register uint32_t r2 __asm__("r2") = arg3;
+	register uint32_t r3 __asm__("r3") = arg4;
+	register uint32_t r4 __asm__("r4") = arg5;
+	register uint32_t r5 __asm__("r5") = arg6;
+	register uint32_t r6 __asm__("r6") = call_id;
 
 	compiler_barrier();
 

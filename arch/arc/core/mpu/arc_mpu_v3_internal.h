@@ -747,7 +747,6 @@ void arc_core_mpu_remove_mem_domain(struct k_mem_domain *mem_domain)
  */
 void arc_core_mpu_remove_mem_partition(struct k_mem_domain *domain,
 			uint32_t partition_id)
->>>>>>> 215bf296db... arch: arc: necessary fixes and cleanup after rebase
 {
 	struct k_mem_partition *partition = &domain->partitions[partition_id];
 

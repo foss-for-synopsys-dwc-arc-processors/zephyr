@@ -27,7 +27,7 @@ void threadA(void *dummy1, void *dummy2, void *dummy3)
 	ARG_UNUSED(dummy1);
 	ARG_UNUSED(dummy2);
 	ARG_UNUSED(dummy3);
-	for(u8_t idx = 0; idx<36; idx++)
+	for(uint8_t idx = 0; idx<36; idx++)
 	{
 		ss_audit_add_record(&record);
 		record.id++;

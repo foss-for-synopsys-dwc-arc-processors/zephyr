@@ -169,8 +169,8 @@ extern void arch_isr_direct_header(void);
 static ALWAYS_INLINE unsigned int arch_irq_lock(void)
 {
 #if defined(CONFIG_ARC_NORMAL_FIRMWARE)
-	register u32_t key __asm__("r0");
-	register u32_t r6 __asm__("r6") = ARC_S_CALL_CLRI;
+	register uint32_t key __asm__("r0");
+	register uint32_t r6 __asm__("r6") = ARC_S_CALL_CLRI;
 
 	__asm__ volatile(
 			 "push blink\n"
@@ -192,8 +192,8 @@ static ALWAYS_INLINE unsigned int arch_irq_lock(void)
 static ALWAYS_INLINE void arch_irq_unlock(unsigned int key)
 {
 #if defined(CONFIG_ARC_NORMAL_FIRMWARE)
-	register u32_t val __asm__("r0") = key;
-	register u32_t r6 __asm__("r6") = ARC_S_CALL_SETI;
+	register uint32_t val __asm__("r0") = key;
+	register uint32_t r6 __asm__("r6") = ARC_S_CALL_SETI;
 
 	__asm__ volatile(
 			 "push blink\n"
