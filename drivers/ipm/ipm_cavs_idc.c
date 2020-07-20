@@ -10,7 +10,7 @@
 #include <device.h>
 #include <init.h>
 #include <drivers/ipm.h>
-#include <arch/common/sys_io.h>
+#include <sys/sys_io.h>
 
 #include <soc.h>
 
