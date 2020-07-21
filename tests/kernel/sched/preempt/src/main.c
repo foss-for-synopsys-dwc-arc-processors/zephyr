@@ -113,7 +113,7 @@ void wakeup_src_thread(int id)
 	while (do_sleep
 	       && !(worker_threads[id].base.thread_state & _THREAD_PENDING)) {
 		/* spin, waiting on the sleep timeout */
-#if defined(CONFIG_ARCH_POSIX)
+		/* mwdt will do wrong optimization here */
 		/**
 		 * In the posix arch busy wait loops waiting for something to
 		 * happen need to halt the CPU due to the infinitely fast clock
@@ -124,7 +124,6 @@ void wakeup_src_thread(int id)
 		 * and it letting the cpu sleep before letting time pass)
 		 */
 		k_busy_wait(50);
-#endif
 	}
 
 	/* We are lowest priority, SOMEONE must have run */

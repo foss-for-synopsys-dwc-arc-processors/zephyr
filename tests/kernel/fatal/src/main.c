@@ -141,18 +141,32 @@ void alt_thread5(void)
 #ifdef CONFIG_STACK_SENTINEL
 void blow_up_stack(void)
 {
+#if defined(__CCAC__)
+	volatile char buf[OVERFLOW_STACKSIZE];
+	int i;
+
+	expected_reason = K_ERR_STACK_CHK_FAIL;
+	TC_PRINT("posting %zu bytes of junk to stack...\n", sizeof(buf));
+
+	for (i = 0; i < OVERFLOW_STACKSIZE; i++) {
+		buf[i] = 0xbb;
+	}
+#else
 	char buf[OVERFLOW_STACKSIZE];
 
 	expected_reason = K_ERR_STACK_CHK_FAIL;
 	TC_PRINT("posting %zu bytes of junk to stack...\n", sizeof(buf));
 	(void)memset(buf, 0xbb, sizeof(buf));
+#endif
 }
 #else
 /* stack sentinel doesn't catch it in time before it trashes the entire kernel
  */
 int stack_smasher(int val)
 {
-	return stack_smasher(val * 2) + stack_smasher(val * 3);
+	volatile int i = val;
+
+	return stack_smasher(i * 2) + stack_smasher(i * 3);
 }
 
 void blow_up_stack(void)
