@@ -194,45 +194,25 @@ static ALWAYS_INLINE
 static ALWAYS_INLINE
 	void sys_set_bit(mem_addr_t addr, unsigned int bit)
 {
-	uint32_t reg = 0;
+	uint32_t temp = *(volatile uint32_t *)addr;
 
-	__asm__ volatile("ld	%1, [%0]\n"
-			 "bset	%1, %1, %2\n"
-			 "st	%1, [%0];\n\t"
-			 : "+r" (addr)
-			 : "r" (reg), "ir" (bit)
-			 : "memory", "cc");
+	*(volatile uint32_t *)addr = temp | (1 << bit);
 }
 
 static ALWAYS_INLINE
 	void sys_clear_bit(mem_addr_t addr, unsigned int bit)
 {
-	uint32_t reg = 0;
+	uint32_t temp = *(volatile uint32_t *)addr;
 
-	__asm__ volatile("ld	%1, [%0]\n"
-			 "bclr	%1, %1, %2\n"
-			 "st	%1, [%0];\n\t"
-			 : "+r" (addr)
-			 : "r" (reg), "ir" (bit)
-			 : "memory", "cc");
+	*(volatile uint32_t *)addr = temp & ~(1 << bit);
 }
 
 static ALWAYS_INLINE
 	int sys_test_bit(mem_addr_t addr, unsigned int bit)
 {
-	uint32_t status = _ARC_V2_STATUS32;
-	uint32_t reg = 0;
-	uint32_t ret;
+	uint32_t temp = *(volatile uint32_t *)addr;
 
-	__asm__ volatile("ld	%2, [%1]\n"
-			 "btst	%2, %3\n"
-			 "lr	%0, [%4];\n\t"
-			 : "=r" (ret)
-			 : "r" (addr),
-			   "r" (reg), "ir" (bit), "i" (status)
-			 : "memory", "cc");
-
-	return !(ret & _ARC_V2_STATUS32_Z);
+	return temp & (1 << bit);
 }
 
 static ALWAYS_INLINE
