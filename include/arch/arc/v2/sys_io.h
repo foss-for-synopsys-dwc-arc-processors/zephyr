@@ -128,7 +128,7 @@ static ALWAYS_INLINE
 static ALWAYS_INLINE
 	void sys_write8(uint8_t data, mm_reg_t addr)
 {
-	__asm__ volatile("stb%U1	%0, [%1];\n\t"
+	__asm__ volatile("stb	%0, [%1];\n\t"
 			 :
 			 : "r" (data), "r" (addr)
 			 : "memory");
@@ -139,7 +139,7 @@ static ALWAYS_INLINE
 {
 	uint8_t ret;
 
-	__asm__ volatile("ldb%U1	%0, [%1];\n\t"
+	__asm__ volatile("ldb	%0, [%1];\n\t"
 			 : "=r" (ret)
 			 : "r" (addr)
 			 : "memory");
@@ -150,7 +150,7 @@ static ALWAYS_INLINE
 static ALWAYS_INLINE
 	void sys_write16(uint16_t data, mm_reg_t addr)
 {
-	__asm__ volatile("sth%U1	%0, [%1];\n\t"
+	__asm__ volatile("sth	%0, [%1];\n\t"
 			 :
 			 : "r" (data), "r" (addr)
 			 : "memory");
@@ -161,7 +161,7 @@ static ALWAYS_INLINE
 {
 	uint16_t ret;
 
-	__asm__ volatile("ldh%U1	%0, [%1];\n\t"
+	__asm__ volatile("ldh	%0, [%1];\n\t"
 			 : "=r" (ret)
 			 : "r" (addr)
 			 : "memory");
@@ -172,7 +172,7 @@ static ALWAYS_INLINE
 static ALWAYS_INLINE
 	void sys_write32(uint32_t data, mm_reg_t addr)
 {
-	__asm__ volatile("st%U1	%0, [%1];\n\t"
+	__asm__ volatile("st	%0, [%1];\n\t"
 			 :
 			 : "r" (data), "r" (addr)
 			 : "memory");
@@ -183,7 +183,7 @@ static ALWAYS_INLINE
 {
 	uint32_t ret;
 
-	__asm__ volatile("ld%U1	%0, [%1];\n\t"
+	__asm__ volatile("ld	%0, [%1];\n\t"
 			 : "=r" (ret)
 			 : "r" (addr)
 			 : "memory");
