@@ -136,7 +136,6 @@ int arch_irq_is_enabled(unsigned int irq)
  *
  * @return N/A
  */
-
 void z_irq_priority_set(unsigned int irq, unsigned int prio, uint32_t flags)
 {
 	ARG_UNUSED(flags);
@@ -150,14 +149,13 @@ void z_irq_priority_set(unsigned int irq, unsigned int prio, uint32_t flags)
  * (which is rare), pls call z_arc_v2_irq_unit_prio_set.
  */
 #if defined(CONFIG_ARC_SECURE_FIRMWARE)
-	prio = prio < ARC_N_IRQ_START_LEVEL ?
-		prio : (ARC_N_IRQ_START_LEVEL - 1);
-	z_arc_v2_irq_unit_prio_set(irq, prio | _ARC_V2_IRQ_PRIORITY_SECURE);
+	prio = (prio < ARC_N_IRQ_START_LEVEL ?
+		prio : (ARC_N_IRQ_START_LEVEL - 1)) | _ARC_V2_IRQ_PRIORITY_SECURE;
 #elif defined(CONFIG_ARC_NORMAL_FIRMWARE)
 	prio = prio < ARC_N_IRQ_START_LEVEL ?
 		 ARC_N_IRQ_START_LEVEL : prio;
-	z_arc_v2_irq_unit_prio_set(irq, prio);
 #endif
+	z_arc_v2_irq_unit_prio_set(irq, prio);
 }
 
 /*

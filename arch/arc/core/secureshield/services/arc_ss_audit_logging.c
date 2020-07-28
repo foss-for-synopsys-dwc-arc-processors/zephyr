@@ -327,14 +327,14 @@ static uint32_t _audit_format_buffer(const struct audit_record *record,
 
 uint32_t ss_audit_get_info(uint32_t *num_records, uint32_t *size)
 {
-	return z_zrc_s_call_invoke6(num_records, size, 0, 0,
+	return z_arc_s_call_invoke6((uint32_t)num_records, (uint32_t)size, 0, 0,
 				    SS_AUDIT_OP_GET_INFO, 0, ARC_S_CALL_AUDIT_LOGGING);
 }
 
 uint32_t ss_audit_get_record_info(const uint32_t record_index,
 										   uint32_t *size)
 {
-	return z_zrc_s_call_invoke6(record_index, size, 0, 0,
+	return z_arc_s_call_invoke6(record_index, (uint32_t)size, 0, 0,
 				    SS_AUDIT_OP_GET_RECORD_INFO, 0, ARC_S_CALL_AUDIT_LOGGING);
 }
 
@@ -343,7 +343,7 @@ uint32_t ss_audit_retrieve_record(const uint32_t record_index,
 											    const uint32_t buffer_size,
 											    uint8_t *buffer)
 {
-	return z_arc_s_call_invoke6(record_index, token, buffer_size, buffer,
+	return z_arc_s_call_invoke6(record_index, (uint32_t)token, buffer_size, (uint32_t)buffer,
 				    SS_AUDIT_OP_RETRIEVE_RECORD, 0, ARC_S_CALL_AUDIT_LOGGING);
 }
 
@@ -357,7 +357,7 @@ uint32_t ss_audit_add_record(const struct audit_record *record)
 uint32_t ss_audit_delete_record(const uint32_t record_index,
 										 const struct audit_token *token)
 {
-	return z_zrc_s_call_invoke6(record_index, token, 0, 0,
+	return z_arc_s_call_invoke6(record_index, (uint32_t)token, 0, 0,
 				    SS_AUDIT_OP_DELETE_RECORD, 0, ARC_S_CALL_AUDIT_LOGGING);
 }
 
@@ -453,7 +453,7 @@ uint32_t ss_audit_add_record(const struct audit_record *record)
 	// TODO
 	/* access policy check */
 	// TODO
-	thread_id = k_current_get();
+	thread_id = (uint32_t) k_current_get();
 	/* read the size from the input record */
 	size = record->size;
 	/* Check that size is a 4-byte multiple as expected */
@@ -586,8 +586,9 @@ uint32_t ss_audit_delete_record(const uint32_t record_index,
  * This function provides the default initialization mechanism for
  * Audit logging secure service.
  */
-static uint32_t audit_logging_init(void)
+static int audit_logging_init(struct device *dev)
 {
+	ARG_UNUSED(dev);
 // #if (AUDIT_UART_REDIRECTION == 1U)
 //     int32_t ret = ARM_DRIVER_OK;
 
@@ -632,19 +633,19 @@ uint32_t arc_s_service_audit_logging(uint32_t arg1, uint32_t arg2, uint32_t arg3
 
 	switch (ops) {
 	case SS_AUDIT_OP_GET_INFO:
-		ret = ss_audit_get_info(arg1, arg2);
+		ret = ss_audit_get_info((uint32_t *)arg1, (uint32_t *)arg2);
 		break;
 	case SS_AUDIT_OP_GET_RECORD_INFO:
-		ret = ss_audit_get_record_info(arg1, arg2);
+		ret = ss_audit_get_record_info(arg1, (uint32_t *)arg2);
 		break;
 	case SS_AUDIT_OP_RETRIEVE_RECORD:
-		ret = ss_audit_retrieve_record(arg1, arg2, arg3, arg4);
+		ret = ss_audit_retrieve_record(arg1, (struct audit_token *)arg2, arg3, (uint8_t *)arg4);
 		break;
 	case SS_AUDIT_OP_ADD_RECORD:
-		ret = ss_audit_add_record(arg1);
+		ret = ss_audit_add_record((struct audit_record *)arg1);
 		break;
 	case SS_AUDIT_OP_DELETE_RECORD:
-		ret = ss_audit_delete_record(arg1, arg2);
+		ret = ss_audit_delete_record(arg1, (struct audit_token *)arg2);
 		break;
 	default:
 		ret = 0;
