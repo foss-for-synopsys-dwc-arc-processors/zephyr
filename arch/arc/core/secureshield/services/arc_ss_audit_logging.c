@@ -36,24 +36,6 @@
 #define LOG_SIZE (1024)
 
 /*!
- * \var log_buffer
- *
- * \brief The private buffer containing the the log in memory
- *
- * \note Aligned to 4 bytes to keep the wrapping on a 4-byte aligned boundary
- */
-__attribute__ ((aligned(4)))
-static uint8_t log_buffer[LOG_SIZE] = {0};
-
-/*!
- * \var scratch_buffer
- *
- * \brief Scratch buffers needed to hold plain text (and encrypted, if
- *        available) log items to be added
- */
-static uint64_t scratch_buffer[(LOG_SIZE)/8] = {0};
-
-/*!
  * \struct log_vars
  *
  * \brief Contains the state variables associated to the current state of the
@@ -70,6 +52,26 @@ struct log_vars {
 	uint32_t stored_size;  /*!< Indicates the total size of the items
 							    currently stored in the log */
 };
+
+#if defined(CONFIG_ARC_SECURE_FIRMWARE)
+
+/*!
+ * \var log_buffer
+ *
+ * \brief The private buffer containing the the log in memory
+ *
+ * \note Aligned to 4 bytes to keep the wrapping on a 4-byte aligned boundary
+ */
+__attribute__ ((aligned(4)))
+static uint8_t log_buffer[LOG_SIZE] = {0};
+
+/*!
+ * \var scratch_buffer
+ *
+ * \brief Scratch buffers needed to hold plain text (and encrypted, if
+ *        available) log items to be added
+ */
+static uint64_t scratch_buffer[(LOG_SIZE)/8] = {0};
 
 /*!
  * \var log_state
@@ -323,45 +325,25 @@ static uint32_t _audit_format_buffer(const struct audit_record *record,
 	return 0;
 }
 
-#ifdef CONFIG_ARC_NORMAL_FIRMWARE
-
-uint32_t ss_audit_get_info(uint32_t *num_records, uint32_t *size)
+/* secure service: audit logging */
+/* initialization function
+ * @brief audit logging service initialization
+ *
+ * This function provides the default initialization mechanism for
+ * Audit logging secure service.
+ */
+static int audit_logging_init(const struct device *dev)
 {
-	return z_arc_s_call_invoke6((uint32_t)num_records, (uint32_t)size, 0, 0,
-				    SS_AUDIT_OP_GET_INFO, 0, ARC_S_CALL_AUDIT_LOGGING);
+	ARG_UNUSED(dev);
+
+	/* Clear the log state variables */
+	_audit_update_state(0, 0, 0, 0);
+
+	return 0;
 }
 
-uint32_t ss_audit_get_record_info(const uint32_t record_index,
-										   uint32_t *size)
-{
-	return z_arc_s_call_invoke6(record_index, (uint32_t)size, 0, 0,
-				    SS_AUDIT_OP_GET_RECORD_INFO, 0, ARC_S_CALL_AUDIT_LOGGING);
-}
-
-uint32_t ss_audit_retrieve_record(const uint32_t record_index,
-												const struct audit_token *token,
-											    const uint32_t buffer_size,
-											    uint8_t *buffer)
-{
-	return z_arc_s_call_invoke6(record_index, (uint32_t)token, buffer_size, (uint32_t)buffer,
-				    SS_AUDIT_OP_RETRIEVE_RECORD, 0, ARC_S_CALL_AUDIT_LOGGING);
-}
-
-uint32_t ss_audit_add_record(const struct audit_record *record)
-{
-	// it is not permitted to add record from normal world
-	ARG_UNUSED(record);
-	return (uint32_t)-EACCES;
-}
-
-uint32_t ss_audit_delete_record(const uint32_t record_index,
-										 const struct audit_token *token)
-{
-	return z_arc_s_call_invoke6(record_index, (uint32_t)token, 0, 0,
-				    SS_AUDIT_OP_DELETE_RECORD, 0, ARC_S_CALL_AUDIT_LOGGING);
-}
-
-#else /* CONFIG_ARC_NORMAL_FIRMWARE */
+SYS_INIT(audit_logging_init, PRE_KERNEL_1,
+	 CONFIG_KERNEL_INIT_PRIORITY_DEFAULT);
 
 uint32_t ss_audit_get_info(uint32_t *num_records, uint32_t *size)
 {
@@ -577,46 +559,6 @@ uint32_t ss_audit_delete_record(const uint32_t record_index,
 
 	return 0;
 }
-#endif /* CONFIG_ARC_NORMAL_FIRMWARE */
-
-/* secure service: audit logging */
-/* initialization function
- * @brief audit logging service initialization
- *
- * This function provides the default initialization mechanism for
- * Audit logging secure service.
- */
-static int audit_logging_init(struct device *dev)
-{
-	ARG_UNUSED(dev);
-// #if (AUDIT_UART_REDIRECTION == 1U)
-//     int32_t ret = ARM_DRIVER_OK;
-
-//     ret = LOG_UART_NAME.Initialize(NULL);
-//     if (ret != ARM_DRIVER_OK) {
-//         return PSA_ERROR_GENERIC_ERROR;
-//     }
-
-//     ret = LOG_UART_NAME.Control(ARM_USART_MODE_ASYNCHRONOUS,
-//                                 LOG_UART_BAUD_RATE);
-//     if (ret != ARM_DRIVER_OK) {
-//         return PSA_ERROR_GENERIC_ERROR;
-//     }
-
-//     /* If we get to this point, UART init is successful */
-//     log_uart_init_success = 1U;
-// #endif
-
-	/* Clear the log state variables */
-	_audit_update_state(0, 0, 0, 0);
-
-	return 0;
-}
-
-SYS_INIT(audit_logging_init, PRE_KERNEL_1,
-	 CONFIG_KERNEL_INIT_PRIORITY_DEFAULT);
-
-#if defined(CONFIG_ARC_SECURE_FIRMWARE)
 
 /*
  * @brief secure mpu service
@@ -654,4 +596,43 @@ uint32_t arc_s_service_audit_logging(uint32_t arg1, uint32_t arg2, uint32_t arg3
 
 	return ret;
 }
+
+#else /* CONFIG_ARC_NORMAL_FIRMWARE */
+
+uint32_t ss_audit_get_info(uint32_t *num_records, uint32_t *size)
+{
+	return z_arc_s_call_invoke6((uint32_t)num_records, (uint32_t)size, 0, 0,
+				    SS_AUDIT_OP_GET_INFO, 0, ARC_S_CALL_AUDIT_LOGGING);
+}
+
+uint32_t ss_audit_get_record_info(const uint32_t record_index,
+										   uint32_t *size)
+{
+	return z_arc_s_call_invoke6(record_index, (uint32_t)size, 0, 0,
+				    SS_AUDIT_OP_GET_RECORD_INFO, 0, ARC_S_CALL_AUDIT_LOGGING);
+}
+
+uint32_t ss_audit_retrieve_record(const uint32_t record_index,
+												const struct audit_token *token,
+											    const uint32_t buffer_size,
+											    uint8_t *buffer)
+{
+	return z_arc_s_call_invoke6(record_index, (uint32_t)token, buffer_size, (uint32_t)buffer,
+				    SS_AUDIT_OP_RETRIEVE_RECORD, 0, ARC_S_CALL_AUDIT_LOGGING);
+}
+
+uint32_t ss_audit_add_record(const struct audit_record *record)
+{
+	// it is not permitted to add record from normal world
+	ARG_UNUSED(record);
+	return (uint32_t)-EACCES;
+}
+
+uint32_t ss_audit_delete_record(const uint32_t record_index,
+										 const struct audit_token *token)
+{
+	return z_arc_s_call_invoke6(record_index, (uint32_t)token, 0, 0,
+				    SS_AUDIT_OP_DELETE_RECORD, 0, ARC_S_CALL_AUDIT_LOGGING);
+}
+
 #endif /* CONFIG_ARC_SECURE_FIRMWARE */
