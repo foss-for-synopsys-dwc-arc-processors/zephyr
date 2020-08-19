@@ -165,6 +165,7 @@ macro(toolchain_cc_warning_base)
       -Wformat-security
       -Wno-format-zero-length
       -Wno-main-return-type
+      -Wno-unaligned-pointer-conversion
   )
   zephyr_cc_option(-Wno-pointer-sign)
 
