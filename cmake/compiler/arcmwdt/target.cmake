@@ -129,7 +129,7 @@ endmacro()
 
 # optimizaiton for debug
 macro(toolchain_cc_optimize_for_debug_flag dest_var_name)
-    set_ifndef(${dest_var_name}  "-Og")
+    set_ifndef(${dest_var_name}  "-O0")
 endmacro()
 
 macro(toolchain_cc_optimize_for_speed_flag dest_var_name)
