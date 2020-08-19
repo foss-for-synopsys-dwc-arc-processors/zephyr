@@ -6,3 +6,4 @@ tests:
     tags: jwt
     integration_platforms:
       - native_posix
+    filter: TOOLCHAIN_HAS_NEWLIB == 1
