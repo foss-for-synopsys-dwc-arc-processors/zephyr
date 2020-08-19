@@ -4,3 +4,4 @@ tests:
     min_flash: 72
     timeout: 120
     tags: jwt
+    filter: TOOLCHAIN_HAS_NEWLIB == 1

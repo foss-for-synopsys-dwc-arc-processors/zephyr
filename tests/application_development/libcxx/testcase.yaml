@@ -2,11 +2,13 @@ tests:
   application_development.cpp.libcxx:
     platform_exclude: qemu_x86_coverage
     toolchain_exclude: xcc
+    filter: TOOLCHAIN_HAS_NEWLIB == 1
     min_flash: 54
     tags: cpp
   application_development.cpp.libcxx.exceptions:
     platform_exclude: qemu_x86_coverage
     toolchain_exclude: xcc
+    filter: TOOLCHAIN_HAS_NEWLIB == 1
     min_flash: 54
     tags: cpp
     extra_configs:
