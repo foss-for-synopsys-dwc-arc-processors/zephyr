@@ -23,7 +23,7 @@ config CPU_ARCEM
 config CPU_ARCHS
 	bool "ARC HS cores"
 	select CPU_ARCV2
-	select ATOMIC_OPERATIONS_BUILTIN
+	select ATOMIC_OPERATIONS_C
 	help
 	  This option signifies the use of an ARC HS CPU
 
