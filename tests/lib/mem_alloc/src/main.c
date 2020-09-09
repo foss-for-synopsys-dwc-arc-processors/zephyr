@@ -188,9 +188,11 @@ void test_memalloc_all(void)
 
 void test_memalloc_max(void)
 {
-	char *ptr = NULL;
+	volatile char *ptr = NULL;
 
 	ptr = malloc(0x7fffffff);
+	if (ptr != NULL)
+		ptr[0] = 0x55;
 	zassert_is_null(ptr, "malloc passed unexpectedly");
 	free(ptr);
 	ptr = NULL;
