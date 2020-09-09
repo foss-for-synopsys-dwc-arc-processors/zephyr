@@ -112,6 +112,7 @@ void wakeup_src_thread(int id)
 
 	while (do_sleep
 	       && !(worker_threads[id].base.thread_state & _THREAD_PENDING)) {
+		arch_nop();
 		/* spin, waiting on the sleep timeout */
 #if defined(CONFIG_ARCH_POSIX)
 		/**
