@@ -144,22 +144,25 @@ void arch_new_thread(struct k_thread *thread, k_thread_stack_t *stack,
 	iframe = get_iframe(thread, stack_ptr);
 
 #ifdef CONFIG_USERSPACE
-	/* enable US bit, US is read as zero in user mode. This will allow user
-	 * mode sleep instructions, and it enables a form of denial-of-service
-	 * attack by putting the processor in sleep mode, but since interrupt
-	 * level/mask can't be set from user space that's not worse than
-	 * executing a loop without yielding.
-	 */
-	iframe->status32 = _ARC_V2_STATUS32_US;
 	if (is_user(thread)) {
 		iframe->pc = (uint32_t)z_user_thread_entry_wrapper;
 	} else {
 		iframe->pc = (uint32_t)z_thread_entry_wrapper;
 	}
 #else
-	iframe->status32 = 0;
 	iframe->pc = ((uint32_t)z_thread_entry_wrapper);
 #endif /* CONFIG_USERSPACE */
+	/*
+	* enable US bit, US is read as zero in user mode. This will allow use
+	* mode sleep instructions, and it enables a form of denial-of-service
+	* attack by putting the processor in sleep mode, but since interrupt
+	* level/mask can't be set from user space that's not worse than
+	* executing a loop without yielding.
+	* Even USERSPACE is not configured, enabling US bit will not bring
+	* bad effect, and is required for the case:
+	*   (secure firmware (no userspace) + normal firmwre (userspace))
+	*/
+	iframe->status32 = _ARC_V2_STATUS32_US;
 #ifdef CONFIG_ARC_SECURE_FIRMWARE
 	iframe->sec_stat = z_arc_v2_aux_reg_read(_ARC_V2_SEC_STAT);
 #endif
