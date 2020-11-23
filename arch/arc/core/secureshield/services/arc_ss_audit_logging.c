@@ -231,6 +231,7 @@ static uint32_t _audit_buffer_copy(const uint8_t *src, const uint32_t size, uint
 	uint32_t dest_idx = (uint32_t)dest - (uint32_t)&log_buffer[0];
 
 	if ((dest_idx >= LOG_SIZE) || (size > LOG_SIZE)) {
+		//TODO: return value, return negative value but return type is uint32_t
 		return -ENOSR;
 	}
 
@@ -571,30 +572,22 @@ uint32_t ss_audit_delete_record(const uint32_t record_index,
 uint32_t arc_s_service_audit_logging(uint32_t arg1, uint32_t arg2, uint32_t arg3,
 			     uint32_t arg4, uint32_t ops)
 {
-	uint32_t ret = 0;
-
 	switch (ops) {
 	case SS_AUDIT_OP_GET_INFO:
-		ret = ss_audit_get_info((uint32_t *)arg1, (uint32_t *)arg2);
-		break;
+		return ss_audit_get_info((uint32_t *)arg1, (uint32_t *)arg2);
 	case SS_AUDIT_OP_GET_RECORD_INFO:
-		ret = ss_audit_get_record_info(arg1, (uint32_t *)arg2);
-		break;
+		return ss_audit_get_record_info(arg1, (uint32_t *)arg2);
 	case SS_AUDIT_OP_RETRIEVE_RECORD:
-		ret = ss_audit_retrieve_record(arg1, (struct audit_token *)arg2, arg3, (uint8_t *)arg4);
-		break;
+		return ss_audit_retrieve_record(arg1, (struct audit_token *)arg2, arg3, (uint8_t *)arg4);
 	case SS_AUDIT_OP_ADD_RECORD:
-		ret = ss_audit_add_record((struct audit_record *)arg1);
-		break;
+		return ss_audit_add_record((struct audit_record *)arg1);
 	case SS_AUDIT_OP_DELETE_RECORD:
-		ret = ss_audit_delete_record(arg1, (struct audit_token *)arg2);
-		break;
+		return ss_audit_delete_record(arg1, (struct audit_token *)arg2);
 	default:
-		ret = 0;
-		break;
+		return 0;
 	}
 
-	return ret;
+	return 0;
 }
 
 #else /* CONFIG_ARC_NORMAL_FIRMWARE */
