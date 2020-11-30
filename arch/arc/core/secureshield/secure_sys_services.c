@@ -67,6 +67,12 @@ extern uint32_t arc_s_service_n_switch(void);
 /* Secure service of audit logging, allowing to log critical or security related events */
 extern uint32_t arc_s_service_audit_logging(uint32_t arg1, uint32_t arg2, uint32_t arg3,
 				    uint32_t arg4, uint32_t ops);
+/* Secure service of Inter-partiion communication*/
+extern uint32_t arc_s_service_ipc(uint32_t arg1, uint32_t arg2, uint32_t ops);
+
+/* Secure service of cryptos */
+extern uint32_t arc_s_service_crypto(uint32_t arg1, uint32_t arg2, uint32_t arg3,
+				    uint32_t arg4, uint32_t ops);
 
 /*
  * \todo, how to add secure service easily
@@ -78,4 +84,6 @@ const _arc_s_call_handler_t arc_s_call_table[ARC_S_CALL_LIMIT] = {
 	[ARC_S_CALL_MPU] = (_arc_s_call_handler_t)arc_secure_service_mpu,
 	[ARC_S_CALL_N_SWITCH] = (_arc_s_call_handler_t)arc_s_service_n_switch,
 	[ARC_S_CALL_AUDIT_LOGGING] = (_arc_s_call_handler_t)arc_s_service_audit_logging,
+	[ARC_S_CALL_IPC] = (_arc_s_call_handler_t)arc_s_service_ipc,
+	[ARC_S_CALL_CRYPTO] = (_arc_s_call_handler_t)arc_s_service_crypto,
 };

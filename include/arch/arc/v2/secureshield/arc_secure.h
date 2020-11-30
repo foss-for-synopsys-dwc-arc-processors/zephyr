@@ -19,7 +19,9 @@
 #define ARC_S_CALL_SLEEP			6
 #define ARC_S_CALL_N_SWITCH			7
 #define ARC_S_CALL_AUDIT_LOGGING	8
-#define ARC_S_CALL_LIMIT			9
+#define ARC_S_CALL_IPC				9
+#define ARC_S_CALL_CRYPTO			10
+#define ARC_S_CALL_LIMIT			11
 
 
 
