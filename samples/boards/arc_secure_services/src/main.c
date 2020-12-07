@@ -9,6 +9,7 @@
 #include <soc.h>
 
 #include "arch/arc/v2/secureshield/arc_ss_audit_logging.h"
+#include "arch/arc/v2/secureshield/arc_ss_crypto.h"
 #if defined(CONFIG_SOC_NSIM_SEM)
 #define NORMAL_FIRMWARE_ENTRY 0x40000
 #elif defined(CONFIG_SOC_EMSK)
@@ -32,7 +33,15 @@ void threadA(void *dummy1, void *dummy2, void *dummy3)
 		ss_audit_add_record(&record);
 		record.id++;
 	}
-
+	uint8_t digest[32];
+	uint8_t msg[4]="abc";
+	ss_crypto_data_t data;
+	data.size=3;
+	data.payload=msg;
+	ss_crypto_tc_sha256(&data, digest);
+	printk("digest: %x %x %x %x %x %x %x %x\n%x %x %x %x %x %x %x %x\n%x %x %x %x %x %x %x %x\n%x %x %x %x %x %x %x %x\n",
+		digest[0], digest[1], digest[2], digest[3], digest[4], digest[5], digest[6], digest[7], digest[8], digest[9], digest[10], digest[11], digest[12], digest[13], digest[14], digest[15],
+		digest[16], digest[17], digest[18], digest[19], digest[20], digest[21], digest[22], digest[23], digest[24], digest[25], digest[26], digest[27], digest[28], digest[29], digest[30], digest[31]);
 	printk("Go to normal application\n");
 
 	z_arch_go_to_normal(*((uint32_t *)(NORMAL_FIRMWARE_ENTRY)));
