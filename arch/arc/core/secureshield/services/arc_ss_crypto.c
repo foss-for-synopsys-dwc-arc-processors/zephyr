@@ -110,8 +110,18 @@ uint32_t ss_crypto_tc_ctr_prng_init(TCCtrPrng_t * const ctx,
 			ss_crypto_data_ptr entropy, ss_crypto_data_ptr personalization)
 {
 	uint32_t ret = TC_CRYPTO_FAIL;
-	ret = tc_ctr_prng_init(ctx, entropy->payload, entropy->size,
-					personalization->payload, personalization->size);
+	ss_crypto_data_ptr entropy_p = {0};
+	ss_crypto_data_ptr personal_p = {0};
+	if(entropy != NULL)
+	{
+		entropy_p = entropy;
+	}
+	if(personalization != NULL)
+	{
+		personal_p = personalization;
+	}
+	ret = tc_ctr_prng_init(ctx, entropy_p->payload, entropy_p->size,
+					personal_p->payload, personal_p->size);
 	if(ret != TC_CRYPTO_SUCCESS)
 	{
 		return ret;
@@ -123,8 +133,18 @@ uint32_t ss_crypto_tc_ctr_prng_reseed(TCCtrPrng_t * const ctx,
 			ss_crypto_data_ptr entropy, ss_crypto_data_ptr additional_input)
 {
 	uint32_t ret = TC_CRYPTO_FAIL;
-	ret = tc_ctr_prng_reseed(ctx, entropy->payload, entropy->size,
-					additional_input->payload, additional_input->size);
+	ss_crypto_data_ptr entropy_p = {0};
+	ss_crypto_data_ptr additional_p = {0};
+	if(entropy != NULL)
+	{
+		entropy_p = entropy;
+	}
+	if(additional_input != NULL)
+	{
+		additional_p = additional_input;
+	}
+	ret = tc_ctr_prng_reseed(ctx, entropy_p->payload, entropy_p->size,
+					additional_p->payload, additional_p->size);
 	if(ret != TC_CRYPTO_SUCCESS)
 	{
 		return ret;
@@ -136,8 +156,18 @@ uint32_t ss_crypto_tc_ctr_prng_generate(TCCtrPrng_t * const ctx,
 			ss_crypto_data_ptr additional_input, ss_crypto_data_ptr out)
 {
 	uint32_t ret = TC_CRYPTO_FAIL;
-	ret = tc_ctr_prng_generate(ctx, additional_input->payload,
-					additional_input->size, out->payload, out->size);
+	ss_crypto_data_ptr additional_p = {0};
+	ss_crypto_data_ptr out_p = {0};
+	if(additional_input != NULL)
+	{
+		additional_p = additional_input;
+	}
+	if(out != NULL)
+	{
+		out_p = out;
+	}
+	ret = tc_ctr_prng_generate(ctx, additional_p->payload,
+					additional_p->size, out_p->payload, out_p->size);
 	if(ret != TC_CRYPTO_SUCCESS)
 	{
 		return ret;
