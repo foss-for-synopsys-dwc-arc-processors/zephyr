@@ -155,12 +155,7 @@ _exc_return:
 	 * raise exception again. The ignored interrupts will be re-triggered
 	 * if not cleared, or re-triggered by interrupt sources, or just missed
 	 */
-
-#ifdef CONFIG_ARC_SECURE_FIRMWARE
-	mov_s r3, (1 << (ARC_N_IRQ_START_LEVEL - 1))
-#else
 	MOVR r3, (1 << (CONFIG_NUM_IRQ_PRIO_LEVELS - 1))
-#endif
 
 #ifdef CONFIG_ARC_NORMAL_FIRMWARE
 	push_s r2

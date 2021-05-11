@@ -119,7 +119,7 @@ bool z_arc_v2_irq_unit_int_enabled(int irq)
  */
 
 static ALWAYS_INLINE
-void z_arc_v2_irq_unit_prio_set(int irq, unsigned char prio)
+void z_arc_v2_irq_unit_prio_set(int irq, unsigned int prio)
 {
 
 	unsigned int key = arch_irq_lock();

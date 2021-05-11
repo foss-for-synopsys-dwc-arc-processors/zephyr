@@ -71,14 +71,8 @@ static int arc_v2_irq_unit_init(const struct device *unused)
 	for (irq = 16; irq < CONFIG_NUM_IRQS; irq++) {
 
 		z_arc_v2_aux_reg_write(_ARC_V2_IRQ_SELECT, irq);
-#ifdef CONFIG_ARC_SECURE_FIRMWARE
-		z_arc_v2_aux_reg_write(_ARC_V2_IRQ_PRIORITY,
-			 (CONFIG_NUM_IRQ_PRIO_LEVELS-1) |
-			 _ARC_V2_IRQ_PRIORITY_SECURE); /* lowest priority */
-#else
 		z_arc_v2_aux_reg_write(_ARC_V2_IRQ_PRIORITY,
 			 (CONFIG_NUM_IRQ_PRIO_LEVELS-1)); /* lowest priority */
-#endif
 		z_arc_v2_aux_reg_write(_ARC_V2_IRQ_ENABLE, _ARC_V2_INT_DISABLE);
 		z_arc_v2_aux_reg_write(_ARC_V2_IRQ_TRIGGER, _ARC_V2_INT_LEVEL);
 	}

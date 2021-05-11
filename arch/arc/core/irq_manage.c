@@ -143,16 +143,6 @@ void z_irq_priority_set(unsigned int irq, unsigned int prio, uint32_t flags)
 
 	__ASSERT(prio < CONFIG_NUM_IRQ_PRIO_LEVELS,
 		 "invalid priority %d for irq %d", prio, irq);
-/* 0 -> CONFIG_NUM_IRQ_PRIO_LEVELS allocted to secure world
- * left prio levels allocated to normal world
- */
-#if defined(CONFIG_ARC_SECURE_FIRMWARE)
-	prio = prio < ARC_N_IRQ_START_LEVEL ?
-		prio : (ARC_N_IRQ_START_LEVEL - 1);
-#elif defined(CONFIG_ARC_NORMAL_FIRMWARE)
-	prio = prio < ARC_N_IRQ_START_LEVEL ?
-		 ARC_N_IRQ_START_LEVEL : prio;
-#endif
 	z_arc_v2_irq_unit_prio_set(irq, prio);
 }
 

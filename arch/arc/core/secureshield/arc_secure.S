@@ -83,8 +83,8 @@ _s_clri:
 
 	bbit0 r6, 4, _s_clri_disabled
 
-	cmp r6, (0x30 | (ARC_N_IRQ_START_LEVEL - 1))
-	mov.gt r6, (0x30 | (ARC_N_IRQ_START_LEVEL - 1))
+	cmp r6, (0x30 | (CONFIG_NUM_IRQ_PRIO_LEVELS - 1))
+	mov.gt r6, (0x30 | (CONFIG_NUM_IRQ_PRIO_LEVELS - 1))
 
 	seti r6
 
@@ -92,8 +92,8 @@ _s_clri:
 
 _s_clri_disabled:
 
-	cmp r6, (0x20 | (ARC_N_IRQ_START_LEVEL - 1))
-	mov.gt r6, (0x20 | (ARC_N_IRQ_START_LEVEL - 1))
+	cmp r6, (0x20 | (CONFIG_NUM_IRQ_PRIO_LEVELS - 1))
+	mov.gt r6, (0x20 | (CONFIG_NUM_IRQ_PRIO_LEVELS - 1))
 
 	seti r6
 
@@ -113,9 +113,9 @@ _s_seti:
 	asr r6, r6
 
 	/* no update of current priority if r0 is invalid */
-	brlo r0, ARC_N_IRQ_START_LEVEL, __seti_update_priority
+	brlo r0, CONFIG_NUM_IRQ_PRIO_LEVELS, __seti_update_priority
 
-	cmp r6, (ARC_N_IRQ_START_LEVEL - 1)
+	cmp r6, (CONFIG_NUM_IRQ_PRIO_LEVELS - 1)
 	mov.z r6, r0
 	beq __seti_update_priority
 

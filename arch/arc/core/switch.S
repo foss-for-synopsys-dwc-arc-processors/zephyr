@@ -140,11 +140,7 @@ _switch_return_from_firq:
 	 */
 
 	LRR r3, [_ARC_V2_AUX_IRQ_ACT]
-#ifdef CONFIG_ARC_SECURE_FIRMWARE
-	or r3, r3, (1 << (ARC_N_IRQ_START_LEVEL - 1))
-#else
 	ORR r3, r3, (1 << (CONFIG_NUM_IRQ_PRIO_LEVELS - 1))
-#endif
 
 #ifdef CONFIG_ARC_NORMAL_FIRMWARE
 	_write_aux_reg_ns _ARC_V2_AUX_IRQ_ACT, r3

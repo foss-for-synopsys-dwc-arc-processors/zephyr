@@ -396,11 +396,7 @@
  */
 .macro _check_nest_int_by_irq_act, reg1, reg2
 	lr MACRO_ARG(reg1), [_ARC_V2_AUX_IRQ_ACT]
-#ifdef CONFIG_ARC_SECURE_FIRMWARE
-	and MACRO_ARG(reg1), MACRO_ARG(reg1), ((1 << ARC_N_IRQ_START_LEVEL) - 1)
-#else
 	and MACRO_ARG(reg1), MACRO_ARG(reg1), 0xffff
-#endif
 	ffs MACRO_ARG(reg2), MACRO_ARG(reg1)
 	fls MACRO_ARG(reg1), MACRO_ARG(reg1)
 	cmp MACRO_ARG(reg1), MACRO_ARG(reg2)

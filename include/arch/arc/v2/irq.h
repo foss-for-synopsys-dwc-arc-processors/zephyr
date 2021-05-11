@@ -213,11 +213,7 @@ static ALWAYS_INLINE bool arch_irq_unlocked(unsigned int key)
 	 * r0 ==  {26’d0, 1’b1, STATUS32.IE, STATUS32.E[3:0] }
 	 * bit4 is used to record IE (Interrupt Enable) bit
 	 */
-#ifdef CONFIG_ARC_NORMAL_FIRMWARE
-	return (key >= ARC_N_IRQ_START_LEVEL);
-#else
 	return (key & 0x10)  ==  0x10;
-#endif
 }
 
 #endif /* _ASMLANGUAGE */
