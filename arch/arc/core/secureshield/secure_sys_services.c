@@ -63,13 +63,9 @@ static int32_t arc_s_irq_alloc(uint32_t intno)
 	return 0;
 }
 
-
-/*
- * \todo, to access MPU from normal mode, secure mpu service should be
- * created. In the secure mpu service, the parameters should be checked
- * (e.g., not overwrite the mpu regions for secure world)that operations
- * are valid
- */
+/* Secure MPU service */
+extern uint32_t arc_secure_service_mpu(uint32_t arg1, uint32_t arg2,
+                    uint32_t arg3, uint32_t arg4, uint32_t ops);
 
 /* Secure service to check normal world's switch request */
 extern uint32_t arc_s_service_n_switch(void);
@@ -82,5 +78,6 @@ const _arc_s_call_handler_t arc_s_call_table[ARC_S_CALL_LIMIT] = {
 	[ARC_S_CALL_AUX_READ] = (_arc_s_call_handler_t)arc_s_aux_read,
 	[ARC_S_CALL_AUX_WRITE] = (_arc_s_call_handler_t)arc_s_aux_write,
 	[ARC_S_CALL_IRQ_ALLOC] = (_arc_s_call_handler_t)arc_s_irq_alloc,
+    [ARC_S_CALL_MPU] = (_arc_s_call_handler_t)arc_secure_service_mpu,
 	[ARC_S_CALL_N_SWITCH] = (_arc_s_call_handler_t)arc_s_service_n_switch,
 };

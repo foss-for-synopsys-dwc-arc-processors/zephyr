@@ -268,6 +268,16 @@ config ARC_HAS_SECURE
 	help
 	  This option is enabled when ARC core supports secure mode
 
+config NORMAL_NUM_MPU_ENTRIES
+	int "the mpu entires reserved for normal firmware"
+	range 1 16
+	depends on ARC_HAS_SECURE
+	default 8
+	help
+	  The number of MPU entires reserved for normal firmware. Secure firmware's
+	  mpu request has higher priority, so the final allocated num may
+	  be less than the configured one.
+
 config SJLI_TABLE_SIZE
 	int "SJLI table size"
 	depends on ARC_SECURE_FIRMWARE
