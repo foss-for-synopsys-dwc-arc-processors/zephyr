@@ -475,7 +475,15 @@
 	push_s r3
 
 	bclr r1, r1, 31
+#ifdef CONFIG_ARC_NORMAL_FIRMWARE
+	push_s r0
+	push_s r2
+	_write_aux_reg_ns _ARC_V2_AUX_IRQ_ACT, r1
+	pop_s r2
+	pop_s r0
+#else
 	sr r1, [_ARC_V2_AUX_IRQ_ACT]
+#endif
 #endif
 	_store_old_thread_callee_regs
 .endm
