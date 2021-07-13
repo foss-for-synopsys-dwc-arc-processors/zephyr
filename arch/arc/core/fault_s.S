@@ -158,9 +158,11 @@ _exc_return:
 	MOVR r3, (1 << (CONFIG_NUM_IRQ_PRIO_LEVELS - 1))
 
 #ifdef CONFIG_ARC_NORMAL_FIRMWARE
+	push_s r0
 	push_s r2
 	_write_aux_reg_ns _ARC_V2_AUX_IRQ_ACT, r3
 	pop_s r2
+	pop_s r0
 #else
 	SRR r3, [_ARC_V2_AUX_IRQ_ACT]
 #endif
