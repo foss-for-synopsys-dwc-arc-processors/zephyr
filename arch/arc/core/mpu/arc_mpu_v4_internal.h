@@ -928,8 +928,8 @@ static uint32_t addr_is_normal(uint32_t addr)
  * this service will check the input args and make sure the operations only
  * can be applied to normal address
  */
-uint32_t arc_secure_service_mpu(uint32_t arg1, uint32_t arg2, uint32_t arg3, uint32_t arg4,
-			     uint32_t ops)
+uint32_t arc_secure_service_mpu(uint32_t arg1, uint32_t arg2, uint32_t arg3,
+				uint32_t arg4, uint32_t ops)
 {
 	uint32_t ret = 0;
 	int32_t index;
@@ -955,9 +955,9 @@ uint32_t arc_secure_service_mpu(uint32_t arg1, uint32_t arg2, uint32_t arg3, uin
 	case SS_MPU_OP_INIT_ENTRY:
 		/* only can set for normal world's address */
 		if ((arg4 & AUX_MPU_RPER_ATTR_MASK) == 0 ||
-		    (addr_is_normal(arg2) &&
-		     addr_is_normal((arg2 + arg3 - 1)))) {
-			_region_init(index, arg2, arg3, ARC_MPU_N_ATTR(arg4));
+		    (addr_is_normal(arg2) && addr_is_normal(arg2 + arg3 - 1))) {
+			_region_init(index, arg2, arg3,
+					(arg4 == 0) ? 0 : ARC_MPU_N_ATTR(arg4));
 		} else {
 			ret = (uint32_t)-EINVAL;
 		}
