@@ -492,9 +492,10 @@ void arc_core_mpu_enable(void)
 {
 #ifdef CONFIG_ARC_SECURE_FIRMWARE
 /* the default region:
- * secure:0x8000, SID:0x10000, KW:0x100 KR:0x80
+ * secure:0x8000, SID:0x10000, KR:0x100 KW:0x80 KE: 0x40
+ * (Note: to let normal firmware run, enable UE and NS)
  */
-#define MPU_ENABLE_ATTR	0x18180
+#define MPU_ENABLE_ATTR	0x10188
 #else
 #define MPU_ENABLE_ATTR	0
 #endif
