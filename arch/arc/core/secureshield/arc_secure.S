@@ -82,59 +82,21 @@ _arc_do_secure_call_exit:
 	_return_to_normal
 
 /* secure service for clri
- * normal world only can disable interrupts belonging to normal
+ * TODO: set watch dog to prevent DOS attack
  */
 _s_clri:
-	clri r6
-	and r0, r6, 0xf
-
-	bbit0 r6, 4, _s_clri_disabled
-
-	cmp r6, (0x30 | (CONFIG_NUM_IRQ_PRIO_LEVELS - 1))
-	mov.gt r6, (0x30 | (CONFIG_NUM_IRQ_PRIO_LEVELS - 1))
-
-	seti r6
-
-	_return_to_normal
-
-_s_clri_disabled:
-
-	cmp r6, (0x20 | (CONFIG_NUM_IRQ_PRIO_LEVELS - 1))
-	mov.gt r6, (0x20 | (CONFIG_NUM_IRQ_PRIO_LEVELS - 1))
-
-	seti r6
-
+	clri r0
 	_return_to_normal
 
 /* secure service for seti
- * normal world only can disable/enable interrupts belonging to normal
  */
 _s_seti:
 	/* process the arg */
-	cmp r0, 0
-	mov.z r0, CONFIG_NUM_IRQ_PRIO_LEVELS
-
-	/* get current int prio */
-	lr r6, [_ARC_V2_STATUS32]
-	and r6, r6, 0x1e
-	asr r6, r6
-
-	/* no update of current priority if r0 is invalid */
-	brlo r0, CONFIG_NUM_IRQ_PRIO_LEVELS, __seti_update_priority
-
-	cmp r6, (CONFIG_NUM_IRQ_PRIO_LEVELS - 1)
-	mov.z r6, r0
-	beq __seti_update_priority
-
-	/* no update of irq prio when seti/seti 0 */
-	brge r0, CONFIG_NUM_IRQ_PRIO_LEVELS, __seti_update_priority
-	mov r6, r0
-__seti_update_priority:
+	and r6, r0, 0x0f
 	/* only update valid priority level */
 	cmp r6, (CONFIG_NUM_IRQ_PRIO_LEVELS - 1)
 	mov.gt r6, (CONFIG_NUM_IRQ_PRIO_LEVELS -1)
 
-	clri r0
 	and r0, r0, 0x30
 	or r0, r0, r6
 	seti r0
