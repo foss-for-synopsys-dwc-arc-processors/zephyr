@@ -33,6 +33,10 @@
  */
 .macro _macro_seti, reg
 #if defined(CONFIG_ARC_NORMAL_FIRMWARE)
+	lr r0, [_ARC_V2_SEC_STAT]
+	bbit0 r0, _ARC_V2_SEC_STAT_NIC_BIT, 1f
+	seti MACRO_ARG(reg)
+1:
 	mov r0, MACRO_ARG(reg)
 	mov r6, ARC_S_CALL_SETI
 	sjli SJLI_CALL_ARC_SECURE
@@ -46,6 +50,10 @@
  */
 .macro _macro_clri, reg
 #if defined(CONFIG_ARC_NORMAL_FIRMWARE)
+	lr r0, [_ARC_V2_SEC_STAT]
+	bbit0 r0, _ARC_V2_SEC_STAT_NIC_BIT, 1f
+	clri MACRO_ARG(reg)
+1:
 	mov r6, ARC_S_CALL_CLRI
 	sjli SJLI_CALL_ARC_SECURE
 	mov MACRO_ARG(reg), r0
