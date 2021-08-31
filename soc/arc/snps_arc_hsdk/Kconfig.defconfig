@@ -47,4 +47,10 @@ config UART_NS16550_ACCESS_WORD_ONLY
 	default y
 	depends on UART_NS16550
 
+config ARC_MPU_VER
+	default 6
+
+config MAX_DOMAIN_PARTITIONS
+	default 32 if USERSPACE
+
 endif # ARC_HSDK
