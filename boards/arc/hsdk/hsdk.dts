@@ -5,10 +5,20 @@
  */
 
 /dts-v1/;
-
+#include <mem.h>
 #include "hsdk.dtsi"
 
 / {
 	model = "hsdk";
 	compatible = "snps,hsdk";
+
+	iccm0: iccm@e0000000 {
+		compatible = "arc,iccm";
+		reg = <0xe0000000 DT_SIZE_K(8)>;
+	};
+
+	dccm0: dccm@d0000000 {
+		compatible = "arc,dccm";
+		reg = <0xd0000000 DT_SIZE_K(8)>;
+	};
 };
