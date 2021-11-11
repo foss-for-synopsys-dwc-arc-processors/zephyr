@@ -30,19 +30,35 @@ if(CONFIG_MP_NUM_CPUS GREATER 1)
   endforeach()
   list(APPEND MDB_OPTIONS && NSIM_MULTICORE=1 ${MULTIFILES} -run -cl)
 else()
- list(APPEND MDB_OPTIONS && ${MDB} ${MDB_BASIC_OPTIONS} -nsim @${BOARD_DIR}/support/${MDB_ARGS} -run -cl)
+  if(CONFIG_BUILD_WITH_SECURESHIELD)
+    list(APPEND MDB_OPTIONS && ${MDB} ${MDB_BASIC_OPTIONS} -nsim @${BOARD_DIR}/support/${MDB_ARGS} '-cmd=download ${APPLICATION_BINARY_DIR}/zephyr/${KERNEL_ELF_NAME}' -run -cl)
+  else()
+    list(APPEND MDB_OPTIONS && ${MDB} ${MDB_BASIC_OPTIONS} -nsim @${BOARD_DIR}/support/${MDB_ARGS} -run -cl)
+  endif()
 endif()
 
 string(REPLACE ";" " " MDB_COMMAND "${MDB_OPTIONS}")
-add_custom_target(run
-  COMMAND
-  ${MDB_OPTIONS}
-  ${APPLICATION_BINARY_DIR}/zephyr/${KERNEL_ELF_NAME}
-  DEPENDS ${logical_target_for_zephyr_elf}
-  WORKING_DIRECTORY ${APPLICATION_BINARY_DIR}
-  COMMENT "MDB COMMAND: ${MDB_COMMAND} ${APPLICATION_BINARY_DIR}/zephyr/${KERNEL_ELF_NAME}"
-  USES_TERMINAL
-)
+if(CONFIG_BUILD_WITH_SECURESHIELD)
+  add_custom_target(run
+    COMMAND
+    ${MDB_OPTIONS}
+    ${APPLICATION_BINARY_DIR}/secureshield/zephyr/${KERNEL_ELF_NAME}
+    DEPENDS ${logical_target_for_zephyr_elf}
+    WORKING_DIRECTORY ${APPLICATION_BINARY_DIR}
+    COMMENT "MDB COMMAND: ${MDB_COMMAND} ${APPLICATION_BINARY_DIR}/secureshield/zephyr/${KERNEL_ELF_NAME}"
+    USES_TERMINAL
+  )
+else()
+  add_custom_target(run
+    COMMAND
+    ${MDB_OPTIONS}
+    ${APPLICATION_BINARY_DIR}/zephyr/${KERNEL_ELF_NAME}
+    DEPENDS ${logical_target_for_zephyr_elf}
+    WORKING_DIRECTORY ${APPLICATION_BINARY_DIR}
+    COMMENT "MDB COMMAND: ${MDB_COMMAND} ${APPLICATION_BINARY_DIR}/zephyr/${KERNEL_ELF_NAME}"
+    USES_TERMINAL
+  )
+endif()
 else()
 find_program(
   NSIM
