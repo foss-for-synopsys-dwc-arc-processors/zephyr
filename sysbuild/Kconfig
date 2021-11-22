@@ -38,3 +38,41 @@ config SB_BOOTLOADER_MCUBOOT
 	  Include MCUboot (Zephyr port) as the bootloader to use
 
 endchoice
+
+if SB_BOOTLOADER_MCUBOOT
+
+config SB_SIGNATURE_TYPE
+	string
+	default NONE if SB_BOOT_SIGNATURE_TYPE_NONE
+	default RSA  if SB_BOOT_SIGNATURE_TYPE_RSA
+	default ECDSA_P256 if SB_BOOT_SIGNATURE_TYPE_ECDSA_P256
+	default ED25519 if SB_BOOT_SIGNATURE_TYPE_ED25519
+
+choice
+	prompt "Signature type"
+	default SB_BOOT_SIGNATURE_TYPE_RSA
+
+config SB_BOOT_SIGNATURE_TYPE_NONE
+	bool "No signature; use only hash check"
+
+config SB_BOOT_SIGNATURE_TYPE_RSA
+	bool "RSA signatures"
+
+config SB_BOOT_SIGNATURE_TYPE_ECDSA_P256
+	bool "Elliptic curve digital signatures with curve P-256"
+
+config SB_BOOT_SIGNATURE_TYPE_ED25519
+	bool "Edwards curve digital signatures using ed25519"
+
+endchoice
+
+config SB_BOOT_SIGNATURE_KEY_FILE
+	string "PEM key file"
+	default "$(ZEPHYR_MCUBOOT_MODULE_DIR)/root-ec-p256.pem" if SB_BOOT_SIGNATURE_TYPE_ECDSA_P256
+	default "$(ZEPHYR_MCUBOOT_MODULE_DIR)/root-ed25519.pem" if SB_BOOT_SIGNATURE_TYPE_ED25519
+	default "$(ZEPHYR_MCUBOOT_MODULE_DIR)/root-rsa-2048.pem" if SB_BOOT_SIGNATURE_TYPE_RSA
+	default ""
+	help
+	  Absolute path to key file to use with MCUBoot.
+
+endif
