@@ -493,6 +493,7 @@ UNDEF_KCONFIG_WHITELIST = {
     "ARMCLANG_STD_LIBC",  # The ARMCLANG_STD_LIBC is defined in the toolchain
                           # Kconfig which is sourced based on Zephyr toolchain
 			  # variant and therefore not visible to compliance.
+    "SB_BOOT_SIGNATURE_KEY_FILE", # West build project Kconfig sysmbol.
     "CDC_ACM_PORT_NAME_",
     "CLOCK_STM32_SYSCLK_SRC_",
     "CMU",
@@ -525,6 +526,7 @@ UNDEF_KCONFIG_WHITELIST = {
     "SAMPLE_MODULE_LOG_LEVEL_DBG",  # Used in tests/subsys/logging/log_api
     "SEL",
     "SHIFT",
+    "SB_SIGNATURE_TYPE", # west build project Kconfig sysmbol.
     "SOC_WATCH",  # Issue 13749
     "SOME_BOOL",
     "SOME_INT",

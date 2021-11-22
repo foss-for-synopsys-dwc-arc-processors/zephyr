@@ -604,6 +604,7 @@
 /modules/mbedtls/                         @ceolin @d3zd3z
 /modules/hal_gigadevice/                  @nandojve
 /modules/trusted-firmware-m/              @microbuilder
+/west/                                    @tejlmand
 /kernel/device.c                          @andyross @nashif
 /kernel/idle.c                            @andyross @nashif
 /samples/                                 @nashif
