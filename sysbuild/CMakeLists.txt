@@ -31,6 +31,7 @@ ExternalZephyrProject_Add(
   SOURCE_DIR ${APP_DIR}
   MAIN_APP
 )
+list(APPEND IMAGES "${app_name}")
 
 # Include MCUboot if enabled.
 if(CONFIG_SB_BOOTLOADER_MCUBOOT)
@@ -38,8 +39,12 @@ if(CONFIG_SB_BOOTLOADER_MCUBOOT)
     APPLICATION mcuboot
     SOURCE_DIR ${ZEPHYR_MCUBOOT_MODULE_DIR}/boot/zephyr/
   )
+  # MCUBoot should be first in list, as it is a bootloader.
+  list(PREPEND IMAGES "mcuboot")
 endif()
 
 # This allows for board and app specific images to be included.
 include(${BOARD_DIR}/sysbuild.cmake OPTIONAL)
 include(${APP_DIR}/sysbuild.cmake OPTIONAL)
+
+add_subdirectory(cmake/flash)

@@ -165,4 +165,5 @@ function(ExternalZephyrProject_Add)
     BUILD_ALWAYS True
     USES_TERMINAL_BUILD True
   )
+  set(${ZBUILD_APPLICATION}_BINARY_DIR "${CMAKE_BINARY_DIR}/${ZBUILD_APPLICATION}" PARENT_SCOPE)
 endfunction()
