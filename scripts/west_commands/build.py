@@ -19,6 +19,9 @@ from zephyr_ext_common import Forceable
 
 _ARG_SEPARATOR = '--'
 
+SYSBUILD_PROJ_DIR = pathlib.Path(__file__).resolve().parent.parent.parent \
+                    / pathlib.Path('sysbuild')
+
 BUILD_USAGE = '''\
 west build [-h] [-b BOARD] [-d BUILD_DIR]
            [-t TARGET] [-p {auto, always, never}] [-c] [--cmake-only]
@@ -356,9 +359,14 @@ class Build(Forceable):
             # CMake configuration phase.
             self.run_cmake = True
 
-        cached_app = self.cmake_cache.get('APPLICATION_SOURCE_DIR')
-        log.dbg('APPLICATION_SOURCE_DIR:', cached_app,
-                level=log.VERBOSE_EXTREME)
+        cached_proj = self.cmake_cache.get('APPLICATION_SOURCE_DIR')
+        cached_app = self.cmake_cache.get('APP_DIR')
+        # if APP_DIR is None but APPLICATION_SOURCE_DIR is set, that indicates
+        # an older build folder, this still requires pristine.
+        if cached_app is None and cached_proj:
+            cached_app = cached_proj
+
+        log.dbg('APP_DIR:', cached_app, level=log.VERBOSE_EXTREME)
         source_abs = (os.path.abspath(self.args.source_dir)
                       if self.args.source_dir else None)
         cached_abs = os.path.abspath(cached_app) if cached_app else None
@@ -452,7 +460,8 @@ class Build(Forceable):
         # west build -- -DOVERLAY_CONFIG=relative-path.conf
         final_cmake_args = ['-DWEST_PYTHON={}'.format(sys.executable),
                             '-B{}'.format(self.build_dir),
-                            '-S{}'.format(self.source_dir),
+                            '-S{}'.format(SYSBUILD_PROJ_DIR),
+                            '-DAPP_DIR={}'.format(self.source_dir),
                             '-G{}'.format(config_get('generator',
                                                      DEFAULT_CMAKE_GENERATOR))]
         if cmake_opts:
