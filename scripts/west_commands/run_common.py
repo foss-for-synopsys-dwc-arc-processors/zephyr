@@ -153,12 +153,29 @@ def do_run_common(command, user_args, user_runner_args):
         dump_context(command, user_args, user_runner_args)
         return
 
-    command_name = command.name
     build_dir = get_build_dir(user_args)
-    cache = load_cmake_cache(build_dir, user_args)
-    board = cache['CACHED_BOARD']
     if not user_args.skip_rebuild:
         rebuild(command, build_dir, user_args)
+
+    # Load multi_image_runners.yaml if exists.
+    yaml_path = multi_image_runners_yaml_path(build_dir)
+    if yaml_path is not None:
+        multi_image_runners_yaml = load_multi_image_runners_yaml(yaml_path)
+        # ToDo: if --image <name> is given as user argument, then only run the
+        # runner specified.
+        for image in multi_image_runners_yaml.get('images'):
+            build_dir = image.get('build_dir')
+            do_run_common_image(command, user_args, user_runner_args, build_dir)
+    else:
+        # This is single image build, let's just run that single runner.
+        do_run_common_image(command, user_args, user_runner_args)
+
+def do_run_common_image(command, user_args, user_runner_args, build_dir=None):
+    command_name = command.name
+    if build_dir is None:
+        build_dir = get_build_dir(user_args)
+    cache = load_cmake_cache(build_dir, user_args)
+    board = cache['CACHED_BOARD']
 
     # Load runners.yaml.
     yaml_path = runners_yaml_path(build_dir, board)
@@ -288,6 +305,14 @@ def runners_yaml_path(build_dir, board):
                 '(no ZEPHYR_RUNNERS_YAML in CMake cache)')
     return ret
 
+def multi_image_runners_yaml_path(build_dir):
+    ret = Path(build_dir) / 'multi_image_runners.yaml'
+
+    if not ret.is_file():
+        return None
+
+    return ret
+
 def load_runners_yaml(path):
     # Load runners.yaml and convert to Python object.
 
@@ -299,6 +324,21 @@ def load_runners_yaml(path):
 
     if not content.get('runners'):
         log.wrn(f'no pre-configured runners in {path}; '
+                "this probably won't work")
+
+    return content
+
+def load_multi_image_runners_yaml(path):
+    # Load multi_image_runners.yaml and convert to Python object.
+
+    try:
+        with open(path, 'r') as f:
+            content = yaml.safe_load(f.read())
+    except FileNotFoundError:
+        log.die(f'multi_image_runners.yaml file not found: {path}')
+
+    if not content.get('images'):
+        log.wrn(f'no images defined in {path}; '
                 "this probably won't work")
 
     return content
