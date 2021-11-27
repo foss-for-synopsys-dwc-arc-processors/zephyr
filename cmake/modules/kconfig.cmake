@@ -18,6 +18,8 @@ set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${AUTOCONF_H})
 file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/kconfig/include/generated)
 file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/kconfig/include/config)
 
+set_ifndef(KCONFIG_NAMESPACE "CONFIG")
+
 # Support multiple SOC_ROOT, remove ZEPHYR_BASE as that is always sourced.
 set(kconfig_soc_root ${SOC_ROOT})
 list(REMOVE_ITEM kconfig_soc_root ${ZEPHYR_BASE})
@@ -176,7 +178,7 @@ endforeach()
 unset(EXTRA_KCONFIG_OPTIONS)
 get_cmake_property(cache_variable_names CACHE_VARIABLES)
 foreach (name ${cache_variable_names})
-  if("${name}" MATCHES "^CONFIG_")
+  if("${name}" MATCHES "^${KCONFIG_NAMESPACE}_")
     # When a cache variable starts with 'CONFIG_', it is assumed to be
     # a Kconfig symbol assignment from the CMake command line.
     set(EXTRA_KCONFIG_OPTIONS
@@ -311,18 +313,18 @@ add_custom_target(config-twister DEPENDS ${DOTCONFIG})
 # CMakeCache.txt. If the symbols end up in DOTCONFIG they will be
 # re-introduced to the namespace through 'import_kconfig'.
 foreach (name ${cache_variable_names})
-  if("${name}" MATCHES "^CONFIG_")
+  if("${name}" MATCHES "^${KCONFIG_NAMESPACE}_")
     unset(${name})
     unset(${name} CACHE)
   endif()
 endforeach()
 
 # Parse the lines prefixed with CONFIG_ in the .config file from Kconfig
-import_kconfig(CONFIG_ ${DOTCONFIG})
+import_kconfig(${KCONFIG_NAMESPACE} ${DOTCONFIG})
 
 # Re-introduce the CLI Kconfig symbols that survived
 foreach (name ${cache_variable_names})
-  if("${name}" MATCHES "^CONFIG_")
+  if("${name}" MATCHES "^${KCONFIG_NAMESPACE}_")
     if(DEFINED ${name})
       set(${name} ${${name}} CACHE STRING "")
     endif()
