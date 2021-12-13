@@ -1,0 +1,17 @@
+# Copyright (c) 2016, 2019 Synopsys, Inc. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+config SB_ARC_NSIM_SEM_NORMAL
+	bool
+	default y if $(BOARD) = "nsim_sem_normal"
+	default y if $(BOARD) = "em_starterkit_em7d_normal"
+
+config SB_NSIM_SEM_SECURESHIELD
+	bool "Secureshield image"
+	depends on SB_ARC_NSIM_SEM_NORMAL
+	default y
+	help
+	  Building a Secureshield image for nsim_sem
+	  When build nsim_sem_normal with application image, then a Secureshield image
+	  is required which will boot the device and create a trusted execution environment
