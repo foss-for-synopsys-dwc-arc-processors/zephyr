@@ -1,5 +1,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
+include_guard(GLOBAL)
+
+# Prevent CMake from testing the toolchain
+set(CMAKE_C_COMPILER_FORCED   1)
+set(CMAKE_CXX_COMPILER_FORCED 1)
+
 # No official documentation exists for the "Generic" value, except their wiki.
 #
 # https://gitlab.kitware.com/cmake/community/wikis/doc/cmake/CrossCompiling:
@@ -56,5 +62,5 @@ add_custom_target(bintools)
 
 include(${TOOLCHAIN_ROOT}/cmake/compiler/${COMPILER}/target.cmake OPTIONAL)
 include(${TOOLCHAIN_ROOT}/cmake/linker/${LINKER}/target.cmake OPTIONAL)
-include(${CMAKE_CURRENT_LIST_DIR}/bintools/bintools_template.cmake)
+include(${ZEPHYR_BASE}/cmake/bintools/bintools_template.cmake)
 include(${TOOLCHAIN_ROOT}/cmake/bintools/${BINTOOLS}/target.cmake OPTIONAL)

@@ -1,5 +1,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
+include_guard(GLOBAL)
+
+# Extensions depends on two CMake modules, so load them here
+include(CheckCCompilerFlag)
+include(CheckCXXCompilerFlag)
+
 ########################################################
 # Table of contents
 ########################################################

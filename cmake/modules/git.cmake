@@ -10,6 +10,7 @@
 # See also: independent and more static ``KERNEL_VERSION_*`` in
 # ``version.cmake`` and ``kernel_version.h``
 
+include_guard(GLOBAL)
 
 # https://cmake.org/cmake/help/latest/module/FindGit.html
 find_package(Git QUIET)

@@ -1,19 +1,25 @@
 # SPDX-License-Identifier: Apache-2.0
 
+include_guard(GLOBAL)
+
+# Dependencies of this module.
+include(extensions)
+include(python)
+
 # This cmake file provides functionality to import CMakeLists.txt and Kconfig
 # files for Zephyr modules into Zephyr build system.
 #
-# CMakeLists.txt and Kconfig files can reside directly in the module or in a
-# MODULE_EXT_ROOT.
+# CMakeLists.txt and Kconfig files can reside directly in the Zephyr module or
+# in a MODULE_EXT_ROOT.
 # The `<module>/zephyr/module.yml` file specifies whether the build files are
-# located in the module or in a MODULE_EXT_ROOT.
+# located in the Zephyr module or in a MODULE_EXT_ROOT.
 #
 # A list of Zephyr modules can be provided to the build system using:
 #   -DZEPHYR_MODULES=<module-path>[;<additional-module(s)-path>]
 #
 # It looks for: <module>/zephyr/module.yml or
 #               <module>/zephyr/CMakeLists.txt
-# to load the module into Zephyr build system.
+# to load the Zephyr module into Zephyr build system.
 # If west is available, it uses `west list` to obtain a list of projects to
 # search for zephyr/module.yml
 #
@@ -23,6 +29,17 @@
 # - `ZEPHYR_<MODULE_NAME>_KCONFIG` is used for inclusion of the Kconfig
 # files into the build system.
 
+# Settings used by Zephyr module but where systems may define an alternative value.
+set_ifndef(KCONFIG_BINARY_DIR ${CMAKE_BINARY_DIR}/Kconfig)
+
+if(ZEPHYR_EXTRA_MODULES)
+  # ZEPHYR_EXTRA_MODULES has either been specified on the cmake CLI or is
+  # already in the CMakeCache.txt. This has precedence over the environment
+  # variable ZEPHYR_EXTRA_MODULES
+elseif(DEFINED ENV{ZEPHYR_EXTRA_MODULES})
+  set(ZEPHYR_EXTRA_MODULES $ENV{ZEPHYR_EXTRA_MODULES})
+endif()
+
 if(ZEPHYR_MODULES)
   set(ZEPHYR_MODULES_ARG "--modules" ${ZEPHYR_MODULES})
 endif()
@@ -31,6 +48,7 @@ if(ZEPHYR_EXTRA_MODULES)
   set(ZEPHYR_EXTRA_MODULES_ARG "--extra-modules" ${ZEPHYR_EXTRA_MODULES})
 endif()
 
+file(MAKE_DIRECTORY ${KCONFIG_BINARY_DIR})
 set(KCONFIG_MODULES_FILE ${KCONFIG_BINARY_DIR}/Kconfig.modules)
 set(ZEPHYR_SETTINGS_FILE ${CMAKE_BINARY_DIR}/zephyr_settings.txt)
 
@@ -69,16 +87,12 @@ if(WEST OR ZEPHYR_MODULES)
       # lazy regexes (it supports greedy only).
       string(REGEX REPLACE "\"(.*)\":\".*\"" "\\1" key ${setting})
       string(REGEX REPLACE "\".*\":\"(.*)\"" "\\1" value ${setting})
-      # MODULE_EXT_ROOT is process order which means module roots processed
-      # later wins. To ensure ZEPHYR_BASE stays first, and command line settings
-      # are processed last, we insert at position 1.
-      if ("${key}" STREQUAL "MODULE_EXT_ROOT")
-        list(INSERT ${key} 1 ${value})
-      else()
-        list(APPEND ${key} ${value})
-      endif()
+      list(APPEND ${key} ${value})
     endforeach()
   endif()
+
+  # Append ZEPHYR_BASE as a default ext root at lowest priority
+  list(APPEND MODULE_EXT_ROOT ${ZEPHYR_BASE})
 
   if(EXISTS ${CMAKE_BINARY_DIR}/zephyr_modules.txt)
     file(STRINGS ${CMAKE_BINARY_DIR}/zephyr_modules.txt ZEPHYR_MODULES_TXT
@@ -94,6 +108,9 @@ if(WEST OR ZEPHYR_MODULES)
     endforeach()
   endif()
 
+  # MODULE_EXT_ROOT is process order which means Zephyr module roots processed
+  # later wins. therefore we reverse the list before processing.
+  list(REVERSE MODULE_EXT_ROOT)
   foreach(root ${MODULE_EXT_ROOT})
     if(NOT EXISTS ${root})
       message(FATAL_ERROR "No `modules.cmake` found in module root `${root}`.")
@@ -105,8 +122,8 @@ if(WEST OR ZEPHYR_MODULES)
   if(DEFINED ZEPHYR_MODULES_TXT)
     foreach(module ${ZEPHYR_MODULES_TXT})
       # Match "<name>":"<path>" for each line of file, each corresponding to
-      # one module. The use of quotes is required due to CMake not supporting
-      # lazy regexes (it supports greedy only).
+      # one Zephyr module. The use of quotes is required due to CMake not
+      # supporting lazy regexes (it supports greedy only).
       string(CONFIGURE ${module} module)
       string(REGEX REPLACE "\"(.*)\":\".*\":\".*\"" "\\1" module_name ${module})
       string(REGEX REPLACE "\".*\":\"(.*)\":\".*\"" "\\1" module_path ${module})
@@ -126,7 +143,7 @@ ${MODULE_NAME_UPPER} is a restricted name for Zephyr modules as it is used for \
 else()
 
   file(WRITE ${KCONFIG_MODULES_FILE}
-    "# No west and no modules\n"
+    "# No west and no Zephyr modules\n"
     )
 
 endif()
