@@ -15,3 +15,6 @@ config SB_NSIM_SEM_SECURESHIELD
 	  Building a Secureshield image for nsim_sem
 	  When build nsim_sem_normal with application image, then a Secureshield image
 	  is required which will boot the device and create a trusted execution environment
+
+	
+
