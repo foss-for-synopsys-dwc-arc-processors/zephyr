@@ -9,7 +9,8 @@
 #define ZEPHYR_INCLUDE_ARCH_ARC_V2_SJLI_H
 
 /* SJLI ID for system secure service */
-#define SJLI_CALL_ARC_SECURE	0
+#define SJLI_CALL_ARC_SECURE			0
+#define SJLI_CALL_ARC_SECURE_SERVICE	1
 
 #define ARC_S_CALL_AUX_READ		0
 #define ARC_S_CALL_AUX_WRITE	1
@@ -19,6 +20,9 @@
 #define ARC_S_CALL_MPU			5
 #define ARC_S_CALL_N_SWITCH		6
 #define ARC_S_CALL_LIMIT		7
+
+#define ARC_SS_CALL_LOGGING		0
+#define ARC_SS_CALL_LIMIT 		1
 
 #ifndef _ASMLANGUAGE
 
@@ -41,7 +45,9 @@ typedef uint32_t (*_arc_s_call_handler_t)(uint32_t arg1, uint32_t arg2, uint32_t
 
 extern FUNC_NORETURN void z_arch_go_to_normal(uint32_t entry);
 extern void arc_go_to_normal(uint32_t addr);
+extern void _arc_s_panic(void);
 extern void _arc_do_secure_call(void);
+extern void _arc_do_secure_service_call(void);
 extern const _arc_s_call_handler_t arc_s_call_table[ARC_S_CALL_LIMIT];
 
 #endif
@@ -198,6 +204,9 @@ static inline bool _arch_is_user_context(void)
 }
 
 extern uint32_t z_arc_s_call_invoke6(uint32_t arg1, uint32_t arg2, uint32_t arg3,
+			   uint32_t arg4, uint32_t arg5, uint32_t arg6,
+			   uint32_t call_id);
+extern uint32_t z_arc_ss_call_invoke6(uint32_t arg1, uint32_t arg2, uint32_t arg3,
 			   uint32_t arg4, uint32_t arg5, uint32_t arg6,
 			   uint32_t call_id);
 

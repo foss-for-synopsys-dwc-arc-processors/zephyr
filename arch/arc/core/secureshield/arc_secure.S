@@ -46,9 +46,16 @@
 .endm
 
 GTEXT(arc_go_to_normal)
+GTEXT(_arc_s_panic)
 GTEXT(_arc_do_secure_call)
+GTEXT(_arc_do_secure_service_call)
 GDATA(arc_s_call_table)
+GDATA(arc_ss_call_table)
 
+SECTION_FUNC(TEXT, _arc_s_panic)
+	/* clean secure registers first*/
+	/* stop or reset core*/
+	kflag 1
 
 SECTION_FUNC(TEXT, _arc_do_secure_call)
 	/* r0-r5: arg1-arg6, r6 is call id */
@@ -113,6 +120,34 @@ _s_check_n_switch:
 	j [blink]
 _n_no_switch:
 	b _arc_call_secure_call_handler
+
+
+SECTION_FUNC(TEXT, _arc_do_secure_service_call)
+	/* r0-r5: arg1-arg6, r6 is call id */
+	/* the call id should be checked */
+	/* cmp r6, ARC_SS_SPECIAL_CASES*/
+	/* beq _ss_specical_case_handle*/
+_arc_call_secure_service_call_handler:
+	push_s blink
+	mov	blink, arc_ss_call_table
+	ld.as r6, [blink, r6]
+
+	jl	[r6]
+
+	/*
+	 * no need to clear callee regs, as they will be saved and restored
+	 * automatically
+	 */
+	clear_scratch_regs
+
+	mov r29, 0
+	mov r30, 0
+
+
+_arc_do_secure_service_call_exit:
+	pop_s blink
+
+	_return_to_normal
 
 /* go to normal world, r0 is the entry */
 SECTION_FUNC(TEXT, arc_go_to_normal)

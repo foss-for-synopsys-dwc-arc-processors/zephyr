@@ -25,6 +25,7 @@ static void _default_sjli_entry(void);
  */
 const static uint32_t _sjli_vector_table[CONFIG_SJLI_TABLE_SIZE] = {
 	[0] = (uint32_t)_arc_do_secure_call,
+	[1] = (uint32_t)_arc_do_secure_service_call,
 	[1 ... (CONFIG_SJLI_TABLE_SIZE - 1)] = (uint32_t)_default_sjli_entry,
 };
 

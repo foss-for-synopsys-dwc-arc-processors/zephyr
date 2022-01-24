@@ -164,6 +164,9 @@ _arc_go_to_user_space:
 	sr r0, [_ARC_V2_ERSEC_STAT]
 	sr r5, [_ARC_V2_SEC_U_SP]
 #else
+	/* TODO: _ARC_V2_SEC_STAT is not accessable in normal mode, however there should be some way to restore SEC_STAT reg otherwise the NIC bit will be changed */
+	lr r0, [_ARC_V2_SEC_STAT]
+	sr r0, [_ARC_V2_ERSEC_STAT]
 	sr r5, [_ARC_V2_USER_SP]
 #endif
 	mov_s sp, blink

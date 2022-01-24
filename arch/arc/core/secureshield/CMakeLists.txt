@@ -10,6 +10,7 @@ zephyr_library_sources_ifdef(
   arc_sjli.c
   arc_secure.S
   secure_sys_services.c
+  secure_services.c
   )
 
 zephyr_library_sources_ifdef(
