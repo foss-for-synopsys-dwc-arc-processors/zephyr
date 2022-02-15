@@ -12,6 +12,8 @@ zephyr_cc_option(-fno-delete-null-pointer-checks)
 
 zephyr_cc_option_ifdef(CONFIG_ARC_USE_UNALIGNED_MEM_ACCESS -munaligned-access)
 
+zephyr_compile_options(-fno-strict-aliasing)
+
 if(CONFIG_ISA_ARCV2)
   # Instruct compiler to use register R26 as thread pointer
   # for thread local storage.
