@@ -7,7 +7,7 @@
 /dts-v1/;
 
 #include "nsim.dtsi"
-#include "nsim-ccm-mem.dtsi"
+#include "nsim-flat-mem.dtsi"
 
 / {
 	model = "snps,nsim_hs";

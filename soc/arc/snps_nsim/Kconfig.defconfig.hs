@@ -16,16 +16,13 @@ config NUM_IRQS
 	default 30
 
 config RGF_NUM_BANKS
-	default 2
+	default 1
+
+config ARC_FIRQ
+	default n
 
 config SYS_CLOCK_HW_CYCLES_PER_SEC
 	default 5000000
-
-config HARVARD
-	default y
-
-config ARC_FIRQ
-	default y
 
 config CACHE_MANAGEMENT
 	default y
