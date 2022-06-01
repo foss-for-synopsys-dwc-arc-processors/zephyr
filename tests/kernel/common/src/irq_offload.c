@@ -146,14 +146,11 @@ __no_optimization void test_nop(void)
 	ztest_test_skip();
 #endif
 #elif defined(CONFIG_ARC)
-	/* do 7 nop instructions more to cost cycles */
-	arch_nop();
-	arch_nop();
-	arch_nop();
-	arch_nop();
-	arch_nop();
-	arch_nop();
-	arch_nop();
+	/*
+	 * Test is completely incorrect for systems with caches - which is basically all
+	 * ARC systems.
+	 */
+	ztest_test_skip();
 #elif defined(CONFIG_SPARC)
 	/* do 9 nop instructions more to cost cycles */
 	arch_nop();
