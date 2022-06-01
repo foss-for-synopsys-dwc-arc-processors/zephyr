@@ -4,7 +4,7 @@ common:
   tags: logging mipi-sys-t
   modules:
     - mipi-sys-t
-  arch_exclude: mips nios2 posix sparc
+  arch_exclude: mips nios2 posix sparc arc
   filter: not CONFIG_64BIT
 tests:
   sample.logger.syst.v1.deferred:
