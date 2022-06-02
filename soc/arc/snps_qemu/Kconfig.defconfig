@@ -27,9 +27,6 @@ config NUM_IRQS
 # is the same as v2 but with minimal region size of 32 bytes, we
 # may assume MPUv3 is just a subset of MPUv2.
 
-config ARC_MPU_VER
-	default 2
-
 source "soc/arc/snps_qemu/Kconfig.defconfig.em"
 source "soc/arc/snps_qemu/Kconfig.defconfig.hs"
 source "soc/arc/snps_qemu/Kconfig.defconfig.hs6x"
