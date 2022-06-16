@@ -1,6 +1,7 @@
 tests:
   kernel.multiprocessing.smp:
     tags: kernel smp ignore_faults
+    timeout: 550
     filter: (CONFIG_MP_NUM_CPUS > 1)
   kernel.multiprocessing.smp.linker_generator:
     platform_allow: qemu_cortex_m3
