@@ -64,8 +64,18 @@
 #define IRQ0_LINE	(CONFIG_NUM_IRQS - 1)
 #define IRQ1_LINE	(CONFIG_NUM_IRQS - 2)
 
+/*
+ * Temporary hack for ARC testing to avoid firq usage in case of lack it support in SW.
+ * We need to fix that with something like CONFIG_MUNIMUM_IRQ_PRIORITY
+ */
+
+#if defined(CONFIG_ARCV2_TIMER_IRQ_PRIORITY) && CONFIG_ARCV2_TIMER_IRQ_PRIORITY > 0
+#define IRQ0_PRIO	2
+#define IRQ1_PRIO	1
+#else
 #define IRQ0_PRIO	1
 #define IRQ1_PRIO	0
+#endif /* defined(CONFIG_ARCV2_TIMER_IRQ_PRIORITY) && CONFIG_ARCV2_TIMER_IRQ_PRIORITY > 0 */
 #endif
 
 #ifdef TEST_NESTED_ISR
