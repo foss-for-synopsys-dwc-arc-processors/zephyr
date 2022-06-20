@@ -22,7 +22,7 @@
 
 #define NUM_TEST_ITEMS          6
 /* Each work item takes 100ms */
-#define WORK_ITEM_WAIT          100
+#define WORK_ITEM_WAIT          400
 
 /* In fact, each work item could take up to this value */
 #define WORK_ITEM_WAIT_ALIGNED	\
@@ -32,7 +32,7 @@
  * Wait 50ms between work submissions, to ensure co-op and prempt
  * preempt thread submit alternatively.
  */
-#define SUBMIT_WAIT	50
+#define SUBMIT_WAIT	200
 #define STACK_SIZE      (1024 + CONFIG_TEST_EXTRA_STACK_SIZE)
 
 /* How long to wait for the full test suite to complete.  Allow for a
