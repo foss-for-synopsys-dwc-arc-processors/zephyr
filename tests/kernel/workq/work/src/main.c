@@ -527,7 +527,7 @@ static void test_1cpu_delayed_flush(void)
 	flush_ms = k_uptime_get_32();
 	zassert_true(k_work_flush_delayable(&dwork, &work_sync), NULL);
 	wait_ms = last_handle_ms - flush_ms;
-	zassert_true(wait_ms <= 1, "waited %u", wait_ms);
+	zassert_true(wait_ms <= 10, "waited %u", wait_ms);
 
 	/* Verify completion. */
 	zassert_equal(coophi_counter(), 1, NULL);
@@ -981,7 +981,7 @@ static void test_1cpu_basic_schedule(void)
 {
 	int rc;
 	uint32_t sched_ms;
-	uint32_t max_ms = k_ticks_to_ms_ceil32(1U
+	uint32_t max_ms = k_ticks_to_ms_ceil32(2U
 				+ k_ms_to_ticks_ceil32(DELAY_MS));
 	uint32_t elapsed_ms;
 	struct k_work *wp = &dwork.work; /* whitebox testing */
@@ -1131,7 +1131,7 @@ static void test_1cpu_basic_reschedule(void)
 {
 	int rc;
 	uint32_t sched_ms;
-	uint32_t max_ms = k_ticks_to_ms_ceil32(1U
+	uint32_t max_ms = k_ticks_to_ms_ceil32(2U
 				+ k_ms_to_ticks_ceil32(DELAY_MS));
 	uint32_t elapsed_ms;
 	struct k_work *wp = &dwork.work; /* whitebox testing */
@@ -1448,7 +1448,7 @@ static void test_1cpu_legacy_delayed_submit(void)
 {
 	int rc;
 	uint32_t sched_ms;
-	uint32_t max_ms = k_ticks_to_ms_ceil32(1U
+	uint32_t max_ms = k_ticks_to_ms_ceil32(2U
 				+ k_ms_to_ticks_ceil32(DELAY_MS));
 	uint32_t elapsed_ms;
 	static struct k_delayed_work lwork;
@@ -1490,7 +1490,7 @@ static void test_1cpu_legacy_delayed_resubmit(void)
 {
 	int rc;
 	uint32_t sched_ms;
-	uint32_t max_ms = k_ticks_to_ms_ceil32(1U
+	uint32_t max_ms = k_ticks_to_ms_ceil32(2U
 				+ k_ms_to_ticks_ceil32(DELAY_MS));
 	uint32_t elapsed_ms;
 	static struct k_delayed_work lwork;
