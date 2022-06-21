@@ -179,6 +179,9 @@ SECTIONS {
 
 	GROUP_START(DATA_REGION)
 
+#ifdef CONFIG_EMBARC_MLI
+#include "linker/../../../modules/embarc_mli/embarc_mli.ld"
+#endif
 	SECTION_DATA_PROLOGUE(_DATA_SECTION_NAME,,) {
 
 /* when XIP, .text is in ROM, but vector table must be at start of .data */
