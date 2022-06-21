@@ -8,9 +8,35 @@
 
 #include "nsim_em.dtsi"
 
+#ifndef XCCM_ADDR
+#define XCCM_ADDR c0000000
+#endif
+
+#ifndef XCCM_SIZE
+#define XCCM_SIZE DT_SIZE_K(64)
+#endif
+
+#ifndef YCCM_ADDR
+#define YCCM_ADDR e0000000
+#endif
+
+#ifndef YCCM_SIZE
+#define YCCM_SIZE DT_SIZE_K(64)
+#endif
+
 / {
 	model = "snps,nsim_em";
 	compatible = "snps,nsim_em";
+
+	xccm0: xccm@XCCM_ADDR {
+		compatible = "arc,xccm";
+		reg = <DT_ADDR(XCCM_ADDR) XCCM_SIZE>;
+	};
+
+	yccm0: yccm@YCCM_ADDR {
+		compatible = "arc,yccm";
+		reg = <DT_ADDR(YCCM_ADDR) YCCM_SIZE>;
+	};
 };
 
 &cpu0 {
