@@ -3,3 +3,4 @@ tests:
     integration_platforms:
       - nrf5340dk_nrf5340_cpuapp
     platform_exclude: qemu_malta ast1030_evb
+    arch_exclude: arc
