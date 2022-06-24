@@ -67,6 +67,50 @@ static void invalidate_dcache(void)
 }
 #endif
 
+#define AUX_CLN_ADDR			0x640
+#define AUX_CLN_DATA			0x641
+
+static inline unsigned int arc_cln_read_reg(unsigned int reg)
+{
+	z_arc_v2_aux_reg_write(AUX_CLN_ADDR, reg);
+
+	return z_arc_v2_aux_reg_read(AUX_CLN_DATA);
+}
+
+static inline void arc_cln_write_reg(unsigned int reg, unsigned int data)
+{
+	z_arc_v2_aux_reg_write(AUX_CLN_ADDR, reg);
+
+	z_arc_v2_aux_reg_write(AUX_CLN_DATA, data);
+}
+
+#define ARC_CLN_CACHE_STATUS			209
+#define ARC_CLN_CACHE_STATUS_BUSY		BIT(23)
+#define ARC_CLN_CACHE_STATUS_DONE		BIT(24)
+#define ARC_CLN_CACHE_STATUS_EN			BIT(27)
+
+#define ARC_CLN_CACHE_CMD			208
+#define ARC_CLN_CACHE_CMD_OP_REG_INV		0b1001
+#define ARC_CLN_CACHE_CMD_INCR			BIT(4)
+
+
+static void arc_cluster_scm_enable(void)
+{
+#ifdef CONFIG_ISA_ARCV3
+	/* Disable SCM, just in case. */
+	arc_cln_write_reg(ARC_CLN_CACHE_STATUS, 0);
+
+	/* Invalidate SCM before enabling. */
+	arc_cln_write_reg(ARC_CLN_CACHE_CMD, ARC_CLN_CACHE_CMD_OP_REG_INV |
+			  ARC_CLN_CACHE_CMD_INCR);
+	while (arc_cln_read_reg(ARC_CLN_CACHE_STATUS) &
+	       ARC_CLN_CACHE_STATUS_BUSY)
+		;
+
+	arc_cln_write_reg(ARC_CLN_CACHE_STATUS, ARC_CLN_CACHE_STATUS_EN);
+#endif /* CONFIG_ISA_ARCV3 */
+}
+
 extern FUNC_NORETURN void z_cstart(void);
 /**
  * @brief Prepare to and run C code
@@ -76,6 +120,8 @@ extern FUNC_NORETURN void z_cstart(void);
 
 void _PrepC(void)
 {
+	arc_cluster_scm_enable();
+
 	z_bss_zero();
 	z_data_copy();
 	z_cstart();
