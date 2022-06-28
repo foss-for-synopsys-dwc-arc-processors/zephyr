@@ -1,10 +1,7 @@
 /*
- * Copyright 2019-2022, Synopsys, Inc.
- * All rights reserved.
+ * Copyright (c) 2022 Synopsys.
  *
- * This source code is licensed under the BSD-3-Clause license found in
- * the LICENSE file in the root directory of this source tree.
- *
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 #ifndef _HAR_SMARTPHONE_CONSTANTS_H_
@@ -14,8 +11,7 @@
 #include "mli_config.h"
 #include "tests_aux.h"
 
-// Defining weight data type
-//===================================
+/* -------------- Defining weight data type ------------- */
 #if (MODEL_BIT_DEPTH == MODEL_SA_8)
 #define W_EL_TYPE (MLI_EL_SA_8)
 #define B_EL_TYPE (MLI_EL_SA_32)
@@ -30,7 +26,7 @@ typedef int8_t w_type;
 typedef int8_t b_type;
 #define W_FIELD	  pi8
 #define B_FIELD	  pi8
-#else // (MODEL_BIT_DEPTH == MODEL_FX_16)
+#else /* (MODEL_BIT_DEPTH == MODEL_FX_16) */
 #define W_EL_TYPE (MLI_EL_FX_16)
 #define B_EL_TYPE (MLI_EL_FX_16)
 typedef int16_t w_type;
@@ -39,76 +35,71 @@ typedef int16_t b_type;
 #define B_FIELD	  pi16
 #endif
 
-// Defining data sections attributes
-//===================================
+/* Defining data sections attributes */
 #if (PLATFORM == V2DSP_XY)
 #if defined(__GNUC__) && !defined(__CCAC__)
-// ARC GNU tools
-//  Model Weights attribute
+/* ARC GNU tools */
+/*  Model Weights attribute */
 #define _Wdata_attr __attribute__((section(".mli_model")))
 #define _W	    _Wdata_attr
 
-// Bank X (XCCM) attribute
+/*/ Bank X (XCCM) attribute */
 #define __Xdata_attr __attribute__((section(".Xdata")))
 #define _X	     __Xdata_attr
 
-// Bank Y (YCCM) attribute
+/* Bank Y (YCCM) attribute */
 #define __Ydata_attr __attribute__((section(".Ydata")))
 #define _Y	     __Ydata_attr
 
-// Bank Z (DCCM) attribute
+/* Bank Z (DCCM) attribute */
 #define __Zdata_attr __attribute__((section(".Zdata")))
 #define _Z	     __Zdata_attr
 
 #else
-// Metaware tools
-//  Model Weights attribute
+/* Metaware tools */
+/*  Model Weights attribute */
 #define _Wdata_attr  __attribute__((section(".mli_model")))
 #define _W	     __xy _Wdata_attr
 
-// Bank X (XCCM) attribute
+/* Bank X (XCCM) attribute */
 #define __Xdata_attr __attribute__((section(".Xdata")))
 #define _X	     __xy __Xdata_attr
 
-// Bank Y (YCCM) attribute
+/* Bank Y (YCCM) attribute */
 #define __Ydata_attr __attribute__((section(".Ydata")))
 #define _Y	     __xy __Ydata_attr
 
-// Bank Z (DCCM) attribute
+/* Bank Z (DCCM) attribute */
 #define __Zdata_attr __attribute__((section(".Zdata")))
 #define _Z	     __xy __Zdata_attr
-#endif // if defined (__GNUC__) && !defined (__CCAC__)
+#endif /* if defined (__GNUC__) && !defined (__CCAC__) */
 
 #elif (PLATFORM == V2DSP_VECTOR)
 
-// Model Weights attribute
+/* Model Weights attribute */
 #define _Wdata_attr  __attribute__((section(".vecmem_data")))
 #define _W	     __vccm _Wdata_attr
 
-// Operand X attribute (VCCM)
+/* Operand X attribute (VCCM) */
 #define __Xdata_attr __attribute__((section(".vecmem_data")))
 #define _X	     __vccm __Xdata_attr
 
-// Operand Y attribute (VCCM)
+/* Operand Y attribute (VCCM) */
 #define __Ydata_attr __attribute__((section(".vecmem_data")))
 #define _Y	     __vccm __Ydata_attr
 
-// Operand Z attribute (VCCM)
+/* Operand Z attribute (VCCM) */
 #define __Zdata_attr __attribute__((section(".vecmem_data")))
 #define _Z	     __vccm __Zdata_attr
 
-#else // PLATFORM != V2DSP_XY && PLATFORM != V2DSP_VECTOR
+#else /* PLATFORM != V2DSP_XY && PLATFORM != V2DSP_VECTOR */
 #define _X __attribute__((section(".mli_ir_buf")))
 #define _Y __attribute__((section(".mli_ir_buf")))
 #define _Z __attribute__((section(".mli_ir_buf")))
 #define _W __attribute__((section(".mli_model")))
 #endif
 
-//======================================================
-//
-// Common data transform (Qmn) defines (round-to-nearest)
-//
-//======================================================
+/* Common data transform (Qmn) defines (round-to-nearest) */
 
 #define EL_MAX(type)   (type)((1u << (sizeof(type) * 8 - 1)) - 1)
 #define EL_MIN(type)   (type)(-(1u << (sizeof(type) * 8 - 1)))
@@ -119,11 +110,8 @@ typedef int16_t b_type;
 		   ((val) * (1u << (fraq)) + (((val) >= 0) ? 0.5f : -0.5f)))
 #define FRQ_BITS(int_part, el_type) ((sizeof(el_type) * 8) - int_part - 1)
 
-//======================================================
-//
-// Quantized model parameters (statically allocated)
-//
-//======================================================
+/* -- Quantized model parameters (statically allocated) - */
+
 #if (MODEL_BIT_DEPTH == MODEL_SA_8)
 extern int16_t zero_zp_arr_shared[];
 #endif
@@ -188,11 +176,8 @@ extern int8_t fc4_b_fraq_arr[];
 extern int16_t fc4_b_scale_arr[];
 #endif
 
-//======================================================
-//
-// Tensor's Integer bits per layer definitions
-//
-//======================================================
+/* ----- Tensor's Integer bits per layer definitions ---- */
+
 #define FC1_W_INT   (1)
 #define FC1_B_INT   (1)
 #define FC1_OUT_INT (3)
@@ -209,14 +194,9 @@ extern int16_t fc4_b_scale_arr[];
 #define FC4_B_INT   (-2)
 #define FC4_OUT_INT (3)
 
-//======================================================
-//
-// Shape and Fractional bits per layer definitions
-//
-//======================================================
+/* --- Shape and Fractional bits per layer definitions -- */
 
-// FC1
-//================================================
+/* ------------------------- FC1 ------------------------ */
 #define FC1_W_SHAPE                                                            \
 	{                                                                      \
 		9, 32                                                          \
@@ -263,8 +243,7 @@ extern int16_t fc4_b_scale_arr[];
 #define FC1_OUT_FRAQ (FRQ_BITS(FC1_OUT_INT, d_type))
 #endif
 
-// LSTM2
-//================================================
+/* ------------------------ LSTM2 ----------------------- */
 #define LSTM2_W_IN_SHAPE                                                       \
 	{                                                                      \
 		4, 32, 32                                                      \
@@ -327,8 +306,7 @@ extern int16_t fc4_b_scale_arr[];
 #define LSTM2_CELL_FRAQ (FRQ_BITS(LSTM2_CELL_INT, d_type))
 #endif
 
-// LSTM3
-//================================================
+/* ------------------------ LSTM3 ----------------------- */
 #define LSTM3_W_IN_SHAPE                                                       \
 	{                                                                      \
 		4, 32, 32                                                      \
@@ -391,8 +369,7 @@ extern int16_t fc4_b_scale_arr[];
 #define LSTM3_CELL_FRAQ (FRQ_BITS(LSTM3_CELL_INT, d_type))
 #endif
 
-// FC4
-//================================================
+/* ------------------------- FC4 ------------------------ */
 #define FC4_W_SHAPE                                                            \
 	{                                                                      \
 		32, 6                                                          \
@@ -437,4 +414,4 @@ extern int16_t fc4_b_scale_arr[];
 #define FC4_OUT_FRAQ (FRQ_BITS(FC4_OUT_INT, d_type))
 #endif
 
-#endif // _HAR_SMARTPHONE_CONSTANTS_H_
+#endif /* _HAR_SMARTPHONE_CONSTANTS_H_ */

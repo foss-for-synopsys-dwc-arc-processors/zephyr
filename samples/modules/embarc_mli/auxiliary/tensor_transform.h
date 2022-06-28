@@ -33,7 +33,8 @@ extern "C" {
  *
  * @return Operation status code (MLI_Types.h)
  */
-mli_status mli_hlp_float_to_fx_tensor(const float *src, uint32_t src_size, mli_tensor *dst);
+mli_status mli_hlp_float_to_fx_tensor(const float *src, uint32_t src_size,
+				      mli_tensor *dst);
 
 /**
  * @brief Transform data of MLI FX tensor to float array
@@ -49,7 +50,8 @@ mli_status mli_hlp_float_to_fx_tensor(const float *src, uint32_t src_size, mli_t
  *
  * @return Operation status code (MLI_Types.h)
  */
-mli_status mli_hlp_fx_tensor_to_float(const mli_tensor *src, float *dst, uint32_t dst_size);
+mli_status mli_hlp_fx_tensor_to_float(const mli_tensor *src, float *dst,
+				      uint32_t dst_size);
 
 #ifdef __cplusplus
 }

@@ -1,10 +1,7 @@
 /*
- * Copyright 2019-2022, Synopsys, Inc.
- * All rights reserved.
+ * Copyright (c) 2022 Synopsys.
  *
- * This source code is licensed under the BSD-3-Clause license found in
- * the LICENSE file in the root directory of this source tree.
- *
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 /**
@@ -24,26 +21,22 @@
 #include <stdio.h>
 #include <string.h>
 
-//==============================================================
-//
-//
-// Data related to the Module
-//
-//
-//==============================================================
+/* ------------- Data related to the Module ------------- */
 
-// Intermediate data buffers (enough size for max intermediate results)
-//==============================
+/* Intermediate data buffers (enough size for max intermediate results) */
 #define LSTM_CELL_SZ	      (32)
 #define INOUT_BUF_SZ_MOST     (128 * 9 * sizeof(float))
 #define INOUT_BUF_SZ_SEC_MOST (128 * LSTM_CELL_SZ)
 #define LSTM_IR_BUF_SZ	      (4 * LSTM_CELL_SZ)
 #define LUT_BUF_SZ	      (512)
 
-// Despite the name of buf we keep all in/out data
-// in the same bank (typically first in operand)
-// Weights and lstm memory in the another (typically second input operand)
-// 11d has got only 2 separate banks of memory
+/**
+ * Despite the name of buf we keep all in/out data
+ * in the same bank (typically first in operand)
+ * Weights and lstm memory in the another (typically second input operand)
+ * 11d has got only 2 separate banks of memory
+ */
+
 static d_type _Y x_mem_buf[INOUT_BUF_SZ_SEC_MOST];
 static d_type _Y y_mem_buf[INOUT_BUF_SZ_MOST];
 static d_type _Y lstm_ir_mem_buf[LSTM_IR_BUF_SZ * LSTM_CELL_SZ];
@@ -51,8 +44,7 @@ static d_type _X lstm_cell_mem_buf[LSTM_CELL_SZ];
 static int16_t _Y tanh_lut_mem_buf[LUT_BUF_SZ];
 static int16_t _X sigm_lut_mem_buf[LUT_BUF_SZ];
 
-// Module intermediate tensors
-//=============================
+/* ------------- Module intermediate tensors ------------ */
 static mli_tensor input_float = {
 	.data = {.capacity = 0, .mem = {.pf32 = NULL}},
 	.mem_stride = {9, 1},
@@ -208,15 +200,11 @@ static mli_lut sigm_lut = {
 
 };
 
-// Interface variables: Available to user via main model header
-//===========================================================
+/* Interface variables: Available to user via main model header */
 mli_tensor *const har_smartphone_net_input = &input_float;
 mli_tensor *const har_smartphone_net_output = &output;
 
-//==============================================================
-//  Model description and configuration
-//==============================================================
-
+/* --------- Model description and configuration -------- */
 static const mli_tensor zero_tsr_sa8 = {
 	.data = {.capacity = 0, .mem = {.i8 = 0}},
 	.el_type = MLI_EL_SA_8,
@@ -230,8 +218,7 @@ static const mli_tensor zero_tsr_sa8 = {
 		.scale_frac_bits = {.capacity = 0, .mem = {.i8 = 0}},
 	}};
 
-// Layer 0: Convert related data
-//===================================
+/* ------------ Layer 0: Convert related data ----------- */
 
 static const mli_tensor L1_fc_wt = {
 	.data = {.capacity = FC1_W_ELEMENTS * sizeof(w_type),
@@ -392,8 +379,7 @@ static const mli_rnn_cell_cfg L3_lstm_cfg = {
 	.scratch_data = {.capacity = sizeof(lstm_ir_mem_buf),
 			 .mem = {.D_FIELD = (d_type *)lstm_ir_mem_buf}}};
 
-// Layer 4: Fully Connected related data
-//===================================
+/* -------- Layer 4: Fully Connected related data ------- */
 static const mli_tensor L4_fc_wt = {
 	.data = {.capacity = FC4_W_ELEMENTS * sizeof(w_type),
 		 .mem = {.W_FIELD = (w_type *)L4_fc_wt_buf}},
@@ -431,23 +417,21 @@ static const mli_tensor L4_fc_bias = {
 static const mli_fully_connected_cfg fc4_config = {
 	.relu = {.type = MLI_RELU_NONE}};
 
-//==============================================================
-//  Declaration of helper functions and user specific kernels
-//==============================================================
+/* Declaration of helper functions and user specific kernels */
 static mli_status
 user_fc_on_multiple_samples(const mli_tensor *input, mli_tensor *output,
 			    const mli_fully_connected_cfg *cfg);
 
 static void check_result(const char *ir_root, const char *ref_file,
-			 mli_tensor *pred_tsr, unsigned cycles,
+			 mli_tensor *pred_tsr, unsigned int cycles,
 			 mli_status ret_code);
 
-// Initialize the lut for tanh and sigm
-//==============================================================
-mli_status har_smartphone_init()
+/* -------- Initialize the lut for tanh and sigm -------- */
+mli_status har_smartphone_init(void)
 {
 	uint32_t tanh_lut_size = mli_krn_tanh_get_lut_size();
 	uint32_t sigm_lut_size = mli_krn_sigm_get_lut_size();
+
 	if (tanh_lut_size > tanh_lut.data.capacity ||
 	    sigm_lut_size > sigm_lut.data.capacity) {
 		return MLI_STATUS_NOT_ENGH_MEM;
@@ -461,35 +445,27 @@ mli_status har_smartphone_init()
 	return MLI_STATUS_OK;
 }
 
-//==============================================================
-//
-//  HAR Smartphone graph based. Layer-by-Layer execution
-//
-//==============================================================
+/* HAR Smartphone graph based. Layer-by-Layer execution */
 void har_smartphone_net(const char *debug_ir_root)
 {
 	if (debug_ir_root == NULL) {
-		// Version A: without return status checking and profiling
-		// wrappers
-		//========================================================================================
+		/* Version A: without return status checking and profiling */
+		/* wrappers */
 
-		// Move Input Data to CCM
-		//=======================================
+		/* Move Input Data to CCM */
 		mli_mov_cfg_t mov_cfg;
+
 		mli_mov_cfg_for_copy(&mov_cfg);
 		mli_mov_tensor_sync(&input_float, &mov_cfg, &L0_move_out);
 
-		// Convert Input Data
-		//=======================================
+		/* ----------------- Convert Input Data ----------------- */
 		mli_hlp_convert_tensor(&L0_move_out, &L0_convert_out);
 
-		// LAYER 1
-		//=======================================
+		/* ----------------------- LAYER 1 ---------------------- */
 		user_fc_on_multiple_samples(&L0_convert_out, &L1_fc_out,
 					    &fc1_config);
 
-		// LAYER 2
-		//=======================================
+		/* ----------------------- LAYER 2 ---------------------- */
 		mli_krn_eltwise_mul_sa8(&L2_lstm_cell, &zero_tsr_sa8,
 					&L2_lstm_cell);
 		mli_krn_eltwise_mul_sa8(&L2_lstm_prev, &zero_tsr_sa8,
@@ -499,8 +475,7 @@ void har_smartphone_net(const char *debug_ir_root)
 			&L2_lstm_wt_out, &L2_lstm_bias, &tanh_lut, &sigm_lut,
 			&L2_lstm_cfg, &L2_lstm_cell, &L2_lstm_out);
 
-		// LAYER 3
-		//=======================================
+		/* ----------------------- LAYER 3 ---------------------- */
 		mli_krn_eltwise_mul_sa8(&L3_lstm_cell, &zero_tsr_sa8,
 					&L3_lstm_cell);
 		mli_krn_eltwise_mul_sa8(&L3_lstm_prev, &zero_tsr_sa8,
@@ -510,27 +485,25 @@ void har_smartphone_net(const char *debug_ir_root)
 			&L3_lstm_wt_out, &L3_lstm_bias, &tanh_lut, &sigm_lut,
 			&L3_lstm_cfg, &L3_lstm_cell, &L3_lstm_out);
 
-		// LAYER 4
-		//=======================================
+		/* ----------------------- LAYER 4 ---------------------- */
 		mli_krn_fully_connected_sa8_sa8_sa32(&L3_lstm_out, &L4_fc_wt,
 						     &L4_fc_bias, &fc4_config,
 						     &output);
 	} else {
-		// Version B: Wrapped by service code for profiling and IR
-		// results checking purpose
-		//========================================================================================
+		/* Version B: Wrapped by service code for profiling and IR */
+		/* -------------- results checking purpose -------------- */
 
 		mli_status ret = MLI_STATUS_OK;
-		unsigned mov_cycles = 0;
-		unsigned convert_cycles = 0;
-		unsigned layer1_cycles = 0;
-		unsigned layer2_cycles = 0;
-		unsigned layer3_cycles = 0;
-		unsigned layer4_cycles = 0;
+		unsigned int mov_cycles = 0;
+		unsigned int convert_cycles = 0;
+		unsigned int layer1_cycles = 0;
+		unsigned int layer2_cycles = 0;
+		unsigned int layer3_cycles = 0;
+		unsigned int layer4_cycles = 0;
 
-		// Move Input Data to CCM
-		//=======================================
+		/* --------------- Move Input Data to CCM --------------- */
 		mli_mov_cfg_t mov_cfg;
+
 		mli_mov_cfg_for_copy(&mov_cfg);
 		PROFILE(ret = mli_mov_tensor_sync(&input_float, &mov_cfg,
 						  &L0_move_out));
@@ -544,16 +517,14 @@ void har_smartphone_net(const char *debug_ir_root)
 			     cycle_cnt, ret);
 		convert_cycles += cycle_cnt;
 
-		// LAYER 1
-		//=======================================
+		/* ----------------------- LAYER 1 ---------------------- */
 		PROFILE(ret = user_fc_on_multiple_samples(
 				&L0_convert_out, &L1_fc_out, &fc1_config));
 		check_result(debug_ir_root, "ir_relu1.idx", &L1_fc_out,
 			     cycle_cnt, ret);
 		layer1_cycles += cycle_cnt;
 
-		// LAYER 2
-		//=======================================
+		/* ----------------------- LAYER 2 ---------------------- */
 		PROFILE(mli_krn_eltwise_mul_sa8(&L2_lstm_cell, &zero_tsr_sa8,
 						&L2_lstm_cell));
 		layer2_cycles += cycle_cnt;
@@ -569,8 +540,7 @@ void har_smartphone_net(const char *debug_ir_root)
 		check_result(debug_ir_root, "ir_lstm2.idx", &L2_lstm_out,
 			     cycle_cnt, ret);
 
-		// LAYER 3
-		//=======================================
+		/* ----------------------- LAYER 3 ---------------------- */
 		PROFILE(mli_krn_eltwise_mul_sa8(&L3_lstm_cell, &zero_tsr_sa8,
 						&L3_lstm_cell));
 		layer3_cycles += cycle_cnt;
@@ -586,8 +556,7 @@ void har_smartphone_net(const char *debug_ir_root)
 		check_result(debug_ir_root, "ir_lstm3.idx", &L3_lstm_out,
 			     cycle_cnt, ret);
 
-		// LAYER 4
-		//=======================================
+		/* ----------------------- LAYER 4 ---------------------- */
 		PROFILE(ret = mli_krn_fully_connected_sa8_sa8_sa32(
 				&L3_lstm_out, &L4_fc_wt, &L4_fc_bias,
 				&fc4_config, &output));
@@ -595,7 +564,7 @@ void har_smartphone_net(const char *debug_ir_root)
 			     ret);
 		layer4_cycles += cycle_cnt;
 
-		const unsigned total = mov_cycles + convert_cycles +
+		const unsigned int total = mov_cycles + convert_cycles +
 				       layer1_cycles + layer2_cycles +
 				       layer3_cycles + layer4_cycles;
 
@@ -612,9 +581,7 @@ void har_smartphone_net(const char *debug_ir_root)
 	}
 }
 
-//==============================================================
-//  Fully connected on batch: User Implementation
-//==============================================================
+/* ---- Fully connected on batch: User Implementation --- */
 static mli_status
 user_fc_on_multiple_samples(const mli_tensor *layer_input,
 			    mli_tensor *layer_output,
@@ -630,7 +597,7 @@ user_fc_on_multiple_samples(const mli_tensor *layer_input,
 		/*.offset =*/{0, 0}, /*.size = */ {1, layer_output->shape[1]},
 		/*.sub_tensor_rank =*/1};
 
-	// Create initial in/out tensors pointing to the first sample from batch
+	/* Create initial in/out tensors pointing to the first sample from batch */
 	ret_val = mli_hlp_create_subtensor(layer_input, &in_iterator, &fc_in);
 	if (ret_val == MLI_STATUS_OK)
 		ret_val = mli_hlp_create_subtensor(layer_output, &out_iterator,
@@ -644,8 +611,8 @@ user_fc_on_multiple_samples(const mli_tensor *layer_input,
 		ret_val = mli_krn_fully_connected_sa8_sa8_sa32(
 			&fc_in, &L1_fc_wt, &L1_fc_bias, cfg, &fc_out);
 
-		// Manually update data containers of in/out tensors
-		// to get the next sample from batch
+		/* -- Manually update data containers of in/out tensors - */
+		/* ---------- to get the next sample from batch --------- */
 		fc_in.data.mem.D_FIELD += layer_input->mem_stride[0];
 		fc_in.data.capacity -=
 			layer_input->mem_stride[0] * sizeof(d_type);
@@ -656,11 +623,9 @@ user_fc_on_multiple_samples(const mli_tensor *layer_input,
 	return ret_val;
 }
 
-//==============================================================
-//  Checking kernel result. Debug function
-//==============================================================
+/* ------- Checking kernel result. Debug function ------- */
 static void check_result(const char *ir_root, const char *ref_file,
-			 mli_tensor *pred_tsr, unsigned cycles,
+			 mli_tensor *pred_tsr, unsigned int cycles,
 			 mli_status ret_code)
 {
 	if (ret_code != MLI_STATUS_OK) {
@@ -674,12 +639,12 @@ static void check_result(const char *ir_root, const char *ref_file,
 		enum test_status test_result =
 			measure_ref_to_pred(ir_root, ref_file, *pred_tsr, &err);
 		if (test_result == TEST_PASSED) {
-			printf("%s: \n\tS/N=%-10.1f (%-4.1f db)\n\t%u cycles\n",
+			printf("%s:\n\tS/N=%-10.1f (%-4.1f db)\n\t%u cycles\n",
 			       ref_file,
 			       err.ref_vec_length / err.noise_vec_length,
 			       err.ref_to_noise_snr, cycles);
 		} else if (test_result == TEST_FAILED) {
-			printf("ERROR: Test suit returns FAILD code for %s\n",
+			printf("ERROR: Test suit returns FAILED code for %s\n",
 			       ref_file);
 			assert(0);
 		} else

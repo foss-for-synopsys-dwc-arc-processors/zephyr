@@ -1,21 +1,21 @@
 /*
- * Copyright 2019-2022, Synopsys, Inc.
- * All rights reserved.
+ * Copyright (c) 2022 Synopsys.
  *
- * This source code is licensed under the BSD-3-Clause license found in
- * the LICENSE file in the root directory of this source tree.
- *
+ * SPDX-License-Identifier: Apache-2.0
  */
 
-//
-// LSTM Based NN Example for UCI Smartphones HAR Dataset
-//
-// Based on the project of Guillaume Chevalie:
-// https://github.com/guillaume-chevalier/LSTM-Human-Activity-Recognition
-//
-// Dataset info:
-// https://archive.ics.uci.edu/ml/datasets/human+activity+recognition+using+smartphones
-//
+/**
+ * LSTM Based NN Example for UCI Smartphones HAR Dataset
+ *
+ * Based on the project of Guillaume Chevalie:
+ * https://github.com/guillaume-chevalier/LSTM-Human-Activity-Recognition
+ *
+ * Dataset info:
+ * https://archive.ics.uci.edu/ml/datasets/human+activity+recognition+using+smartphones
+ */
+
+
+
 
 #include "examples_aux.h"
 #include "har_smartphone_model.h"
@@ -38,8 +38,8 @@
 extern int start_init(void);
 #endif
 
-// Root to referenc IR vectors for comparison
-// pass "./ir_idx_300" for debug
+/* Root to referenc IR vectors for comparison */
+/* pass "./ir_idx_300" for debug */
 static const char kHarIrRefRoot[] = "";
 static const char kOutFilePostfix[] = "_out";
 static float kSingleInSeq[IN_POINTS] = IN_SEQ_300;
@@ -49,24 +49,21 @@ static void har_smartphone_preprocessing(const void *raw_input_,
 					 mli_tensor *net_input_);
 
 #define EXAMPLE_MAX_MODE (3)
-int mode = 0;			   // emulation argc for GNU toolchain
-char param[EXAMPLE_MAX_MODE][256]; // emulation argv for GNU toolchain
+int mode;			   /* emulation argc for GNU toolchain */
+char param[EXAMPLE_MAX_MODE][256]; /* emulation argv for GNU toolchain */
 
-//========================================================================================
-//
-// MAIN
-//
-//========================================================================================
+/* MAIN */
+
 int main(int argc, char **argv)
 {
 
 #if defined(ARC_GNU)
-	// ARC GNU tools
-	// fill mode and param from cmd line script before use
+	/* ARC GNU tools */
+	/* fill mode and param from cmd line script before use */
 
 #else
-	// Metaware tools
-	// fill mode and param from argc and argv
+	/* Metaware tools */
+	/* fill mode and param from argc and argv */
 	if (argc <= EXAMPLE_MAX_MODE) {
 		mode = argc;
 
@@ -74,30 +71,30 @@ int main(int argc, char **argv)
 			memcpy(&param[i][0], argv[i], strlen(argv[i]));
 		}
 	}
-#endif // if defined (ARC_GNU)
+#endif /* if defined (ARC_GNU) */
 	mode = 1;
 	strcpy(param[0], "dummy_for_check");
 	strcpy(param[1], "small_test_base/tests.idx");
 	strcpy(param[2], "small_test_base/labels.idx");
-	// checking that variables are set
+	/* checking that variables are set */
 	if (mode == 0) {
 		printf("ERROR: mode not set up\n");
 #if defined(ARC_GNU)
-		// ARC GNU tools
-		printf("Please set up mode \n");
+		/* ARC GNU tools */
+		printf("Please set up mode\n");
 		printf("Please check that you use mdb_com_gnu script with "
 		       "correct setups\n");
 #else
-		// Metaware tools
+		/* Metaware tools */
 		printf("App command line:\n"
-		       "\t%s \n\t\tProcess single hardcoded vector\n\n"
-		       "\t%s <input_test_base.idx> \n\t\tProcess testset from "
-		       "file and \n"
+		       "\t%s\n\t\tProcess single hardcoded vector\n\n"
+		       "\t%s <input_test_base.idx>\n\t\tProcess testset from "
+		       "file and\n"
 		       "\t\t output model results to <input_test_base.idx_out> "
 		       "file\n\n",
 		       argv[0], argv[0]);
-#endif			  // if defined (ARC_GNU)
-		return 2; // Error: mode not set
+#endif			  /* if defined (ARC_GNU) */
+		return 2; /* Error: mode not set */
 	}
 
 	for (int i = 0; i < mode; i++) {
@@ -110,20 +107,20 @@ int main(int argc, char **argv)
 				printf("Please set up input IDX file.\n");
 			if (i == 2)
 				printf("Please set up labels IDX file.\n");
-			return 2; // Error: param not set
+			return 2; /* Error: param not set */
 		}
 	}
 
 	mli_status status = har_smartphone_init();
+
 	if (status != MLI_STATUS_OK) {
 		printf("Failed to initialize lut for tanh and sigm\n");
-		return 2; // Error: lut couldn't be initialized
+		return 2; /* Error: lut couldn't be initialized */
 	}
 
 	switch (mode) {
-	// No Arguments for app. Process single hardcoded input
-	// Print various measures to stdout
-	//=========================================================
+	/* No Arguments for app. Process single hardcoded input */
+	/* Print various measures to stdout */
 	case 1:
 		printf("HARDCODED INPUT PROCESSING\n");
 		model_run_single_in(
@@ -132,9 +129,8 @@ int main(int argc, char **argv)
 			har_smartphone_net, kHarIrRefRoot);
 		break;
 
-	// APP <input_test_base.idx>
-	// Output vectors will be written to <input_test_base.idx_out> file
-	//=================================================================
+	/* APP <input_test_base.idx> */
+	/* Output vectors will be written to <input_test_base.idx_out> file */
 	case 2:
 		printf("Input IDX testset to output IDX set\n");
 		char *out_path =
@@ -154,9 +150,8 @@ int main(int argc, char **argv)
 		free(out_path);
 		break;
 
-	// APP <input_test_base.idx> <input_test_labels.idx>
-	// Calculate accuracy of the model
-	//=================================================================
+	/* APP <input_test_base.idx> <input_test_labels.idx> */
+	/* Calculate accuracy of the model */
 	case 3:
 		printf("ACCURACY CALCULATION on Input IDX testset according to "
 		       "IDX labels set\n");
@@ -166,13 +161,12 @@ int main(int argc, char **argv)
 			har_smartphone_net, NULL);
 		break;
 
-	// Unknown format
-	//=================================================================
+	/* Unknown format */
 	default:
 		printf("App command line:\n"
-		       "\t%s \n\t\tProcess single hardcoded vector\n\n"
-		       "\t%s <input_test_base.idx> \n\t\tProcess testset from "
-		       "file and \n"
+		       "\t%s\n\t\tProcess single hardcoded vector\n\n"
+		       "\t%s <input_test_base.idx>\n\t\tProcess testset from "
+		       "file and\n"
 		       "\t\t output model results to <input_test_base.idx_out> "
 		       "file\n\n",
 		       argv[0], argv[0]);
@@ -183,15 +177,9 @@ int main(int argc, char **argv)
 	return 0;
 }
 
-//========================================================================================
-//
-// Other internal functions and routines
-//
-//========================================================================================
+/* Other internal functions and routines */
 
-//========================================================================================
-// Data pre-processing for HAR Smartphone net
-//========================================================================================
+/* Data pre-processing for HAR Smartphone net */
 static void har_smartphone_preprocessing(const void *raw_input_,
 					 mli_tensor *net_input_)
 {

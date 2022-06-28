@@ -45,15 +45,15 @@ Run example
 
         in1:
 
-        1 2 3 4 5 6 7 8 
+        1 2 3 4 5 6 7 8
 
         in2:
 
-        10 20 30 40 50 60 70 80 
+        10 20 30 40 50 60 70 80
 
         mli_krn_eltwise_add_fx16 output:
 
-        11 22 33 44 55 66 77 88 
+        11 22 33 44 55 66 77 88
 
         mli_krn_eltwise_sub_fx16 output:
 

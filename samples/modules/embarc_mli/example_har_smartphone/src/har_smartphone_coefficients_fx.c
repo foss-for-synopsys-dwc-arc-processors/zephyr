@@ -1,22 +1,15 @@
 /*
- * Copyright 2019-2022, Synopsys, Inc.
- * All rights reserved.
+ * Copyright (c) 2022 Synopsys.
  *
- * This source code is licensed under the BSD-3-Clause license found in
- * the LICENSE file in the root directory of this source tree.
- *
+ * SPDX-License-Identifier: Apache-2.0
  */
+
 #if (MODEL_BIT_DEPTH != 8)
 #include "har_smartphone_constants.h"
 
-//======================================================
-//
-// Tensors constants definition
-//
-//======================================================
+/* ------------ Tensors constants definition ------------ */
 
-// FC1_W Constants
-//================================================
+/* ------------------- FC1_W Constants ------------------ */
 const w_type _W L1_fc_wt_buf[FC1_W_ELEMENTS] = {
 	QW1(-0.2528931797), QW1(-0.1858948618), QW1(-0.1897677481),
 	QW1(-0.1335870624), QW1(+0.3203385472), QW1(-0.1394527555),
@@ -115,8 +108,7 @@ const w_type _W L1_fc_wt_buf[FC1_W_ELEMENTS] = {
 	QW1(-0.0450263396), QW1(-0.3891941607), QW1(+0.1547887623),
 	QW1(-0.0257582609), QW1(+0.1753129512), QW1(-0.1211371496)};
 
-// FC1_B Constants
-//================================================
+/* ------------------- FC1_B Constants ------------------ */
 
 const w_type _W L1_fc_bias_buf[FC1_B_ELEMENTS] = {
 	QB1(+0.3180780411), QB1(+1.1735091209), QB1(+0.4906845689),
@@ -131,8 +123,7 @@ const w_type _W L1_fc_bias_buf[FC1_B_ELEMENTS] = {
 	QB1(+0.1073319316), QB1(+0.5186800957), QB1(+0.2172211409),
 	QB1(-0.1181705669), QB1(+0.2445536405)};
 
-// CONV2_W Constants
-//================================================
+/* ------------------ CONV2_W Constants ----------------- */
 
 const w_type _W L2_lstm_wt_in_buf[LSTM2_W_IN_ELEMENTS] = {
 	QW2(+0.0020699601), QW2(+0.0003347300), QW2(+0.0020397599),
@@ -2870,8 +2861,7 @@ const w_type _W L2_lstm_wt_out_buf[LSTM2_W_OUT_ELEMENTS] = {
 	QW2(+0.0082115903), QW2(+0.0116308704), QW2(-0.0243287701),
 	QW2(-0.0109148901)};
 
-// LSTM2_B Constants
-//================================================
+/* ------------------ LSTM2_B Constants ----------------- */
 
 const w_type _W L2_lstm_bias_buf[LSTM2_B_ELEMENTS] = {
 	QB2(-0.0095424401),	 QB2(-0.0335504003),
@@ -2942,8 +2932,7 @@ const w_type _W L2_lstm_bias_buf[LSTM2_B_ELEMENTS] = {
 	QB2(-0.0154621601),	 QB2(-0.0177898798),
 	QB2(+0.0574662387),	 QB2(+0.1162519529)};
 
-// LSTM3_W Constants
-//================================================
+/* ------------------ LSTM3_W Constants ----------------- */
 
 const w_type _W L3_lstm_wt_in_buf[LSTM3_W_IN_ELEMENTS] = {
 	QW3(+0.0094308900), QW3(+0.0088530602), QW3(+0.0089659002),
@@ -5681,8 +5670,7 @@ const w_type _W L3_lstm_wt_out_buf[LSTM3_W_OUT_ELEMENTS] = {
 	QW3(-0.0170062706), QW3(-0.0417548902), QW3(-0.0255446900),
 	QW3(-0.0094211902)};
 
-// CONV3_B Constants
-//================================================
+/* ------------------ CONV3_B Constants ----------------- */
 
 const w_type _W L3_lstm_bias_buf[LSTM3_B_ELEMENTS] = {
 	QB3(+0.0482361615),	 QB3(+0.0691096783),
@@ -5753,9 +5741,7 @@ const w_type _W L3_lstm_bias_buf[LSTM3_B_ELEMENTS] = {
 	QB3(+0.2172724903),	 QB3(+0.1542913318),
 	QB3(+0.1912462264),	 QB3(+0.1703979671)};
 
-//================================================
-// FC4_W Constants
-//================================================
+/* ------------------- FC4_W Constants ------------------ */
 
 const w_type _W L4_fc_wt_buf[FC4_W_ELEMENTS] = {
 	QW4(-0.1184954569), QW4(-0.0611310303), QW4(-0.2922148407),
@@ -5823,9 +5809,7 @@ const w_type _W L4_fc_wt_buf[FC4_W_ELEMENTS] = {
 	QW4(+0.4119120538), QW4(-0.3474161327), QW4(-0.2548608482),
 	QW4(+0.4230390489), QW4(+0.1261025518), QW4(-0.3287870884)};
 
-//================================================
-// FC4_B Constants
-//================================================
+/* ------------------- FC4_B Constants ------------------ */
 
 const w_type _W L4_fc_bias_buf[FC4_B_ELEMENTS] = {
 	QB4(-0.1695265919), QB4(-0.0150631201), QB4(-0.2451030761),

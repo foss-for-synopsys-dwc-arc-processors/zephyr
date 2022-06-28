@@ -1,19 +1,13 @@
 /*
- * Copyright 2019-2022, Synopsys, Inc.
- * All rights reserved.
+ * Copyright (c) 2022 Synopsys.
  *
- * This source code is licensed under the BSD-3-Clause license found in
- * the LICENSE file in the root directory of this source tree.
- *
+ * SPDX-License-Identifier: Apache-2.0
  */
+
 #if (MODEL_BIT_DEPTH == 8)
 #include "har_smartphone_constants.h"
 
-//======================================================
-//
-// Tensors constants definition
-//
-//======================================================
+/* ------------ Tensors constants definition ------------ */
 int16_t zero_zp_arr_shared[32] = {0};
 
 int8_t fc1_w_fraq_arr[] = {23, 24, 24, 22, 22, 22, 22, 23, 24, 22, 22,
@@ -37,8 +31,7 @@ int16_t fc1_b_scale_arr[] = {27885, 21099, 25166, 23049, 24890, 22034, 29565,
 			     19479, 17307, 20527, 23476, 22248, 21368, 22086,
 			     24970, 25652, 24901, 24001};
 
-// FC1_W Constants
-//================================================
+/* ------------------- FC1_W Constants ------------------ */
 const w_type _W L1_fc_wt_buf[FC1_W_ELEMENTS] = {
 	-66,  -127, -109, -21,	47,   -23, 25,	-12,  18,  66,	 -46,  73,
 	45,   -83,  89,	  -57,	6,    -43, -3,	-77,  29,  -9,	 30,   -31,
@@ -66,8 +59,7 @@ const w_type _W L1_fc_wt_buf[FC1_W_ELEMENTS] = {
 	-127, -46,  14,	  55,	-11,  15,  -15, -127, 45,  -7,	 102,  -37,
 };
 
-// FC1_B Constants
-//================================================
+/* ------------------- FC1_B Constants ------------------ */
 
 const b_type _W L1_fc_bias_buf[FC1_B_ELEMENTS] = {
 	3062, 29860, 10468, 6191, 5456,	 -1406, 2017, 6471, 4591,  -1573, 912,
@@ -75,8 +67,7 @@ const b_type _W L1_fc_bias_buf[FC1_B_ELEMENTS] = {
 	4383, 6126,  -2833, 3299, 12285, 1305,	5576, 2273, -2548, 2735,
 };
 
-// LSTM2_W Constants
-//================================================
+/* ------------------ LSTM2_W Constants ----------------- */
 int8_t lstm2_w_in_fraq_arr[] = {
 	23,
 	22,
@@ -803,8 +794,7 @@ const w_type _W L2_lstm_wt_out_buf[LSTM2_W_OUT_ELEMENTS] = {
 	6,   -48,  52,	 -32,  18,  -20,  -30,	33,  8,	  19,  -91, 49,
 	10,  14,   -30,	 -13};
 
-// LSTM2_B Constants
-//================================================
+/* ------------------ LSTM2_B Constants ----------------- */
 
 const b_type _W L2_lstm_bias_buf[LSTM2_B_ELEMENTS] = {
 	-264,  -929,  -511,  -478,  -359,  -605,  -114,	 1183,	1382,  45,
@@ -821,8 +811,7 @@ const b_type _W L2_lstm_bias_buf[LSTM2_B_ELEMENTS] = {
 	-504,  -462,  -583,  3453,  1892,  3365,  2754,	 3508,	2690,  -1435,
 	-641,  -1039, 2754,  -2251, -565,  -650,  2100,	 4249};
 
-// LSTM3_W Constants
-//================================================
+/* ------------------ LSTM3_W Constants ----------------- */
 
 int8_t lstm3_w_in_fraq_arr[] = {23, 22, 24, 24};
 
@@ -1508,8 +1497,7 @@ const w_type _W L3_lstm_wt_out_buf[LSTM3_W_OUT_ELEMENTS] = {
 	8,    -31, -27,	 -49, -40, -49, 12,  -15,  -39,	 -31,  -14,  -35,  -21,
 	-8};
 
-// LSTM3_B Constants
-//================================================
+/* ------------------ LSTM3_B Constants ----------------- */
 
 const b_type _W L3_lstm_bias_buf[LSTM3_B_ELEMENTS] = {
 	1582,  2266,  2244,  1420,  -113,  1131,  1427,	 1838,	1574,  1403,
@@ -1527,9 +1515,7 @@ const b_type _W L3_lstm_bias_buf[LSTM3_B_ELEMENTS] = {
 	12498, 12285, 11761, 15545, 16933, 12025, 14905, 13280,
 };
 
-//================================================
-// FC4_W Constants
-//================================================
+/* ------------------- FC4_W Constants ------------------ */
 
 int8_t fc4_w_fraq_arr[] = {22, 22, 23, 22, 22, 22};
 

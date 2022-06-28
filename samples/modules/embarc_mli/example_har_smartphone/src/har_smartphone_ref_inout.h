@@ -1,10 +1,7 @@
 /*
- * Copyright 2019-2022, Synopsys, Inc.
- * All rights reserved.
+ * Copyright (c) 2022 Synopsys.
  *
- * This source code is licensed under the BSD-3-Clause license found in
- * the LICENSE file in the root directory of this source tree.
- *
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 #ifndef _HAR_SMARTPHONE_REF_INOUT_H_
@@ -12,9 +9,7 @@
 
 #define QIN(val)  (val)
 #define QOUT(val) (val)
-//================================================
-// Model input sequence #300
-//================================================
+/* -------------- Model input sequence #300 ------------- */
 #define IN_SEQ_300_SHAPE                                                       \
 	{                                                                      \
 		128, 9                                                         \
@@ -600,9 +595,7 @@
 			QIN(+0.7278422117), QIN(-0.4449347854),                \
 			QIN(+0.1354635954)                                     \
 	}
-//==========================================================
-// Output classes scores vector: reference for sequence #300
-//==========================================================
+/* Output classes scores vector: reference for sequence #300 */
 
 #define OUT_SCORES_300_SHAPE                                                   \
 	{                                                                      \
@@ -616,4 +609,4 @@
 			QOUT(-1.3802480698)                                    \
 	}
 
-#endif // _HAR_SMARTPHONE_REF_INOUT_H_
+#endif /* _HAR_SMARTPHONE_REF_INOUT_H_ */
