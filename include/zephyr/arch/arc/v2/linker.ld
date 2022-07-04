@@ -63,6 +63,12 @@ MEMORY {
 #ifdef DCCM_START
 	DCCM  (rw)  : ORIGIN = DCCM_START,  LENGTH = DCCM_SIZE
 #endif
+#ifdef XCCM_START
+	XCCM  (rw)  : ORIGIN = XCCM_START, 	LENGTH = XCCM_SIZE
+#endif
+#ifdef YCCM_START
+	YCCM  (rw)  : ORIGIN = YCCM_START,  LENGTH = YCCM_SIZE
+#endif
 	/* Used by and documented in include/linker/intlist.ld */
 	IDT_LIST  (wx)      : ORIGIN = 0xFFFFF7FF, LENGTH = 2K
 }
@@ -173,6 +179,9 @@ SECTIONS {
 
 	GROUP_START(DATA_REGION)
 
+#ifdef CONFIG_EMBARC_MLI
+#include "linker/../../../modules/embarc_mli/embarc_mli.ld"
+#endif
 	SECTION_DATA_PROLOGUE(_DATA_SECTION_NAME,,) {
 
 /* when XIP, .text is in ROM, but vector table must be at start of .data */
