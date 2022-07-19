@@ -989,14 +989,6 @@ static void signal_raise(void *arg0, void *arg1, void *arg2)
 
 void test_smp_switch_torture(void)
 {
-#if defined(CONFIG_ARC) && CONFIG_MP_NUM_CPUS >= 4
-	/*
-	 * Seems to be ARC Zephyr architecture code has same issue as previously was reported for
-	 * ARM, see #40795 for details. We can reproduce it in simulation so it's SW issue.
-	 * Temporary disable test case for HW verification branch.
-	 */
-	ztest_test_skip();
-#else
 	for (uintptr_t i = 0; i < THREADS_NUM; i++) {
 		k_poll_signal_init(&tsignal[i]);
 		k_poll_event_init(&tevent[i], K_POLL_TYPE_SIGNAL,
@@ -1017,7 +1009,6 @@ void test_smp_switch_torture(void)
 	for (uintptr_t i = 0; i < THREADS_NUM; i++) {
 		k_thread_abort(&tthread[i]);
 	}
-#endif
 }
 
 void test_main(void)
