@@ -86,6 +86,14 @@ SECTION_SUBSEC_FUNC(TEXT,_reset_and__start,__start)
 	kflag r0
 #endif
 
+#ifdef CONFIG_ISA_ARCV3
+	#define ARC_REG_HW_PF_CTRL      0x4f
+	/* Enable hardware prefetcher */
+	lr r0, [ARC_REG_HW_PF_CTRL]
+	or r0, r0, 1
+	sr r0, [ARC_REG_HW_PF_CTRL]
+#endif
+
 /* Invalidate icache */
 	lr r0, [_ARC_V2_I_CACHE_BUILD]
 	and.f r0, r0, 0xff
