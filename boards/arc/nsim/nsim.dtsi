@@ -9,6 +9,22 @@
 #include "skeleton.dtsi"
 #include <mem.h>
 
+#ifndef ICCM_ADDR
+#define ICCM_ADDR 0
+#endif
+
+#ifndef ICCM_SIZE
+#define ICCM_SIZE DT_SIZE_K(1024)
+#endif
+
+#ifndef DCCM_ADDR
+#define DCCM_ADDR 80000000
+#endif
+
+#ifndef DCCM_SIZE
+#define DCCM_SIZE DT_SIZE_K(1024)
+#endif
+
 / {
 	cpus {
 		#address-cells = <1>;
