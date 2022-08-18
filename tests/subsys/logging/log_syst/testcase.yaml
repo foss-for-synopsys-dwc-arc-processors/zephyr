@@ -10,6 +10,7 @@ tests:
     extra_configs:
       - CONFIG_LOG_MIPI_SYST_ENABLE=y
       - CONFIG_LOG_BACKEND_MOCK_OUTPUT_SYST=y
+    filter: TOOLCHAIN_HAS_NEWLIB == 1
   logging.log_syst.text:
     tags: log_syst logging
     arch_exclude: mips nios2 posix sparc

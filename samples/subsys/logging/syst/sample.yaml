@@ -20,6 +20,7 @@ tests:
       regex:
         - "SYS-T RAW DATA: "
         - "SYST Sample Execution Completed"
+    filter: TOOLCHAIN_HAS_NEWLIB == 1
   sample.logger.syst.immediate:
     toolchain_exclude: xcc
     extra_args: OVERLAY_CONFIG=overlay_immediate.conf
@@ -34,6 +35,7 @@ tests:
       regex:
         - "SYS-T RAW DATA: "
         - "SYST Sample Execution Completed"
+    filter: TOOLCHAIN_HAS_NEWLIB == 1
   sample.logger.syst.catalog.deferred:
     toolchain_exclude: xcc
     extra_args: OVERLAY_CONFIG=overlay_deferred.conf
@@ -49,6 +51,7 @@ tests:
         - "SYS-T RAW DATA: "
     extra_configs:
       - CONFIG_LOG_MIPI_SYST_USE_CATALOG=y
+    filter: TOOLCHAIN_HAS_NEWLIB == 1
   sample.logger.syst.catalog.immediate:
     toolchain_exclude: xcc
     integration_platforms:
@@ -63,6 +66,7 @@ tests:
         - "SYS-T RAW DATA: "
     extra_configs:
       - CONFIG_LOG_MIPI_SYST_USE_CATALOG=y
+    filter: TOOLCHAIN_HAS_NEWLIB == 1
   sample.logger.syst.deferred_cpp:
     toolchain_exclude: xcc
     extra_args: OVERLAY_CONFIG=overlay_deferred.conf
@@ -79,6 +83,7 @@ tests:
         - "SYS-T RAW DATA: "
     extra_configs:
       - CONFIG_CPLUSPLUS=y
+    filter: TOOLCHAIN_HAS_NEWLIB == 1
   sample.logger.syst.immediate_cpp:
     toolchain_exclude: xcc
     integration_platforms:
@@ -94,6 +99,7 @@ tests:
         - "SYS-T RAW DATA: "
     extra_configs:
       - CONFIG_CPLUSPLUS=y
+    filter: TOOLCHAIN_HAS_NEWLIB == 1
   sample.logger.syst.catalog.deferred_cpp:
     toolchain_exclude: xcc
     extra_args: OVERLAY_CONFIG=overlay_deferred.conf
@@ -110,6 +116,7 @@ tests:
     extra_configs:
       - CONFIG_LOG_MIPI_SYST_USE_CATALOG=y
       - CONFIG_CPLUSPLUS=y
+    filter: TOOLCHAIN_HAS_NEWLIB == 1
   sample.logger.syst.catalog.immediate_cpp:
     toolchain_exclude: xcc
     integration_platforms:
@@ -125,3 +132,4 @@ tests:
     extra_configs:
       - CONFIG_LOG_MIPI_SYST_USE_CATALOG=y
       - CONFIG_CPLUSPLUS=y
+    filter: TOOLCHAIN_HAS_NEWLIB == 1

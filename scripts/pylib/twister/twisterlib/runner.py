@@ -237,9 +237,9 @@ class CMake:
     def run_cmake(self, args=""):
 
         if not self.options.disable_warnings_as_errors:
-            ldflags = "-Wl,--fatal-warnings"
+            ldflags = "-Wl"
             cflags = "-Werror"
-            aflags = "-Werror -Wa,--fatal-warnings"
+            aflags = "-Werror -Wa"
             gen_defines_args = "--edtlib-Werror"
         else:
             ldflags = cflags = aflags = ""
