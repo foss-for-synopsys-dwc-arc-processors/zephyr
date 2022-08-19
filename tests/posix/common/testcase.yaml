@@ -18,7 +18,10 @@ tests:
     extra_configs:
       - CONFIG_NEWLIB_LIBC=y
   portability.posix.common.arcmwdtlib:
-    toolchain_allow: arcmwdt
+    # toolchain_allow: arcmwdt
+    # temporary disabled as some fixes are required
+    # for compatibility with new version of MWDT
+    toolchain_exclude: arcmwdt
     extra_configs:
       - CONFIG_ARCMWDT_LIBC=y
   portability.posix.common.tls:

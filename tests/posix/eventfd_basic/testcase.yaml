@@ -4,6 +4,7 @@ common:
   min_ram: 32
 tests:
   portability.posix.eventfd_basic:
+    toolchain_exclude: arcmwdt
     extra_configs:
       - CONFIG_POSIX_API=n
   portability.posix.eventfd_basic.posix_api:

@@ -4,6 +4,7 @@ tests:
     extra_args: CONF_FILE=prj.conf
     integration_platforms:
       - native_posix
+    toolchain_exclude: arcmwdt
     testcases:
       - multiple_backends
       - log_generic
@@ -19,6 +20,7 @@ tests:
     extra_args: CONF_FILE=log_sync.conf
     integration_platforms:
       - native_posix
+    toolchain_exclude: arcmwdt
     testcases:
       - multiple_backends
       - log_generic

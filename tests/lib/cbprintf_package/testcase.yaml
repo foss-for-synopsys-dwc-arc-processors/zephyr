@@ -10,10 +10,12 @@ common:
   min_flash: 48
 tests:
   libraries.cbprintf_package:
+    toolchain_exclude: arcmwdt
     extra_configs:
       - CONFIG_CBPRINTF_COMPLETE=y
 
   libraries.cbprintf_package_no_generic:
+    toolchain_exclude: arcmwdt
     extra_configs:
       - CONFIG_CBPRINTF_COMPLETE=y
       - CONFIG_COMPILER_OPT="-DZ_C_GENERIC=0"
@@ -51,16 +53,19 @@ tests:
       - CONFIG_FPU=y
 
   libraries.cbprintf_package_nano:
+    toolchain_exclude: arcmwdt
     extra_configs:
       - CONFIG_CBPRINTF_NANO=y
 
   # Same test but with test compiled as C++
   libraries.cbprintf_package_cpp:
+    toolchain_exclude: arcmwdt
     extra_configs:
       - CONFIG_CPLUSPLUS=y
       - CONFIG_CBPRINTF_COMPLETE=y
 
   libraries.cbprintf_package_no_generic_cpp:
+    toolchain_exclude: arcmwdt
     extra_configs:
       - CONFIG_CPLUSPLUS=y
       - CONFIG_CBPRINTF_COMPLETE=y
@@ -103,6 +108,7 @@ tests:
       - CONFIG_FPU=y
 
   libraries.cbprintf_package_nano_cpp:
+    toolchain_exclude: arcmwdt
     extra_configs:
       - CONFIG_CPLUSPLUS=y
       - CONFIG_CBPRINTF_NANO=y

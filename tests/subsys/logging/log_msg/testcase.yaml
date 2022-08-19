@@ -7,6 +7,7 @@ common:
   platform_exclude: qemu_arc_hs6x
   integration_platforms:
     - native_posix
+  toolchain_exclude: arcmwdt
 tests:
   logging.log_msg:
     extra_configs:
