@@ -21,6 +21,89 @@ GDATA(z_interrupt_stacks)
 GDATA(z_main_stack)
 GDATA(_VectorTable)
 
+.macro _clear_regs_bank
+	/* switch to reqired bank */
+	kflag r0
+
+	MOVR r0, 0
+	MOVR r1, 0
+	MOVR r2, 0
+	MOVR r3, 0
+	MOVR r4, 0
+	MOVR r5, 0
+	MOVR r6, 0
+	MOVR r7, 0
+	MOVR r8, 0
+	MOVR r9, 0
+
+	MOVR r10, 0
+	MOVR r11, 0
+	MOVR r12, 0
+	MOVR r13, 0
+	MOVR r14, 0
+	MOVR r15, 0
+	MOVR r16, 0
+	MOVR r17, 0
+	MOVR r18, 0
+	MOVR r19, 0
+
+	MOVR r20, 0
+	MOVR r21, 0
+	MOVR r22, 0
+	MOVR r23, 0
+	MOVR r24, 0
+	MOVR r25, 0
+	MOVR r26, 0
+	MOVR r27, 0
+	MOVR r28, 0
+	MOVR r29, 0
+
+	MOVR r30, 0
+	MOVR r31, 0
+
+	/* switch back to bank 0 */
+	kflag r0
+.endm
+
+.macro _clear_regs_banks
+	MOVR r0, 0
+	_clear_regs_bank
+
+	MOVR r0, 1 << 16
+	_clear_regs_bank
+
+	MOVR r0, 2 << 16
+	_clear_regs_bank
+
+	MOVR r0, 3 << 16
+	_clear_regs_bank
+
+	MOVR r0, 4 << 16
+	_clear_regs_bank
+
+	MOVR r0, 5 << 16
+	_clear_regs_bank
+
+	MOVR r0, 6 << 16
+	_clear_regs_bank
+
+	MOVR r0, 7 << 16
+	_clear_regs_bank
+.endm
+
+.macro _clear_regs
+	_clear_regs_banks
+
+	/* ACC reg / regs are not banked */
+#ifdef CONFIG_ARC_HAS_ACCL_REGS
+#ifndef CONFIG_64BIT
+	MOVR r59, 0
+#endif /* !CONFIG_64BIT */
+	MOVR r58, 0
+#endif
+
+.endm
+
 /* use one of the available interrupt stacks during init */
 
 
@@ -52,6 +135,9 @@ SECTION_SUBSEC_FUNC(TEXT,_reset_and__start,__start)
 #ifdef CONFIG_ARC_SECURE_FIRMWARE
 	sflag r0
 #endif
+
+	_clear_regs
+
 	/* interrupt related init */
 #ifndef CONFIG_ARC_NORMAL_FIRMWARE
 	/* IRQ_ACT and IRQ_CTRL should be initialized and set in secure mode */
