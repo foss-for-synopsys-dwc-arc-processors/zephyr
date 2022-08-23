@@ -89,6 +89,14 @@ config CPU_HS3X
 	help
 	  If y, the SoC uses an ARC HS3x or HS4x CPU
 
+config CPU_HS4XD
+	bool
+	select CPU_ARCHS
+	select CPU_HAS_DCACHE
+	select CPU_HAS_ICACHE
+	help
+	  If y, the SoC uses an HS4XD CPU
+
 endif #ISA_ARCV2
 
 if ISA_ARCV3
@@ -277,13 +285,19 @@ config CODE_DENSITY
 	  Enable code density option to get better code density
 
 config ARC_HAS_ACCL_REGS
-	bool "Reg Pair ACCL:ACCH (FPU and/or MPY > 6)"
-	default y if CPU_HS3X || CPU_HS5X || CPU_HS6X
+	bool "Reg Pair ACCL:ACCH (FPU and/or MPY > 6 and/or DSP)"
+	default y if CPU_HS3X || CPU_HS4XD || CPU_HS5X || CPU_HS6X
 	help
 	  Depending on the configuration, CPU can contain accumulator reg-pair
 	  (also referred to as r58:r59). These can also be used by gcc as GPR so
 	  kernel needs to save/restore per process
 
+config ARC_HAS_DSP
+	bool "Dsp support"
+	default y if CPU_HS4XD
+	help
+		Some CPUs contain HW DSP extension
+		
 config ARC_HAS_SECURE
 	bool "ARC has SecureShield"
 	depends on ISA_ARCV2
