@@ -173,7 +173,8 @@ extern void k_thread_foreach_unlocked(
  * and restore the contents of these registers when scheduling the thread.
  * No effect if @kconfig{CONFIG_FPU_SHARING} is not enabled.
  */
-#define K_FP_REGS (BIT(1))
+#define K_FP_IDX 1
+#define K_FP_REGS (BIT(K_FP_IDX))
 #endif
 
 /**
@@ -204,6 +205,37 @@ extern void k_thread_foreach_unlocked(
  * Effectively it serves as a tiny bit of zero-overhead TLS data.
  */
 #define K_CALLBACK_STATE (BIT(4))
+
+#if defined(CONFIG_DSP_SHARING)
+/**
+ * @brief DSP registers are managed by context switch
+ *
+ * @details
+ * This option indicates that the thread uses the CPU's DSP registers.
+ * This instructs the kernel to take additional steps to save and
+ * restore the contents of these registers when scheduling the thread.
+ * No effect if @kconfig{CONFIG_DSP_SHARING} is not enabled.
+ */
+#define K_DSP_IDX 5
+#define K_DSP_REGS (BIT(K_DSP_IDX))
+#endif
+
+#ifdef CONFIG_ARC
+/* ARC processor Bitmask definitions for threads user options */
+
+#if defined(CONFIG_AGU_SHARING)
+/**
+ * @brief AGU registers are managed by context switch
+ *
+ * @details
+ * This option indicates that the thread uses the ARC processor's XY
+ * memory and DSP feature. Often used with @kconfig{CONFIG_AGU_SHARING}.
+ * No effect if @kconfig{CONFIG_AGU_SHARING} is not enabled.
+ */
+#define K_AGU_IDX 7
+#define K_AGU_REGS (BIT(K_AGU_IDX))
+#endif
+#endif
 
 #ifdef CONFIG_X86
 /* x86 Bitmask definitions for threads user options */
@@ -5887,6 +5919,48 @@ __syscall int k_float_disable(struct k_thread *thread);
  *         -EINVAL  If the floating point enabling could not be performed.
  */
 __syscall int k_float_enable(struct k_thread *thread, unsigned int options);
+
+/**
+ * @brief Disable preservation of DSP context information.
+ *
+ * This routine informs the kernel that the specified thread
+ * will no longer be using the DSP registers.
+ *
+ * @warning
+ * This routine should only be used to disable DSP support for
+ * a thread that currently has such support enabled.
+ *
+ * @param thread ID of thread.
+ * @param options architecture dependent options
+ *
+ * @retval 0        On success.
+ * @retval -ENOTSUP If the DSP disabling is not implemented.
+ *         -EINVAL  If the DSP disabling could not be performed.
+ */
+__syscall int k_dsp_disable(struct k_thread *thread, unsigned int options);
+
+/**
+ * @brief Enable preservation of DSP context information.
+ *
+ * This routine informs the kernel that the specified thread
+ * will use the DSP registers.
+ *
+ * The @a options parameter indicates which register sets will
+ * be used by the specified thread. For ARC processor, AGU register
+ * sets can be used with DSP sets together.
+ *
+ * @warning
+ * This routine should only be used to enable DSP support for
+ * a thread that currently has such support enabled.
+ *
+ * @param thread  ID of thread.
+ * @param options architecture dependent options
+ *
+ * @retval 0        On success.
+ * @retval -ENOTSUP If the DSP enabling is not implemented.
+ *         -EINVAL  If the DSP enabling could not be performed.
+ */
+__syscall int k_dsp_enable(struct k_thread *thread, unsigned int options);
 
 /**
  * @brief Get the runtime statistics of a thread

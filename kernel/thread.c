@@ -903,6 +903,20 @@ int z_impl_k_float_enable(struct k_thread *thread, unsigned int options)
 #endif /* CONFIG_FPU && CONFIG_FPU_SHARING */
 }
 
+#if defined(CONFIG_DSP) && defined(CONFIG_DSP_SHARING)
+int z_impl_k_dsp_disable(struct k_thread *thread, unsigned int options)
+{
+	return arch_dsp_disable(thread,  options);
+}
+#endif /* CONFIG_DSP && CONFIG_DSP_SHARING */
+
+#if defined(CONFIG_DSP) && defined(CONFIG_DSP_SHARING)
+int z_impl_k_dsp_enable(struct k_thread *thread, unsigned int options)
+{
+	return arch_dsp_enable(thread, options);
+}
+#endif /* CONFIG_DSP && CONFIG_DSP_SHARING */
+
 #ifdef CONFIG_USERSPACE
 static inline int z_vrfy_k_float_disable(struct k_thread *thread)
 {
