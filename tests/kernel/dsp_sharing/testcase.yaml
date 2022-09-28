@@ -1,0 +1,8 @@
+tests:
+  kernel.dsp_sharing.generic.arc:
+    toolchain_allow: arcmwdt
+    filter: CONFIG_ISA_ARCV2 and CONFIG_CPU_HAS_DSP
+    slow: true
+    tags: dsp kernel
+    timeout: 600
+    min_ram: 16
