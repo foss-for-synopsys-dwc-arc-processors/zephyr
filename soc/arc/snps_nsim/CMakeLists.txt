@@ -23,6 +23,14 @@ else()
 			       -Xfpus_div -Xfpu_mac -Xfpuda -Xfpus_mpy_slow
 			       -Xfpus_div_slow -Xbitstream -Xtimer0 -Xtimer1)
 
+  zephyr_compile_options_ifdef(CONFIG_SOC_NSIM_EM11D -arcv2em -core3 -Xdiv_rem=radix2
+			       -Xmpy_option=mpyd -Xbitscan -Xswap -Xbarrel_shifter
+			       -Xshift_assist -Xdsp2 -Xdsp_complex -Xxy -Xagu_large
+             -Xdsp_ctrl=postshift,noguard,convergent -Hfxapi
+			       -Xdsp_divsqrt=radix2 -Xdsp_itu -Xdsp_accshift=full
+			       -Xfpus_div -Xfpu_mac -Xfpuda -Xfpus_mpy_slow
+			       -Xfpus_div_slow -Xbitstream -Xtimer0 -Xtimer1)
+
   zephyr_compile_options_ifdef(CONFIG_SOC_NSIM_SEM -arcv2em -core3 -Xcode_density
 			       -Xdiv_rem=radix2 -Xswap -Xbitscan -Xmpy_option=mpyd
 			       -Xshift_assist -Xbarrel_shifter -Xdsp2

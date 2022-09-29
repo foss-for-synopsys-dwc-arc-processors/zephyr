@@ -564,6 +564,11 @@ config CPU_HAS_DCLS
 	  This option is enabled when the processor hardware is configured in
 	  Dual-redundant Core Lock-step (DCLS) topology.
 
+config CPU_HAS_DSP
+	bool
+	help
+	  This option is enabled when the CPU has hardware DSP unit.
+
 config CPU_HAS_FPU
 	bool
 	help
@@ -739,6 +744,24 @@ config FPU_SHARING
 	  if it is guaranteed that the image code does not generate FP
 	  instructions outside the single thread context that is allowed
 	  to do so.
+
+endmenu
+
+menu "Digital Signal Processing Options"
+
+config DSP
+	bool "This option enables digital signal processing (DSP)"
+	depends on CPU_HAS_DSP
+	help
+	  This option enables DSP and DSP instructions.
+
+config DSP_SHARING
+	bool "DSP register sharing"
+	depends on DSP && MULTITHREADING
+	help
+	  This option enables preservation of the hardware DSP registers
+	  across context switches to allow multiple threads to perform concurrent
+	  DSP operations.
 
 endmenu
 

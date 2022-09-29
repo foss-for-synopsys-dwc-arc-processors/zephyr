@@ -327,6 +327,50 @@ config ARC_NORMAL_FIRMWARE
 	  resources of the ARC processors, and, therefore, it shall avoid
 	  accessing them.
 
+config ARC_DSP_BFLY_SHARING
+	bool "ARC complex DSP operation"
+	depends on DSP && CPU_ARCEM
+	default n
+	help
+	  This option is to enable Zephyr to store and restore DSP_BFLY0
+	  and FFT_CTRL registers during context switch. This option is
+	  only required when butterfly instructions are used in
+	  multi-thread.
+
+config ARC_HAS_AGU_REGS
+	bool "ARC address generation unit registers"
+	default n
+	help
+	  Processors with XY memory and AGU registers can configure this
+	  option to accelerate DSP instrctions.
+
+config AGU_SHARING
+	bool "ARC address generation unit register sharing"
+	depends on ARC_HAS_AGU_REGS && MULTITHREADING
+	help
+	  This option enables preservation of the hardware AGU registers
+	  across context switches to allow multiple threads to perform concurrent
+	  operations on XY memory. Save and restore small size AGU registers is
+	  set as default, including 4 address pointers regs, 2 address offset regs
+	  and 4 modifiers regs.
+
+config ARC_AGU_MEDIUM
+	bool "ARC AGU medium size register"
+	depends on AGU_SHARING
+	default n
+	help
+	  Save and restore medium AGU registers, including 8 address pointers regs,
+	  4 address offset regs and 12 modifiers regs.
+
+config ARC_AGU_LARGE
+	bool "ARC AGU large size register"
+	depends on AGU_SHARING
+	default n
+	select ARC_AGU_MEDIUM
+	help
+	  Save and restore large AGU registers, including 12 address pointers regs,
+	  8 address offset regs and 24 modifiers regs.
+
 menu "ARC MPU Options"
 depends on CPU_HAS_MPU
 
