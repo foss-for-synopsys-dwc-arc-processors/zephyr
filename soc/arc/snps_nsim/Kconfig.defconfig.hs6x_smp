@@ -15,8 +15,7 @@ config NUM_IRQS
 	default 30
 
 config SYS_CLOCK_HW_CYCLES_PER_SEC
-	# SMP simulation is slower than single core, 1 Mhz seems reasonable match with wallclock
-	default 1000000
+	default $(dt_node_int_prop_int,$(dt_nodelabel_path,uart0),clock-frequency)
 
 config CACHE_MANAGEMENT
 	default y
