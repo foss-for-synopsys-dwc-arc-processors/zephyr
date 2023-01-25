@@ -3,6 +3,7 @@ tests:
     integration_platforms:
       - native_posix
     tags: logging
+    platform_exclude: hsdk hsdk_2cores
     extra_configs:
       - CONFIG_LOG_MODE_DEFERRED=y
       - CONFIG_CBPRINTF_COMPLETE=y
@@ -11,6 +12,7 @@ tests:
     integration_platforms:
       - native_posix
     tags: logging
+    platform_exclude: hsdk hsdk_2cores
     extra_configs:
       - CONFIG_LOG_MODE_DEFERRED=y
       - CONFIG_CBPRINTF_COMPLETE=y

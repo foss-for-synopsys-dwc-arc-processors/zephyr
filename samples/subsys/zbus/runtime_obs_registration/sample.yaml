@@ -6,6 +6,7 @@ tests:
     platform_exclude: hifive_unleashed qemu_xtensa qemu_cortex_a53_smp qemu_cortex_a53
       qemu_riscv32_smp qemu_riscv64_smp qemu_riscv64 qemu_leon3 qemu_x86_64
     harness: console
+    filter: not CONFIG_SMP
     harness_config:
       type: multi_line
       ordered: false

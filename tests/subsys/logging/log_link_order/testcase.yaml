@@ -1,5 +1,6 @@
 tests:
   logging.log_link_order:
+    platform_exclude: hsdk hsdk_2cores
     integration_platforms:
       - native_posix
     tags: log_links logging

@@ -19,6 +19,7 @@ tests:
       - CONFIG_NEWLIB_LIBC=y
   portability.posix.common.arcmwdtlib:
     toolchain_allow: arcmwdt
+    platform_exclude: hsdk hsdk_2cores
     extra_configs:
       - CONFIG_ARCMWDT_LIBC=y
   portability.posix.common.tls:

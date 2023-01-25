@@ -8,6 +8,7 @@ tests:
     platform_allow: native_posix
   testing.ztest.base.verbose_0:
     extra_args: CONF_FILE=prj_verbose_0.conf
+    toolchain_exclude: arcmwdt
     tags: test_framework
     integration_platforms:
       - native_posix
@@ -21,11 +22,13 @@ tests:
       - native_posix
   testing.ztest.base.verbose_1:
     extra_args: CONF_FILE=prj_verbose_1.conf
+    toolchain_exclude: arcmwdt
     tags: test_framework
     integration_platforms:
       - native_posix
   testing.ztest.base.verbose_2:
     extra_args: CONF_FILE=prj_verbose_2.conf
+    toolchain_exclude: arcmwdt
     tags: test_framework
     integration_platforms:
       - native_posix

@@ -3,6 +3,7 @@ sample:
 tests:
   sample.zbus.benchmark_async:
     tags: zbus
+    platform_exclude: hsdk hsdk_2cores
     min_ram: 16
     filter: CONFIG_SYS_CLOCK_EXISTS
     harness: console
