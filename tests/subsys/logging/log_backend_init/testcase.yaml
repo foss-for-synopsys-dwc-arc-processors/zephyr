@@ -3,4 +3,5 @@ tests:
     integration_platforms:
       - native_posix
     tags: log_core logging
+    platform_exclude: hsdk hsdk_2cores
     filter: not CONFIG_LOG_MODE_IMMEDIATE

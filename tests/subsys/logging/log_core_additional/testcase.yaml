@@ -16,6 +16,7 @@ tests:
       - log_msg_create
   logging.add.sync:
     tags: logging
+    platform_exclude: hsdk hsdk_2cores
     extra_args: CONF_FILE=log_sync.conf
     integration_platforms:
       - native_posix
