@@ -32,3 +32,7 @@ DesignWare ARC MetaWare Development Toolkit (MWDT)
       arcmwdt
       > echo %ARCMWDT_TOOLCHAIN_PATH%
       C:\ARC\MWDT_2019.12\
+
+#. Note that even though ARC MWDT compiler is used for Zephyr RTOS sources compilation, still
+   the GNU preprocessor & GNU objcopy might be used for some steps like DTS preprocessing and
+   ``.bin`` file generation. Hence we need to have either ARC or host GNU tools in :envvar:`PATH`
