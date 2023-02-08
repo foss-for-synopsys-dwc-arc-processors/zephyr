@@ -16,12 +16,9 @@ if(COMPILER STREQUAL gcc)
   endif()
 else()
   # MWDT compiler options
-  zephyr_compile_options_ifdef(CONFIG_SOC_NSIM_EM -arcv2em -core3 -Xdiv_rem=radix2
-			       -Xmpy_option=mpyd -Xbitscan -Xswap -Xbarrel_shifter
-			       -Xshift_assist -Xdsp2 -Xdsp_complex
-			       -Xdsp_divsqrt=radix2 -Xdsp_itu -Xdsp_accshift=full
-			       -Xfpus_div -Xfpu_mac -Xfpuda -Xfpus_mpy_slow
-			       -Xfpus_div_slow -Xbitstream -Xtimer0 -Xtimer1)
+  zephyr_compile_options_ifdef(CONFIG_SOC_NSIM_EM -arcv2em -core4 -HL -Xcode_density -Xswap
+             -Xbitscan -Xmpy_option=wlh2 -Xshift_assist -Xbarrel_shifter -Xtimer0 -Xtimer1
+             -Hccm -Xdmac)
 
   zephyr_compile_options_ifdef(CONFIG_SOC_NSIM_EM11D -arcv2em -core3 -Xdiv_rem=radix2
 			       -Xbitscan -Xswap -Xbarrel_shifter

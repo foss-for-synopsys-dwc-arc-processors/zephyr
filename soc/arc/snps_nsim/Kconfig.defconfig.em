@@ -3,23 +3,23 @@
 
 if SOC_NSIM_EM
 
-config CPU_EM4_FPUDA
+config CPU_EM4
 	default y
 
 config NUM_IRQ_PRIO_LEVELS
 	# This processor supports 4 priority levels:
 	# 0 for Fast Interrupts (FIRQs) and 1-3 for Regular Interrupts (IRQs).
-	default 4
+	default 3
 
 config NUM_IRQS
 	# must be > the highest interrupt number used
-	default 30
+	default 67
 
 config ARC_MPU_VER
 	default 2
 
 config RGF_NUM_BANKS
-	default 2
+	default 1
 
 config SYS_CLOCK_HW_CYCLES_PER_SEC
 	default 5000000
@@ -28,7 +28,7 @@ config HARVARD
 	default y
 
 config ARC_FIRQ
-	default y
+	default n
 
 config CACHE_MANAGEMENT
 	default y
@@ -51,6 +51,6 @@ config ZTEST_STACK_SIZE
 endif # ARC_MPU_VER
 
 config ARC_HAS_ACCL_REGS
-	default y
+	default n
 
 endif # SOC_NSIM_EM

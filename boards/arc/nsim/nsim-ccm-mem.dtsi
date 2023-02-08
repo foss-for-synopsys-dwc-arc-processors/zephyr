@@ -8,11 +8,11 @@
 #include <mem.h>
 
 #ifndef ICCM_ADDR
-#define ICCM_ADDR 0
+#define ICCM_ADDR 60000000
 #endif
 
 #ifndef ICCM_SIZE
-#define ICCM_SIZE DT_SIZE_M(1)
+#define ICCM_SIZE 0x10000
 #endif
 
 #ifndef DCCM_ADDR
@@ -20,7 +20,7 @@
 #endif
 
 #ifndef DCCM_SIZE
-#define DCCM_SIZE DT_SIZE_M(1)
+#define DCCM_SIZE 0x80000
 #endif
 
 / {
