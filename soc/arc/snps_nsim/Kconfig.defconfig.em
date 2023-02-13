@@ -25,7 +25,7 @@ config SYS_CLOCK_HW_CYCLES_PER_SEC
 	default 5000000
 
 config HARVARD
-	default y
+	default n
 
 config ARC_FIRQ
 	default n

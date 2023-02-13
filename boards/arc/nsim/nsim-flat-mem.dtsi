@@ -8,7 +8,7 @@
 #include <mem.h>
 
 #ifndef DDR_ADDR
-#define DDR_ADDR 80000000
+#define DDR_ADDR 0
 #endif
 
 #ifndef DDR_SIZE
