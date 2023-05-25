@@ -6,8 +6,8 @@
 
 /dts-v1/;
 
-#include "nsim.dtsi"
-#include "nsim-ccm-mem.dtsi"
+#include "nsim-smp.dtsi"
+#include "nsim-flat-mem.dtsi"
 #include "nsim-uart-ns16550.dtsi"
 
 / {
