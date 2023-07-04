@@ -22,6 +22,10 @@ config CPU_ARCHS
 	help
 	  This option signifies the use of an ARC HS CPU
 
+config ARC_PARAVIRT
+	bool "ARC paravirtualization"
+	help
+	  This option enable paravirtualization
 
 choice
 	prompt "ARC Instruction Set"

@@ -15,9 +15,11 @@ zephyr_library_sources(
   regular_irq.S
   switch.S
   prep_c.c
-  reset.S
   vector_table.c
   )
+
+zephyr_library_sources_ifdef(CONFIG_ARC_PARAVIRT paravirt-entry.S zephyr-entry.S)
+zephyr_library_sources_ifndef(CONFIG_ARC_PARAVIRT reset.S)
 
 zephyr_library_sources_ifdef(CONFIG_ARCH_CACHE cache.c)
 zephyr_library_sources_ifdef(CONFIG_ARC_FIRQ fast_irq.S)

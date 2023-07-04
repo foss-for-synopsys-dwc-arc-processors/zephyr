@@ -1,0 +1,128 @@
+/*
+ * Copyright (c) 2014 Wind River Systems, Inc.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
+ * @file
+ * @brief Reset handler
+ *
+ * Reset handler that prepares the system for running C code.
+ */
+
+#include <zephyr/toolchain.h>
+#include <zephyr/linker/sections.h>
+#include <zephyr/arch/cpu.h>
+#include <swap_macros.h>
+#include <zephyr/arch/arc/asm-compat/assembler.h>
+#ifdef CONFIG_ARC_EARLY_SOC_INIT
+  #include <soc_ctrl.h>
+#endif
+
+GDATA(z_interrupt_stacks)
+GDATA(z_main_stack)
+GDATA(_VectorTable)
+
+/* use one of the available interrupt stacks during init */
+
+
+#define INIT_STACK z_interrupt_stacks
+#define INIT_STACK_SIZE CONFIG_ISR_STACK_SIZE
+
+GTEXT(_z_arc_paravirt_entry)
+
+/* Entry for userspace */
+SECTION_FUNC(TEXT, _z_arc_paravirt_entry)
+
+#ifdef CONFIG_ARC_EARLY_SOC_INIT
+	soc_early_asm_init_percpu
+#endif
+
+	_dsp_extension_probe
+
+/*
+ * Init ARC internal architecture state
+ * Force to initialize internal architecture state to reset values
+ * For scenarios where board hardware is not re-initialized between tests,
+ * some settings need to be restored to its default initial states as a
+ * substitution of normal hardware reset sequence.
+ */
+#ifdef CONFIG_INIT_ARCH_HW_AT_BOOT
+	/* Set MPU (v4 or v8) registers to default */
+#if CONFIG_ARC_MPU_VER == 4 || CONFIG_ARC_MPU_VER == 8
+	/* Set default reset value to _ARC_V2_MPU_EN register */
+#define ARC_MPU_EN_RESET_VALUE 0x400181C0
+	mov_s r1, ARC_MPU_EN_RESET_VALUE
+	sr r1, [_ARC_V2_MPU_EN]
+	/* Get MPU region numbers */
+	lr r3, [_ARC_V2_MPU_BUILD]
+	lsr_s r3, r3, 8
+	and r3, r3, 0xff
+	mov_s r1, 0
+	mov_s r2, 0
+	/* Set all MPU regions by iterating index */
+mpu_regions_reset:
+	brge r2, r3, done_mpu_regions_reset
+	sr r2, [_ARC_V2_MPU_INDEX]
+	sr r1, [_ARC_V2_MPU_RSTART]
+	sr r1, [_ARC_V2_MPU_REND]
+	sr r1, [_ARC_V2_MPU_RPER]
+	add_s r2, r2, 1
+	b_s mpu_regions_reset
+done_mpu_regions_reset:
+#endif
+#endif
+
+#if defined(CONFIG_SMP) || CONFIG_MP_MAX_NUM_CPUS  > 1
+	_get_cpu_id r0
+	breq r0, 0, _master_core_startup
+
+/*
+ * Non-masters wait for master core (core 0) to boot enough
+ */
+_slave_core_wait:
+#if CONFIG_MP_MAX_NUM_CPUS == 1
+	kflag	1
+#endif
+	ld r1, [arc_cpu_wake_flag]
+	brne r0, r1, _slave_core_wait
+
+	LDR sp, arc_cpu_sp
+	/* signal master core that slave core runs */
+	st 0, [arc_cpu_wake_flag]
+
+#if defined(CONFIG_ARC_FIRQ_STACK)
+	push r0
+	jl z_arc_firq_stack_set
+	pop r0
+#endif
+	j z_arc_slave_start
+
+_master_core_startup:
+#endif
+
+#ifdef CONFIG_INIT_STACKS
+	/*
+	 * use the main stack to call memset on the interrupt stack and the
+	 * FIRQ stack when CONFIG_INIT_STACKS is enabled before switching to
+	 * one of them for the rest of the early boot
+	 */
+	mov_s sp, z_main_stack
+	add sp, sp, CONFIG_MAIN_STACK_SIZE
+
+	mov_s r0, z_interrupt_stacks
+	mov_s r1, 0xaa
+	mov_s r2, CONFIG_ISR_STACK_SIZE
+	jl memset
+
+#endif /* CONFIG_INIT_STACKS */
+
+	mov_s sp, INIT_STACK
+	add sp, sp, INIT_STACK_SIZE
+
+#if defined(CONFIG_ARC_FIRQ_STACK)
+	jl z_arc_firq_stack_set
+#endif
+
+	j _PrepC
