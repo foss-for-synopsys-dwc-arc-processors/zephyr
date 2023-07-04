@@ -30,7 +30,6 @@
 	nsim_isa_number_of_interrupts=72
 	nsim_isa_number_of_levels=2
 	nsim_isa_number_of_external_interrupts=70
-	nsim_isa_fast_irq=1
 	nsim_isa_intvbase_preset=0x0
 	dcache=65536,64,2,a
 	nsim_isa_dc_feature_level=2

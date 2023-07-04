@@ -26,7 +26,6 @@
 	-interrupts=72
 	-interrupt_priorities=2
 	-ext_interrupts=70
-	-firq
 	-interrupt_base=0x0
 	-dcache=65536,64,2,a
 	-dcache_feature=2
