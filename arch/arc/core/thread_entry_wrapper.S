@@ -27,7 +27,10 @@ GTEXT(z_thread_entry_wrapper1)
  */
 
 SECTION_FUNC(TEXT, z_thread_entry_wrapper)
+	/* TODO: implement with virtualized IRQ controller */
+#ifndef CONFIG_ARC_PARAVIRT
 	seti _ARC_V2_INIT_IRQ_LOCK_KEY
+#endif /* !CONFIG_ARC_PARAVIRT */
 z_thread_entry_wrapper1:
 	POPR r3
 	POPR r2

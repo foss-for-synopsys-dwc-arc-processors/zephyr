@@ -50,10 +50,18 @@ static ALWAYS_INLINE int Z_INTERRUPT_CAUSE(void)
 	return irq_num;
 }
 
+#ifdef CONFIG_ARC_PARAVIRT
+/* For simplicity just fake it. TODO: We need to implement it with virtualized IRQ controller */
+static inline bool arch_is_in_isr(void)
+{
+	return false;
+}
+#else
 static inline bool arch_is_in_isr(void)
 {
 	return z_arc_v2_irq_unit_is_in_isr();
 }
+#endif /* CONFIG_ARC_PARAVIRT */
 
 extern void z_thread_entry_wrapper(void);
 extern void z_user_thread_entry_wrapper(void);

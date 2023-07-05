@@ -21,6 +21,8 @@
 #include <zephyr/device.h>
 #include <zephyr/init.h>
 
+BUILD_ASSERT(!IS_ENABLED(CONFIG_ARC_PARAVIRT), "bad config");
+
 #ifdef CONFIG_ARC_CONNECT
 static void arc_shared_intc_init(void)
 {

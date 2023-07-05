@@ -28,7 +28,7 @@ config ARC_FIRQ
 	default n
 
 config CACHE_MANAGEMENT
-	default y
+	default y if !ARC_PARAVIRT
 
 config ARC_MPU_VER
 	default 3

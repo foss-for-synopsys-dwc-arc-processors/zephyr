@@ -113,7 +113,11 @@ _switch_return_from_coop:
 #endif
 #endif
 	POPR r3    /* status32 into r3 */
+#ifdef CONFIG_ARC_PARAVIRT
+	flag r3    /* write status32 */
+#else
 	kflag r3    /* write status32 */
+#endif /* CONFIG_ARC_PARAVIRT */
 
 #ifdef CONFIG_INSTRUMENT_THREAD_SWITCHING
 	PUSHR blink

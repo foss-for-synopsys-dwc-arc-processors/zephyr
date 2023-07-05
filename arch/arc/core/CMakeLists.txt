@@ -21,7 +21,10 @@ zephyr_library_sources(
 zephyr_library_sources_ifdef(CONFIG_ARC_PARAVIRT paravirt-entry.S zephyr-entry.S)
 zephyr_library_sources_ifndef(CONFIG_ARC_PARAVIRT reset.S)
 
-zephyr_library_sources_ifdef(CONFIG_ARCH_CACHE cache.c)
+if(CACHE_MANAGEMENT AND CONFIG_ARCH_CACHE)
+  zephyr_library_sources(CONFIG_ARCH_CACHE cache.c)
+endif()
+
 zephyr_library_sources_ifdef(CONFIG_ARC_FIRQ fast_irq.S)
 
 zephyr_library_sources_ifdef(CONFIG_IRQ_OFFLOAD irq_offload.c)

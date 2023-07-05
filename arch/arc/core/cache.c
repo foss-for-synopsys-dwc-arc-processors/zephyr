@@ -29,6 +29,8 @@
 size_t sys_cache_line_size;
 #endif
 
+BUILD_ASSERT(!IS_ENABLED(CONFIG_ARC_PARAVIRT), "bad config");
+
 #define DC_CTRL_DC_ENABLE            0x0  /* enable d-cache */
 #define DC_CTRL_DC_DISABLE           0x1  /* disable d-cache */
 #define DC_CTRL_INVALID_ONLY         0x0  /* invalid d-cache only */

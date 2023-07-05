@@ -8,7 +8,7 @@ menu "Interrupt controller drivers"
 config ARCV2_INTERRUPT_UNIT
 	bool "ARCv2 Interrupt Unit"
 	default y
-	depends on ARC
+	depends on ARC && !ARC_PARAVIRT
 	help
 	  The ARCv2 interrupt unit has 16 allocated exceptions associated with
 	  vectors 0 to 15 and 240 interrupts associated with vectors 16 to 255.

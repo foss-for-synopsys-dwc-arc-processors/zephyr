@@ -53,6 +53,7 @@ extern "C" {
  */
 static ALWAYS_INLINE void z_irq_setup(void)
 {
+#ifndef CONFIG_ARC_PARAVIRT
 	uint32_t aux_irq_ctrl_value = (
 #ifdef CONFIG_ARC_HAS_ZOL
 		_ARC_V2_AUX_IRQ_CTRL_LOOP_REGS | /* save lp_xxx registers */
@@ -72,6 +73,7 @@ static ALWAYS_INLINE void z_irq_setup(void)
 #else
 	z_arc_v2_aux_reg_write(_ARC_V2_AUX_IRQ_CTRL, aux_irq_ctrl_value);
 #endif
+#endif /* !CONFIG_ARC_PARAVIRT */
 }
 
 #endif /* _ASMLANGUAGE */

@@ -165,6 +165,27 @@ extern void arch_isr_direct_header(void);
  * "interrupt disable state" prior to the call.
  */
 
+#ifdef CONFIG_ARC_PARAVIRT
+/* For simplicity just fake it. TODO: We need to implement it with virtualized IRQ controller */
+static ALWAYS_INLINE unsigned int arch_irq_lock(void)
+{
+	compiler_barrier();
+
+	return 0;
+}
+
+static ALWAYS_INLINE void arch_irq_unlock(unsigned int key)
+{
+	compiler_barrier();
+}
+
+static ALWAYS_INLINE bool arch_irq_unlocked(unsigned int key)
+{
+	/* May cause __ASSERT trigger */
+	return true;
+}
+
+#else
 static ALWAYS_INLINE unsigned int arch_irq_lock(void)
 {
 	unsigned int key;
@@ -186,6 +207,7 @@ static ALWAYS_INLINE bool arch_irq_unlocked(unsigned int key)
 	 */
 	return (key & 0x10)  ==  0x10;
 }
+#endif /* CONFIG_ARC_PARAVIRT */
 
 #endif /* _ASMLANGUAGE */
 

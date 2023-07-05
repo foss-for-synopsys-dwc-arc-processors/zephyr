@@ -88,8 +88,8 @@ config CPU_EM6
 config CPU_HS3X
 	bool
 	select CPU_ARCHS
-	select CPU_HAS_DCACHE
-	select CPU_HAS_ICACHE
+	select CPU_HAS_DCACHE if !ARC_PARAVIRT
+	select CPU_HAS_ICACHE if !ARC_PARAVIRT
 	help
 	  If y, the SoC uses an ARC HS3x CPU
 
@@ -213,7 +213,7 @@ config ARC_FIRQ_STACK_SIZE
 config ARC_HAS_STACK_CHECKING
 	bool "ARC has STACK_CHECKING"
 	depends on ISA_ARCV2
-	default y
+	default y if !ARC_PARAVIRT
 	help
 	  ARC is configured with STACK_CHECKING which is a mechanism for
 	  checking stack accesses and raising an exception when a stack

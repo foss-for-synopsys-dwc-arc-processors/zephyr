@@ -113,4 +113,52 @@ done_icache_invalidate:
 
 done_dcache_invalidate:
 
+#ifndef CONFIG_ARC_PARAVIRT
 	j _z_arc_paravirt_entry
+#else
+
+
+/*
+ * In ARCv2, the U bit can only be set through exception return
+ */
+
+/* the following codes are used to switch from kernel mode
+ * to user mode by fake exception, because U bit can only be set
+ * by exception
+ */
+_arc_go_to_user_space:
+	lr r0, [_ARC_V2_STATUS32]
+	bset r0, r0, _ARC_V2_STATUS32_U_BIT
+
+	mov_s r1, _z_arc_paravirt_entry
+
+	sr r0, [_ARC_V2_ERSTATUS]
+	sr r1, [_ARC_V2_ERET]
+
+	/* fake exception return */
+	lr r0, [_ARC_V2_STATUS32]
+	bset r0, r0, _ARC_V2_STATUS32_AE_BIT
+	kflag r0
+
+/* when exception returns from kernel to user, sp and _ARC_V2_USER_SP
+ * /_ARC_V2_SECU_SP will be switched
+ */
+/*
+	sr r5, [_ARC_V2_USER_SP]
+
+	mov_s sp, blink
+
+	mov_s r0, 0
+
+	clear_callee_regs
+
+	clear_scratch_regs
+
+	mov fp, 0
+	mov r29, 0
+	mov r30, 0
+	mov blink, 0
+*/
+	rtie
+
+#endif /* !CONFIG_ARC_PARAVIRT */
