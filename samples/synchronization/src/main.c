@@ -27,6 +27,7 @@
 /* delay between greetings (in ms) */
 #define SLEEPTIME 500
 
+static int iter = 0;
 
 /*
  * @param my_name      thread identification string
@@ -40,7 +41,7 @@ void helloLoop(const char *my_name,
 	uint8_t cpu;
 	struct k_thread *current_thread;
 
-	while (1) {
+	while (iter++ < 20) {
 		/* take my semaphore */
 		k_sem_take(my_sem, K_FOREVER);
 
@@ -61,7 +62,7 @@ void helloLoop(const char *my_name,
 		}
 
 		/* wait a while, then let other thread have a turn */
-		k_busy_wait(100000);
+//		k_busy_wait(100000);
 		k_msleep(SLEEPTIME);
 		k_sem_give(other_sem);
 	}
