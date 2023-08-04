@@ -113,6 +113,13 @@ done_icache_invalidate:
 
 done_dcache_invalidate:
 
+#ifdef CONFIG_ARC_PARAVIRT
+/* Allow user sleep  */
+	lr r0, [_ARC_V2_STATUS32]
+	bset r0, r0, _ARC_V2_STATUS32_US_BIT
+	kflag r0
+#endif
+
 #ifndef CONFIG_ARC_PARAVIRT
 	j _z_arc_paravirt_entry
 #else
@@ -162,3 +169,4 @@ _arc_go_to_user_space:
 	rtie
 
 #endif /* !CONFIG_ARC_PARAVIRT */
+
