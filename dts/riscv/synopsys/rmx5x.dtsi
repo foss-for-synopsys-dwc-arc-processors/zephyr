@@ -39,27 +39,27 @@
 			#address-cells = <1>;
 			#size-cells = <1>;
 
-			plic: interrupt-controller@f8000000 {
+			plic: interrupt-controller@c000000 {
 				compatible = "sifive,plic-1.0.0";
 				#interrupt-cells = <2>;
 				#address-cells = <1>;
 				interrupt-controller;
 				interrupts-extended = <&cpu0_intc 11 &cpu0_intc 9>;
-				reg = <0xf8000000 0x04000000>;
+				reg = <0xc000000 0x04000000>;
 				riscv,max-priority = <16>;
 				riscv,ndev = <128>;
 			};
 
-			clint: clint@00004000 {
+			clint: clint@2000000 {
 				compatible = "snps,clint0";
-				reg = <0x00004000 0x1000>;
+				reg = <0x2000000 0x1000>;
 				interrupts-extended = <&cpu0_intc 3 &cpu0_intc 7>;
 				interrupt-names = "soft0", "timer0";
 			};
 
-			uart0: serial@f0000000 {
+			uart0: serial@10000000{
 				compatible = "ns16550", "snps,dw-apb-uart";
-				reg = <0xf0000000 0x400>;
+				reg = <0x10000000 0x400>;
 				reg-shift = <2>;
 				interrupt-parent = <&plic>;
 				interrupts = <24 1>;
