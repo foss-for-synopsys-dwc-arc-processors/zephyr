@@ -18,9 +18,9 @@ config 2ND_LVL_ISR_TBL_OFFSET
 config 2ND_LVL_INTR_00_OFFSET
 	default 11
 
-config UART_NS16550_ACCESS_WORD_ONLY
-	default y
-	depends on UART_NS16550
+#config UART_NS16550_ACCESS_WORD_ONLY
+#	default y
+#	depends on UART_NS16550
 
 config NUM_IRQS
 	default 128
