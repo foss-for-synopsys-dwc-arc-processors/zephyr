@@ -6,6 +6,8 @@
 
 /dts-v1/;
 
+#include <zephyr/dt-bindings/memory-attr/memory-attr-sw.h>
+
 #include "nsim.dtsi"
 #include "nsim-ccm-mem.dtsi"
 #include "nsim-uart-ns16550.dtsi"
@@ -23,5 +25,12 @@
 			compatible = "snps,archs";
 			reg = <0>;
 		};
+	};
+
+	mem_noncache_sw: memory@20000A000 {
+		compatible = "zephyr,memory-region", "mmio-sram";
+		reg = <0x2000A000 0x1000>;
+		zephyr,memory-region = "MEM_NON_CACHEABLE_SW";
+		zephyr,memory-attr = <( DT_MEM_SW_ALLOC_NON_CACHE )>;
 	};
 };

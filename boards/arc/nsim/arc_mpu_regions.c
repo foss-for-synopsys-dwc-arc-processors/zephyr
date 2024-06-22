@@ -85,6 +85,15 @@ static struct arc_mpu_region mpu_regions[] = {
 
 #endif /* CONFIG_HARVARD */
 
+/* TODO:
+ *   - instead if searching region by compatible string we should addressearch it by
+ *     zephyr,memory-region or zephyr,memory-attr values
+ *   - we should add proper attributes to setup region as uncached */
+MPU_REGION_ENTRY("MEM_NON_CACHEABLE_SW",
+		 DT_REG_ADDR(DT_INST(0, zephyr_memory_region)),
+		 DT_REG_SIZE(DT_INST(0, zephyr_memory_region)),
+		 REGION_KERNEL_RAM_ATTR),
+
 /*
  * Region peripheral is shared by secure world and normal world by default,
  * no need a static mpu entry. If some peripherals belong to secure world,
