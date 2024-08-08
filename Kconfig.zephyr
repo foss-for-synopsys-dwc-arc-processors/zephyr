@@ -647,6 +647,7 @@ config OUTPUT_SYMBOLS
 	  Create a symbol file using nm <elf>
 
 config OUTPUT_DISASSEMBLY
+	default y
 	bool "Create a disassembly file"
 	help
 	  Create an .lst file with the assembly listing of the firmware.
