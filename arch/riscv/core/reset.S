@@ -85,6 +85,9 @@ aa_loop:
 	call _WdogInit
 #endif
 
+#define mnstatus 0x744
+	csrs mnstatus, BIT(3)
+
 	/*
 	 * Jump into C domain. z_prep_c zeroes BSS, copies rw data into RAM,
 	 * and then enters kernel z_cstart
