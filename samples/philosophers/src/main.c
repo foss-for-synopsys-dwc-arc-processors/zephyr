@@ -83,7 +83,7 @@
 #include <string.h>
 #include <zephyr/arch/common/semihost.h>
 #define SEMI_MAX_STRING	450
-#define SEMI_STDOUT	"/dev/stdout"
+#define SEMI_STDOUT	":tt"
 long fd;
 
 int semi_printf(const char *fmt, ...) __attribute__((format (printf, 1, 2)));
@@ -275,11 +275,12 @@ int main(void)
 {
 	k_sleep(K_MSEC(1000));
 
-	print_outf("\033[2J\033[H");
 
 #if USE_SEMI_WRITE
 	fd = semihost_open(SEMI_STDOUT, SEMIHOST_OPEN_WB);
 #endif
+
+	print_outf("\033[2J\033[H");
 
 	display_demo_description();
 #if CONFIG_TIMESLICING
