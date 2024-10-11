@@ -34,7 +34,7 @@
 #include <string.h>
 #include <zephyr/arch/common/semihost.h>
 #define SEMI_MAX_STRING	100
-#define SEMI_STDOUT	"/dev/stdout"
+#define SEMI_STDOUT	":tt"
 long fd;
 
 int semi_printf(const char *fmt, ...) __attribute__((format (printf, 1, 2)));
