@@ -1,6 +1,7 @@
 	nsim_isa_family=rv32
-	nsim_isa_ext=-all.i.zicsr.zifencei.zihintpause.a.m.zba.zbb.zbs.zca.zcb.zcmp.zcmt.zicbom
+	nsim_isa_ext=-all.i.zicsr.zifencei.zihintpause.a.m.zba.zbb.zbs.zca.zcb.zcmp.zcmt.zicbom.smrnmi
 	nsim_isa_big_endian=0
 	nsim_mem-dev=clint,base=0xE0010000,size=65536
 	nsim_isa_host_timer=1
 	nsim_isa_host_timer_mhz=25
+	nsim_semihosting=1
