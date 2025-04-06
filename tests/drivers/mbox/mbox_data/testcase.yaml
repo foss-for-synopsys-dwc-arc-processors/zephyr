@@ -1,0 +1,10 @@
+tests:
+  drivers.mbox_data:
+    tags:
+      - drivers
+      - mbox
+    sysbuild: true
+    filter: dt_compat_enabled("vnd,mbox-consumer")
+    integration_platforms:
+      - mimxrt1170_evk@B/mimxrt1176/cm7
+      - lpcxpresso55s69/lpc55s69/cpu0
