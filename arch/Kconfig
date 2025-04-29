@@ -573,6 +573,15 @@ config IRQ_OFFLOAD
 	  run in interrupt context. Only useful for test cases that need
 	  to validate the correctness of kernel objects in IRQ context.
 
+config SRAM_VECTOR_TABLE
+	bool "Place the vector table in SRAM instead of flash"
+	depends on ARCH_HAS_VECTOR_TABLE_RELOCATION
+	depends on XIP
+	depends on !ROMSTART_RELOCATION_ROM
+	help
+	  When XiP is enabled, this option will result in the vector table being
+	  relocated from Flash to SRAM.
+
 config IRQ_OFFLOAD_NESTED
 	bool "irq_offload() supports nested IRQs"
 	depends on IRQ_OFFLOAD
@@ -669,6 +678,9 @@ config ARCH_HAS_NOCACHE_MEMORY_SUPPORT
 	bool
 
 config ARCH_HAS_RAMFUNC_SUPPORT
+	bool
+
+config ARCH_HAS_VECTOR_TABLE_RELOCATION
 	bool
 
 config ARCH_HAS_NESTED_EXCEPTION_DETECTION
@@ -1134,9 +1146,9 @@ config ARCH_HAS_CUSTOM_CPU_ATOMIC_IDLE
 config ARCH_HAS_CUSTOM_SWAP_TO_MAIN
 	bool
 	help
-	  It's possible that an architecture port cannot use _Swap() to swap to
-	  the _main() thread, but instead must do something custom. It must
-	  enable this option in that case.
+	  It's possible that an architecture port cannot use z_swap_unlocked()
+	  to swap to the main thread (bg_thread_main), but instead must do
+	  something custom. It must enable this option in that case.
 
 config ARCH_HAS_CUSTOM_BUSY_WAIT
 	bool

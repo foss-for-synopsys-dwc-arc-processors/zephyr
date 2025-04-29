@@ -30,6 +30,7 @@ tests:
   drivers.spi.loopback.rtio:
     extra_configs:
       - CONFIG_SPI_RTIO=y
+      - CONFIG_SPI_RTIO_FALLBACK_MSGS=5
     platform_allow:
       - robokit1
       - mimxrt1170_evk/mimxrt1176/cm7
@@ -279,7 +280,7 @@ tests:
       - s32z2xxdc2/s32z270/rtu1
   drivers.spi.max32_spi_rtio.loopback:
     extra_args:
-      - OVERLAY_CONFIG="overlay-max32-spi-rtio.conf"
+      - EXTRA_CONF_FILE="overlay-max32-spi-rtio.conf"
     filter: CONFIG_SOC_FAMILY_MAX32
     platform_allow:
       - apard32690/max32690/m4

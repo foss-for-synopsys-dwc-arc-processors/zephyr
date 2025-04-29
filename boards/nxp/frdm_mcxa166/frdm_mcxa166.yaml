@@ -15,4 +15,7 @@ toolchain:
   - gnuarmemb
 supported:
   - gpio
+  - uart
+  - flash
+  - watchdog
 vendor: nxp

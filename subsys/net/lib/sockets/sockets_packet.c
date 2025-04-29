@@ -51,11 +51,7 @@ static int zpacket_socket(int family, int type, int proto)
 		return -1;
 	}
 
-	if (proto == 0) {
-		if (type == SOCK_RAW) {
-			proto = IPPROTO_RAW;
-		}
-	} else {
+	if (proto != 0) {
 		/* For example in Linux, the protocol parameter can be given
 		 * as htons(ETH_P_ALL) to receive all the network packets.
 		 * So convert the proto field back to host byte order so that
@@ -238,6 +234,7 @@ ssize_t zpacket_sendto_ctx(struct net_context *ctx, const void *buf, size_t len,
 			   int flags, const struct sockaddr *dest_addr,
 			   socklen_t addrlen)
 {
+	const struct sockaddr_ll *ll_addr = (const struct sockaddr_ll *)dest_addr;
 	k_timeout_t timeout = K_FOREVER;
 	int status;
 
@@ -250,6 +247,21 @@ ssize_t zpacket_sendto_ctx(struct net_context *ctx, const void *buf, size_t len,
 		timeout = K_NO_WAIT;
 	} else {
 		net_context_get_option(ctx, NET_OPT_SNDTIMEO, &timeout, NULL);
+	}
+
+	/* If no interface was set on the context yet, use the one provided in
+	 * the destination address for default binding, unless 0 (any interface)
+	 * was set, in that case let the stack choose the default.
+	 */
+	if (net_context_get_iface(ctx) == NULL && ll_addr->sll_ifindex != 0) {
+		struct net_if *iface = net_if_get_by_index(ll_addr->sll_ifindex);
+
+		if (iface == NULL) {
+			errno = EDESTADDRREQ;
+			return -1;
+		}
+
+		net_context_set_iface(ctx, iface);
 	}
 
 	/* Register the callback before sending in order to receive the response
@@ -490,13 +502,13 @@ static bool packet_is_supported(int family, int type, int proto)
 	switch (type) {
 	case SOCK_RAW:
 		proto = ntohs(proto);
-		return proto == ETH_P_ALL
+		return proto == 0
+		  || proto == ETH_P_ALL
 		  || proto == ETH_P_ECAT
-		  || proto == ETH_P_IEEE802154
-		  || proto == IPPROTO_RAW;
+		  || proto == ETH_P_IEEE802154;
 
 	case SOCK_DGRAM:
-		return proto > 0;
+		return true;
 
 	default:
 		return false;

@@ -34,7 +34,7 @@ LOG_MODULE_REGISTER(LOG_MODULE_NAME);
 #include <zephyr/net/lldp.h>
 #include <zephyr/drivers/hwinfo.h>
 
-#if defined(CONFIG_NET_DSA)
+#if defined(CONFIG_NET_DSA_DEPRECATED)
 #include <zephyr/net/dsa.h>
 #endif
 
@@ -682,7 +682,7 @@ static void rx_thread(void *arg1, void *unused1, void *unused2)
 			/* semaphore taken and receive packets */
 			while ((pkt = eth_rx(dev)) != NULL) {
 				iface = net_pkt_iface(pkt);
-#if defined(CONFIG_NET_DSA)
+#if defined(CONFIG_NET_DSA_DEPRECATED)
 				iface = dsa_net_recv(iface, &pkt);
 #endif
 				res = net_recv_data(iface, pkt);
@@ -967,10 +967,8 @@ static int eth_initialize(const struct device *dev)
 		&dma_tx_buffer[0][0], ETH_TXBUFNB);
 	HAL_ETH_DMARxDescListInit(heth, dma_rx_desc_tab,
 		&dma_rx_buffer[0][0], ETH_RXBUFNB);
+
 #endif /* !CONFIG_ETH_STM32_HAL_API_V1 */
-
-	setup_mac_filter(heth);
-
 
 	LOG_DBG("MAC %02x:%02x:%02x:%02x:%02x:%02x",
 		dev_data->mac_addr[0], dev_data->mac_addr[1],
@@ -1194,6 +1192,7 @@ static void eth_iface_init(struct net_if *iface)
 	const struct device *dev;
 	struct eth_stm32_hal_dev_data *dev_data;
 	bool is_first_init = false;
+	ETH_HandleTypeDef *heth;
 
 	__ASSERT_NO_MSG(iface != NULL);
 
@@ -1202,6 +1201,9 @@ static void eth_iface_init(struct net_if *iface)
 
 	dev_data = dev->data;
 	__ASSERT_NO_MSG(dev_data != NULL);
+
+	heth = &dev_data->heth;
+	__ASSERT_NO_MSG(heth != NULL);
 
 	if (dev_data->iface == NULL) {
 		dev_data->iface = iface;
@@ -1213,7 +1215,7 @@ static void eth_iface_init(struct net_if *iface)
 			     sizeof(dev_data->mac_addr),
 			     NET_LINK_ETHERNET);
 
-#if defined(CONFIG_NET_DSA)
+#if defined(CONFIG_NET_DSA_DEPRECATED)
 	dsa_register_master_tx(iface, &eth_tx);
 #endif
 
@@ -1226,6 +1228,8 @@ static void eth_iface_init(struct net_if *iface)
 	 */
 	eth_init_api_v2(dev);
 #endif
+
+	setup_mac_filter(heth);
 
 	net_if_carrier_off(iface);
 
@@ -1260,7 +1264,7 @@ static enum ethernet_hw_caps eth_stm32_hal_get_capabilities(const struct device 
 {
 	ARG_UNUSED(dev);
 
-	return ETHERNET_LINK_10BASE_T | ETHERNET_LINK_100BASE_T
+	return ETHERNET_LINK_10BASE | ETHERNET_LINK_100BASE
 #if defined(CONFIG_NET_VLAN)
 		| ETHERNET_HW_VLAN
 #endif
@@ -1277,8 +1281,8 @@ static enum ethernet_hw_caps eth_stm32_hal_get_capabilities(const struct device 
 		| ETHERNET_HW_RX_CHKSUM_OFFLOAD
 		| ETHERNET_HW_TX_CHKSUM_OFFLOAD
 #endif
-#if defined(CONFIG_NET_DSA)
-		| ETHERNET_DSA_MASTER_PORT
+#if defined(CONFIG_NET_DSA_DEPRECATED)
+		| ETHERNET_DSA_CONDUIT_PORT
 #endif
 #if defined(CONFIG_ETH_STM32_MULTICAST_FILTER)
 		| ETHERNET_HW_FILTERING
@@ -1415,7 +1419,7 @@ static const struct ethernet_api eth_api = {
 	.set_config = eth_stm32_hal_set_config,
 	.get_phy = eth_stm32_hal_get_phy,
 	.get_config = eth_stm32_hal_get_config,
-#if defined(CONFIG_NET_DSA)
+#if defined(CONFIG_NET_DSA_DEPRECATED)
 	.send = dsa_tx,
 #else
 	.send = eth_tx,

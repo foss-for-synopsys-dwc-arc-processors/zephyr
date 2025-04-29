@@ -41,8 +41,8 @@ Boards
 * All boards based on a Nordic IC of the nRF54L series now default to not
   erasing any part of the internal storage when flashing. If you'd like to
   revert to the previous default of erasing the pages that will be written to by
-  the firmware to be flashed you can use the new ``--erase-pages`` command-line
-  switch when invoking ``west flash``.
+  the firmware to be flashed you can set the new ``--erase-mode`` command-line
+  switch when invoking ``west flash`` to ``ranges``.
   Note that RRAM on nRF54L devices is not physically paged, and paging is
   only artificially provided, with a page size of 4096 bytes, for an easier
   transition of nRF52 software to nRF54L devices.
@@ -53,7 +53,7 @@ Boards
 * The DT binding :dtcompatible:`zephyr,native-posix-cpu` has been deprecated in favor of
   :dtcompatible:`zephyr,native-sim-cpu`.
 
-* Zephyr now supports version 1.11.2 of the :zephyr:board:`neorv32`. NEORV32 processor (SoC)
+* Zephyr now supports version 1.11.3 of the :zephyr:board:`neorv32`. NEORV32 processor (SoC)
   implementations need to be updated to this version to be compatible with Zephyr v4.2.0.
 
 * The :zephyr:board:`neorv32` now targets NEORV32 processor (SoC) templates via board variants. The
@@ -78,6 +78,13 @@ Boards
 
 Device Drivers and Devicetree
 *****************************
+
+Devicetree
+==========
+
+* Many of the vendor-specific and arch-specific files that were in dts/common have been moved
+  to more specific locations. Therefore, any dts files which ``#include <common/some_file.dtsi>``
+  a file from in the zephyr tree will need to be changed to just ``#include <some_file.dtsi>``.
 
 DAI
 ===
@@ -114,6 +121,12 @@ Entropy
   And :kconfig:option:`CONFIG_FAKE_ENTROPY_NATIVE_POSIX` and its related options with
   :kconfig:option:`CONFIG_FAKE_ENTROPY_NATIVE_SIM` (:github:`86615`).
 
+Eeprom
+========
+
+* :dtcompatible:`ti,tmp116-eeprom` has been renamed to :dtcompatible:`ti,tmp11x-eeprom` because it
+  supports both tmp117 and tmp119.
+
 Ethernet
 ========
 
@@ -132,6 +145,27 @@ Ethernet
 * ``ethernet_native_posix`` has been renamed ``ethernet_native_tap``, and with it its
   kconfig options: :kconfig:option:`CONFIG_ETH_NATIVE_POSIX` and its related options have been
   deprecated in favor of :kconfig:option:`CONFIG_ETH_NATIVE_TAP` (:github:`86578`).
+
+* NuMaker Ethernet driver ``eth_numaker.c`` now supports ``gen_random_mac``,
+  and the EMAC data flash feature has been removed (:github:`87953`).
+
+* The enum ``ETHERNET_DSA_MASTER_PORT`` and ``ETHERNET_DSA_SLAVE_PORT`` in
+  :zephyr_file:`include/zephyr/net/ethernet.h` have been renamed
+  to ``ETHERNET_DSA_CONDUIT_PORT`` and ``ETHERNET_DSA_USER_PORT``.
+
+* Enums for the Ethernet speed have been renamed to be more indepedent of the used medium.
+  ``LINK_HALF_10BASE_T``, ``LINK_FULL_10BASE_T``, ``LINK_HALF_100BASE_T``, ``LINK_FULL_100BASE_T``,
+  ``LINK_HALF_1000BASE_T``, ``LINK_FULL_1000BASE_T``, ``LINK_FULL_2500BASE_T`` and
+  ``LINK_FULL_5000BASE_T`` have been renamed to :c:enumerator:`LINK_HALF_10BASE`,
+  :c:enumerator:`LINK_FULL_10BASE`, :c:enumerator:`LINK_HALF_100BASE`,
+  :c:enumerator:`LINK_FULL_100BASE`, :c:enumerator:`LINK_HALF_1000BASE`,
+  :c:enumerator:`LINK_FULL_1000BASE`, :c:enumerator:`LINK_FULL_2500BASE` and
+  :c:enumerator:`LINK_FULL_5000BASE`.
+  ``ETHERNET_LINK_10BASE_T``, ``ETHERNET_LINK_100BASE_T``, ``ETHERNET_LINK_1000BASE_T``,
+  ``ETHERNET_LINK_2500BASE_T`` and ``ETHERNET_LINK_5000BASE_T`` have been renamed to
+  :c:enumerator:`ETHERNET_LINK_10BASE`, :c:enumerator:`ETHERNET_LINK_100BASE`,
+  :c:enumerator:`ETHERNET_LINK_1000BASE`, :c:enumerator:`ETHERNET_LINK_2500BASE` and
+  :c:enumerator:`ETHERNET_LINK_5000BASE` respectively (:github:`87194`).
 
 Enhanced Serial Peripheral Interface (eSPI)
 ===========================================
@@ -153,6 +187,15 @@ GPIO
   :dtcompatible:`raspberrypi,rpi-gpio-port`, and :dtcompatible:`raspberrypi,rpi-gpio` is
   now left as a placeholder and mapper.
   The labels have also been changed along, so no changes are necessary for regular use.
+* ``arduino-nano-header-r3`` is renamed to :dtcompatible:`arduino-nano-header`.
+  Because the R3 comes from the Arduino UNO R3, which has changed the connector from
+  the former version, and is unrelated to the Arduino Nano.
+
+I2S
+===
+* The :dtcompatible:`nxp,mcux-i2s` driver added property ``mclk-output``. Set this property to
+* configure the MCLK signal as an output.  Older driver versions used the macro
+* ``I2S_OPT_BIT_CLK_SLAVE`` to configure the MCLK signal direction. (:github:`88554`)
 
 Sensors
 =======
@@ -161,6 +204,13 @@ Sensors
   :dtcompatible:`ltr,f216a` name has been replaced by :dtcompatible:`liteon,ltrf216a`.
   The choice :kconfig:option:`DT_HAS_LTR_F216A_ENABLED` has been replaced with
   :kconfig:option:`DT_HAS_LITEON_LTRF216A_ENABLED` (:github:`85453`)
+
+* :dtcompatible:`ti,tmp116` has been renamed to :dtcompatible:`ti,tmp11x` because it supports
+  tmp116, tmp117 and tmp119.
+
+* :dtcompatible:`meas,ms5837` has been replaced by :dtcompatible:`meas,ms5837-30ba`
+  and :dtcompatible:`meas,ms5837-02ba`. In order to use one of the two variants, the
+  status property needs to be used as well.
 
 Serial
 =======
@@ -202,6 +252,17 @@ Stepper
 * Refactored the ``stepper_enable(const struct device * dev, bool enable)`` function to
   :c:func:`stepper_enable` & :c:func:`stepper_disable`.
 
+Misc
+====
+
+* Moved file ``drivers/memc/memc_nxp_flexram.h`` to
+  :zephyr_file:`include/zephyr/drivers/misc/flexram/nxp_flexram.h` so that the
+  file can be included using ``<zephyr/drivers/misc/flexram/nxp_flexram.h>``.
+  Modification to CMakeList.txt to use include this driver is no longer
+  required.
+* All memc_flexram_* namespaced things including kconfigs and C API
+  have been changed to just flexram_*.
+
 Bluetooth
 *********
 
@@ -210,6 +271,14 @@ Bluetooth Audio
 
 * ``CONFIG_BT_CSIP_SET_MEMBER_NOTIFIABLE`` has been renamed to
   :kconfig:option:`CONFIG_BT_CSIP_SET_MEMBER_SIRK_NOTIFIABLE``. (:github:`86763``)
+
+Bluetooth HCI
+=============
+
+* The buffer types passing through the HCI driver interface are now indicated as H:4 encoded prefix
+  bytes as part of the buffer payload itself. The bt_buf_set_type() and bt_buf_get_type() functions
+  have been deprecated, but are still usable, with the exception that they can only be
+  called once per buffer.
 
 Bluetooth Host
 ==============
@@ -226,6 +295,19 @@ Bluetooth Host
   ``BT_ISO_CHAN_TYPE_PERIPHERAL`` to better describe the type of the ISO channel, as behavior for
   each role may be different. Any existing uses/checks for ``BT_ISO_CHAN_TYPE_CONNECTED``
   can be replaced with an ``||`` of the two. (:github:`75549`)
+
+* The ``struct _bt_gatt_ccc`` in :zephyr_file:`include/zephyr/bluetooth/gatt.h` has been renamed to
+  struct :c:struct:`bt_gatt_ccc_managed_user_data`. (:github:`88652`)
+
+* The macro ``BT_GATT_CCC_INITIALIZER`` in :zephyr_file:`include/zephyr/bluetooth/gatt.h`
+  has been renamed to :c:macro:`BT_GATT_CCC_MANAGED_USER_DATA_INIT`. (:github:`88652`)
+
+Bluetooth Classic
+=================
+
+* The parameters of HFP AG callback ``sco_disconnected`` of the struct :c:struct:`bt_hfp_ag_cb`
+  have been changed to SCO connection object ``struct bt_conn *sco_conn`` and the disconnection
+  reason of the SCO connection ``uint8_t reason``.
 
 Networking
 **********
@@ -251,6 +333,24 @@ Networking
   is optional and not used with older MQTT versions - MQTT 3.1.1 users should pass
   NULL as an argument.
 
+* The ``AF_PACKET/SOCK_RAW/IPPROTO_RAW`` socket combination is no longer supported,
+  as ``AF_PACKET`` sockets should only accept IEEE 802.3 protocol numbers. As an
+  alternative, ``AF_PACKET/SOCK_DGRAM/ETH_P_ALL`` or ``AF_INET(6)/SOCK_RAW/IPPROTO_IP``
+  sockets can be used, depending on the actual use case.
+
+* The HTTP server now respects the configured ``_concurrent`` and  ``_backlog`` values. Check that
+  you provide applicable values to :c:macro:`HTTP_SERVICE_DEFINE_EMPTY`,
+  :c:macro:`HTTPS_SERVICE_DEFINE_EMPTY`, :c:macro:`HTTP_SERVICE_DEFINE` and
+  :c:macro:`HTTPS_SERVICE_DEFINE`.
+
+* :kconfig:option:`NET_ZPERF` no longer includes server support by default. To use
+  the server commands, enable :kconfig:option:`NET_ZPERF_SERVER`. If server support
+  is not needed, :kconfig:option:`ZVFS_POLL_MAX` can possibly be reduced.
+
+* The OpenThread-related Kconfig options from ``subsys/net/l2/openthread/Kconfig`` have been moved to
+  ``modules/openthread/Kconfig``. All the Kconfig options remain the same. You can still use them in the
+  same way as before, but to modify them, use the new path in the menuconfig or guiconfig.
+
 SPI
 ===
 
@@ -260,8 +360,21 @@ SPI
 Other subsystems
 ****************
 
+ZBus
+====
+
+* The function :c:func:`zbus_chan_add_obs` now requires a :c:struct:`zbus_observer_node` as an argument,
+  which was previously allocated through :c:func:`k_malloc` internally. The structure must remain valid
+  in memory until :c:func:`zbus_chan_rem_obs` is called.
+
 Modules
 *******
 
 Architectures
 *************
+
+* Moved :kconfig:option:`CONFIG_SRAM_VECTOR_TABLE` from ``zephyr/Kconfig.zephyr`` to
+  ``zephyr/arch/Kconfig`` and added dependency to :kconfig:option:`CONFIG_XIP`,
+  :kconfig:option:`CONFIG_ARCH_HAS_VECTOR_TABLE_RELOCATION` and
+  :kconfig:option:`CONFIG_ROMSTART_RELOCATION_ROM` to support relocation
+  of vector table in RAM.
