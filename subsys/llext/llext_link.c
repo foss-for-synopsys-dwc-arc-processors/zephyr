@@ -213,7 +213,7 @@ int llext_lookup_symbol(struct llext_loader *ldr, struct llext *ext, uintptr_t *
 			return -ENODATA;
 		}
 
-		LOG_INF("found symbol %s at %#lx", name, *link_addr);
+		LOG_DBG("found symbol %s at %#lx", name, *link_addr);
 	} else if (sym->st_shndx == SHN_ABS) {
 		/* Absolute symbol */
 		*link_addr = sym->st_value;
@@ -389,7 +389,7 @@ static void llext_link_plt(struct llext_loader *ldr, struct llext *ext, elf_shdr
 int llext_link(struct llext_loader *ldr, struct llext *ext, const struct llext_load_param *ldr_parm)
 {
 	uintptr_t sect_base = 0;
-	elf_rela_t rel;
+	elf_rela_t rel = {0};
 	elf_word rel_cnt = 0;
 	const char *name;
 	int i, ret;
@@ -522,7 +522,7 @@ int llext_link(struct llext_loader *ldr, struct llext *ext, const struct llext_l
 					name, ELF_ST_TYPE(sym.st_info),
 					ELF_ST_BIND(sym.st_info), sym.st_shndx);
 
-				LOG_INF("writing relocation type %d at %#lx with symbol %s (%#lx)",
+				LOG_DBG("writing relocation type %d at %#lx with symbol %s (%#lx)",
 					(int)ELF_R_TYPE(rel.r_info), op_loc, name, link_addr);
 			}
 #endif /* CONFIG_LLEXT_LOG_LEVEL */

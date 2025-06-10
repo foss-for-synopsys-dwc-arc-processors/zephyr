@@ -157,7 +157,7 @@ config SCHED_CPU_MASK_PIN_ONLY
 config MAIN_STACK_SIZE
 	int "Size of stack for initialization and main thread"
 	default 2048 if COVERAGE_GCOV
-	default 512 if ZTEST && !(RISCV || X86 || ARM || ARC || NIOS2)
+	default 512 if ZTEST && !(RISCV || X86 || ARM || ARC)
 	default 1024
 	help
 	  When the initialization is complete, the thread executing it then
@@ -574,6 +574,14 @@ endmenu
 
 rsource "Kconfig.obj_core"
 
+config WORKQUEUE_WORK_TIMEOUT
+	bool "Support workqueue work timeout monitoring"
+	help
+	  If enabled, the workqueue will monitor the duration of each work item.
+	  If the work item handler takes longer than the specified time to
+	  execute, the work queue thread will be aborted, and an error will be
+	  logged.
+
 menu "System Work Queue Options"
 config SYSTEM_WORKQUEUE_STACK_SIZE
 	int "System workqueue stack size"
@@ -599,6 +607,14 @@ config SYSTEM_WORKQUEUE_NO_YIELD
 	  this yield, which may be useful if the work queue thread is
 	  cooperative and a sequence of work items is expected to complete
 	  without yielding.
+
+config SYSTEM_WORKQUEUE_WORK_TIMEOUT_MS
+	int "Select system work queue work timeout in milliseconds"
+	default 5000 if ASSERT
+	default 0
+	help
+	  Set to 0 to disable work timeout for system workqueue. Option
+	  has no effect if WORKQUEUE_WORK_TIMEOUT is not enabled.
 
 endmenu
 
@@ -653,7 +669,7 @@ config TIMESLICING
 
 config TIMESLICE_SIZE
 	int "Time slice size (in ms)"
-	default 0
+	default 20
 	range 0 $(INT32_MAX)
 	depends on TIMESLICING
 	help
@@ -828,6 +844,7 @@ config SYS_CLOCK_TICKS_PER_SEC
 config SYS_CLOCK_HW_CYCLES_PER_SEC
 	int "System clock's h/w timer frequency"
 	default 0 if TIMER_READS_ITS_FREQUENCY_AT_RUNTIME
+	depends on SYS_CLOCK_EXISTS
 	help
 	  This option specifies the frequency of the hardware timer used for the
 	  system clock (in Hz). This option is set by the SOC's or board's Kconfig file

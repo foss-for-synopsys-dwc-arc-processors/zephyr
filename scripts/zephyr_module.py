@@ -25,7 +25,7 @@ import subprocess
 import sys
 import yaml
 import pykwalify.core
-from pathlib import Path, PurePath
+from pathlib import Path, PurePath, PurePosixPath
 from collections import namedtuple
 
 try:
@@ -143,6 +143,10 @@ mapping:
           license-path:
             required: true
             type: str
+          click-through:
+            required: false
+            type: bool
+            default: false
           url:
             required: true
             type: str
@@ -341,6 +345,7 @@ def process_blobs(module, meta):
     for blob in mblobs:
         blob['module'] = meta.get('name', None)
         blob['abspath'] = blobs_path / Path(blob['path'])
+        blob['license-abspath'] = Path(module) / Path(blob['license-path'])
         blob['status'] = get_blob_status(blob['abspath'], blob['sha256'])
         blobs.append(blob)
 
@@ -753,6 +758,9 @@ def parse_modules(zephyr_base, manifest=None, west_projs=None, modules=None,
 
     if extra_modules is None:
         extra_modules = []
+        for var in ['EXTRA_ZEPHYR_MODULES', 'ZEPHYR_EXTRA_MODULES']:
+            if var in os.environ:
+                extra_modules.extend(PurePosixPath(p) for p in os.environ[var].split(';'))
 
     Module = namedtuple('Module', ['project', 'meta', 'depends'])
 

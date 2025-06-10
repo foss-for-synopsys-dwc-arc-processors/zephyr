@@ -89,11 +89,6 @@ static inline void lpspi_handle_rx_irq(const struct device *dev)
 	}
 
 	LOG_DBG("RX done %d words to spi buf", total_words_written);
-
-	if (spi_context_rx_len_left(ctx) == 0) {
-		base->IER &= ~LPSPI_IER_RDIE_MASK;
-		base->CR |= LPSPI_CR_RRF_MASK; /* flush rx fifo */
-	}
 }
 
 /* constructs the next word from the buffer */
@@ -202,18 +197,22 @@ static inline void lpspi_handle_tx_irq(const struct device *dev)
 	struct lpspi_driver_data *lpspi_data = (struct lpspi_driver_data *)data->driver_data;
 	struct spi_context *ctx = &data->ctx;
 
+	base->SR = LPSPI_SR_TDF_MASK;
+
+	/* If we receive a TX interrupt but no more data is available,
+	 * we can be sure that all data has been written to the bus.
+	 * Disable the interrupt to signal that we are done.
+	 */
+	if (!spi_context_tx_on(ctx)) {
+		base->IER &= ~LPSPI_IER_TDIE_MASK;
+		return;
+	}
+
 	while (spi_context_tx_on(ctx) && lpspi_data->fill_len > 0) {
 		size_t this_buf_words_sent = MIN(lpspi_data->fill_len, ctx->tx_len);
 
 		spi_context_update_tx(ctx, lpspi_data->word_size_bytes, this_buf_words_sent);
 		lpspi_data->fill_len -= this_buf_words_sent;
-	}
-
-	base->SR = LPSPI_SR_TDF_MASK;
-
-	if (!spi_context_tx_on(ctx)) {
-		base->IER &= ~LPSPI_IER_TDIE_MASK;
-		return;
 	}
 
 	lpspi_next_tx_fill(data->dev);
@@ -242,6 +241,7 @@ static void lpspi_isr(const struct device *dev)
 	const struct lpspi_config *config = dev->config;
 	struct lpspi_data *data = dev->data;
 	struct lpspi_driver_data *lpspi_data = (struct lpspi_driver_data *)data->driver_data;
+	uint8_t word_size_bytes = lpspi_data->word_size_bytes;
 	struct spi_context *ctx = &data->ctx;
 	uint32_t status_flags = base->SR;
 
@@ -251,6 +251,11 @@ static void lpspi_isr(const struct device *dev)
 
 	if (status_flags & LPSPI_SR_TDF_MASK) {
 		lpspi_handle_tx_irq(dev);
+	}
+
+	if (spi_context_rx_len_left(ctx, word_size_bytes) == 0) {
+		base->IER &= ~LPSPI_IER_RDIE_MASK;
+		base->CR |= LPSPI_CR_RRF_MASK; /* flush rx fifo */
 	}
 
 	if (spi_context_tx_on(ctx)) {
@@ -270,12 +275,16 @@ static void lpspi_isr(const struct device *dev)
 		lpspi_data->fill_len = fill_len;
 	}
 
-	if (spi_context_rx_len_left(ctx) == 1 && (LPSPI_VERID_MAJOR(base->VERID) < 2)) {
+	if ((DIV_ROUND_UP(spi_context_rx_len_left(ctx, word_size_bytes), word_size_bytes) == 1) &&
+	    (LPSPI_VERID_MAJOR(base->VERID) < 2)) {
 		/* Due to stalling behavior on older LPSPI,
 		 * need to end xfer in order to get last bit clocked out on bus.
 		 */
 		base->TCR |= LPSPI_TCR_CONT_MASK;
-	} else if (spi_context_rx_len_left(ctx) == 0) {
+	}
+
+	/* Both receive and transmit parts disable their interrupt once finished. */
+	if (base->IER == 0) {
 		lpspi_end_xfer(dev);
 	}
 }

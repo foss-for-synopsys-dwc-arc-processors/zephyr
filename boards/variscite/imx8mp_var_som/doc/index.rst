@@ -12,7 +12,7 @@ and graphics accelerators.
 Zephyr OS is ported to run on either the Cortex®-A53 or the Cortex®-M7.
 
 Specs Summary
-***************
+*************
 
   - CPU
 
@@ -68,7 +68,7 @@ More information about the SoM can be found at the
 `Variscite website`_.
 
 Supported Features
-==================
+******************
 
 .. zephyr:board-supported-hw::
 
@@ -148,7 +148,7 @@ supported: ITCM and DDR). These are the memory mapping for A53 and M7:
 +------------+-------------------------+------------------------+-----------------------+----------------------+
 | OCRAM_S    | 0x00180000-0x00188FFF   | 0x20180000-0x20188FFF  | 0x00180000-0x00188FFF | 36KB                 |
 +------------+-------------------------+------------------------+-----------------------+----------------------+
-| DDR        | 0x80000000-0x803FFFFF   | 0x7E200000-0x7E3FFFFF  | 0x7E000000-0x7E1FFFFF | 2MB                  |
+| DDR        | 0x80000000-0x803FFFFF   | 0x7B200000-0x7B3FFFFF  | 0x7B000000-0x7B1FFFFF | 2MB                  |
 +------------+-------------------------+------------------------+-----------------------+----------------------+
 
 For more information about memory mapping see the
@@ -261,7 +261,7 @@ should see the following message in the terminal:
    Hello World! imx8mp_var_som/mimx8ml8/m7
 
 References
-==========
+**********
 
 - `Variscite Wiki`_
 - `Variscite website`_

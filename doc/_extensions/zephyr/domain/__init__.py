@@ -757,8 +757,10 @@ class BoardCatalogDirective(SphinxDirective):
                 "board-catalog.html",
                 {
                     "boards": domain_data["boards"],
+                    "shields": domain_data["shields"],
                     "vendors": domain_data["vendors"],
                     "socs": domain_data["socs"],
+                    "archs": domain_data["archs"],
                     "hw_features_present": self.env.app.config.zephyr_generate_hw_features,
                 },
             )
@@ -997,6 +999,12 @@ class BoardSupportedHardwareDirective(SphinxDirective):
                     row += compatible_entry
 
                     tbody += row
+
+                    # Declare the dts and binding files as dependencies of the board doc page,
+                    # ensuring that the page is rerendered if the files change.
+                    for node in okay_nodes + disabled_nodes:
+                        env.note_dependency(node["dts_path"])
+                        env.note_dependency(node["binding_path"])
 
             tgroup += tbody
             table += tgroup
@@ -1371,17 +1379,21 @@ def load_board_catalog_into_domain(app: Sphinx) -> None:
     board_catalog = get_catalog(
         generate_hw_features=(
             app.builder.format == "html" and app.config.zephyr_generate_hw_features
-        )
+        ),
+        hw_features_vendor_filter=app.config.zephyr_hw_features_vendor_filter,
     )
     app.env.domaindata["zephyr"]["boards"] = board_catalog["boards"]
+    app.env.domaindata["zephyr"]["shields"] = board_catalog["shields"]
     app.env.domaindata["zephyr"]["vendors"] = board_catalog["vendors"]
     app.env.domaindata["zephyr"]["socs"] = board_catalog["socs"]
+    app.env.domaindata["zephyr"]["archs"] = board_catalog["archs"]
     app.env.domaindata["zephyr"]["runners"] = board_catalog["runners"]
 
 
 def setup(app):
     app.add_config_value("zephyr_breathe_insert_related_samples", False, "env")
     app.add_config_value("zephyr_generate_hw_features", False, "env")
+    app.add_config_value("zephyr_hw_features_vendor_filter", [], "env", types=[list[str]])
 
     app.add_domain(ZephyrDomain)
 

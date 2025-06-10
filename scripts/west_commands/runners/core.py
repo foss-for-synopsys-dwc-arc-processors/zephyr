@@ -560,7 +560,7 @@ class ZephyrBinaryRunner(abc.ABC):
             parser.add_argument('-i', '--dev-id', help=argparse.SUPPRESS)
 
         if caps.flash_addr:
-            parser.add_argument('--dt-flash', default='n', choices=_YN_CHOICES,
+            parser.add_argument('--dt-flash', default=False, choices=_YN_CHOICES,
                                 action=_DTFlashAction,
                                 help='''If 'yes', try to use flash address
                                 information from devicetree when flash
@@ -726,6 +726,12 @@ class ZephyrBinaryRunner(abc.ABC):
                     build_conf['CONFIG_FLASH_LOAD_OFFSET'])
         else:
             return build_conf['CONFIG_FLASH_BASE_ADDRESS']
+
+    @staticmethod
+    def sram_address_from_build_conf(build_conf: BuildConfiguration):
+        '''return CONFIG_SRAM_BASE_ADDRESS.
+        '''
+        return build_conf['CONFIG_SRAM_BASE_ADDRESS']
 
     def run(self, command: str, **kwargs):
         '''Runs command ('flash', 'debug', 'debugserver', 'attach').
@@ -975,4 +981,4 @@ class ZephyrBinaryRunner(abc.ABC):
                 elif key.fileobj == sock:
                     resp = sock.recv(2048)
                     if resp:
-                        print(resp.decode())
+                        print(resp.decode(), end='')

@@ -96,7 +96,6 @@ set(OFFSETS_H_TARGET           offsets_h)
 set(SYSCALL_LIST_H_TARGET      syscall_list_h_target)
 set(DRIVER_VALIDATION_H_TARGET driver_validation_h_target)
 set(KOBJ_TYPES_H_TARGET        kobj_types_h_target)
-set(PARSE_SYSCALLS_TARGET      parse_syscalls_target)
 set(DEVICE_API_LD_TARGET       device_api_ld_target)
 
 define_property(GLOBAL PROPERTY PROPERTY_OUTPUT_FORMAT BRIEF_DOCS " " FULL_DOCS " ")
@@ -834,7 +833,7 @@ add_custom_command(
   --file-list        ${syscalls_file_list_output}
   $<$<BOOL:${CONFIG_EMIT_ALL_SYSCALLS}>:--emit-all-syscalls>
   DEPENDS ${syscalls_subdirs_trigger} ${PARSE_SYSCALLS_HEADER_DEPENDS}
-          ${syscalls_file_list_output} ${syscalls_interface}
+          ${syscalls_file_list_output} syscalls_interface
   )
 
 # Make sure Picolibc is built before the rest of the system; there's no explicit
@@ -851,12 +850,6 @@ set_property(TARGET ${SYSCALL_LIST_H_TARGET}
              ADDITIONAL_CLEAN_FILES
              ${CMAKE_CURRENT_BINARY_DIR}/include/generated/zephyr/syscalls
 )
-
-add_custom_target(${PARSE_SYSCALLS_TARGET}
-  DEPENDS
-  ${syscalls_json}
-  ${struct_tags_json}
-  )
 
 # 64-bit systems do not require special handling of 64-bit system call
 # parameters or return values, indicate this to the system call boilerplate
@@ -900,30 +893,24 @@ add_custom_command(
   COMMAND
   ${LEGACY_SYSCALL_LIST_H_ARGS}
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-  DEPENDS ${PARSE_SYSCALLS_TARGET}
+  DEPENDS ${syscalls_json}
   )
-
-# This is passed into all calls to the gen_kobject_list.py script.
-set(gen_kobject_list_include_args --include-subsystem-list ${struct_tags_json})
-
-set(DRV_VALIDATION ${PROJECT_BINARY_DIR}/include/generated/zephyr/driver-validation.h)
-add_custom_command(
-  OUTPUT ${DRV_VALIDATION}
-  COMMAND
-  ${PYTHON_EXECUTABLE}
-  ${ZEPHYR_BASE}/scripts/build/gen_kobject_list.py
-  --validation-output ${DRV_VALIDATION}
-  ${gen_kobject_list_include_args}
-  $<$<BOOL:${CMAKE_VERBOSE_MAKEFILE}>:--verbose>
-  DEPENDS
-  ${ZEPHYR_BASE}/scripts/build/gen_kobject_list.py
-  ${PARSE_SYSCALLS_TARGET}
-  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-  )
-add_custom_target(${DRIVER_VALIDATION_H_TARGET} DEPENDS ${DRV_VALIDATION})
 
 include(${ZEPHYR_BASE}/cmake/kobj.cmake)
-gen_kobj(KOBJ_INCLUDE_PATH)
+
+set(DRV_VALIDATION ${PROJECT_BINARY_DIR}/include/generated/zephyr/driver-validation.h)
+gen_kobject_list(
+  TARGET ${DRIVER_VALIDATION_H_TARGET}
+  OUTPUTS ${DRV_VALIDATION}
+  SCRIPT_ARGS --validation-output ${DRV_VALIDATION}
+  INCLUDES ${struct_tags_json}
+  DEPENDS ${struct_tags_json}
+  )
+
+gen_kobject_list_headers(
+  INCLUDES ${struct_tags_json}
+  DEPENDS ${struct_tags_json}
+  )
 
 # Generate sections for kernel device subsystems
 set(
@@ -1117,12 +1104,20 @@ if(CONFIG_CODE_DATA_RELOCATION)
 endif()
 
 if(CONFIG_USERSPACE)
-  zephyr_get_compile_options_for_lang_as_string(C compiler_flags_priv)
+  # Go for raw properties here since zephyr_get_compile_options_for_lang()
+  # processes the list of options, and wraps it in a $<JOIN thing. When
+  # generating the build systems this leads to some interesting command lines,
+  # with SHELL: not being present and other "random" list-join related issues
+  # (e.g. for IAR toolchains the lists were joined with "gnu" postfixed on a
+  # bunch of entries).
+  get_property(compiler_flags_priv TARGET zephyr_interface PROPERTY INTERFACE_COMPILE_OPTIONS)
   string(REPLACE "$<TARGET_PROPERTY:compiler,coverage>" ""
-         NO_COVERAGE_FLAGS "${compiler_flags_priv}"
-  )
+    KOBJECT_HASH_COMPILE_OPTIONS "${compiler_flags_priv}")
 
-  set(GEN_KOBJ_LIST ${ZEPHYR_BASE}/scripts/build/gen_kobject_list.py)
+  list(APPEND KOBJECT_HASH_COMPILE_OPTIONS
+                  $<TARGET_PROPERTY:compiler,no_function_sections>
+                  $<TARGET_PROPERTY:compiler,no_data_sections>)
+
   set(PROCESS_GPERF ${ZEPHYR_BASE}/scripts/build/process_gperf.py)
 endif()
 
@@ -1276,23 +1271,13 @@ if(CONFIG_USERSPACE)
   set(KOBJECT_PREBUILT_HASH_OUTPUT_SRC_PRE kobject_prebuilt_hash_preprocessed.c)
   set(KOBJECT_PREBUILT_HASH_OUTPUT_SRC     kobject_prebuilt_hash.c)
 
-  add_custom_command(
+  gen_kobject_list_gperf(
+    TARGET kobj_prebuilt_hash_list
     OUTPUT ${KOBJECT_PREBUILT_HASH_LIST}
-    COMMAND
-    ${PYTHON_EXECUTABLE}
-    ${GEN_KOBJ_LIST}
-    --kernel $<TARGET_FILE:${ZEPHYR_LINK_STAGE_EXECUTABLE}>
-    --gperf-output ${KOBJECT_PREBUILT_HASH_LIST}
-    ${gen_kobject_list_include_args}
-    $<$<BOOL:${CMAKE_VERBOSE_MAKEFILE}>:--verbose>
-    DEPENDS
-    ${ZEPHYR_LINK_STAGE_EXECUTABLE}
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    KERNEL_TARGET ${ZEPHYR_LINK_STAGE_EXECUTABLE}
+    INCLUDES ${struct_tags_json}
+    DEPENDS ${struct_tags_json}
     )
-  add_custom_target(
-    kobj_prebuilt_hash_list
-    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${KOBJECT_PREBUILT_HASH_LIST}
-  )
 
   add_custom_command(
     OUTPUT ${KOBJECT_PREBUILT_HASH_OUTPUT_SRC_PRE}
@@ -1329,11 +1314,13 @@ if(CONFIG_USERSPACE)
   add_library(
     kobj_prebuilt_hash_output_lib
     OBJECT ${CMAKE_CURRENT_BINARY_DIR}/${KOBJECT_PREBUILT_HASH_OUTPUT_SRC}
-    )
+  )
 
-  set_source_files_properties(${KOBJECT_PREBUILT_HASH_OUTPUT_SRC}
-    PROPERTIES COMPILE_FLAGS
-    "${NO_COVERAGE_FLAGS} -fno-function-sections -fno-data-sections")
+  # set_target_properties sets ALL properties, target_compile_options() adds
+  # and KOBJECT_HASH_COMPILE_OPTIONS contains all the options.
+  set_target_properties(kobj_prebuilt_hash_output_lib PROPERTIES
+    COMPILE_OPTIONS "${KOBJECT_HASH_COMPILE_OPTIONS}"
+  )
 
   target_compile_definitions(kobj_prebuilt_hash_output_lib
     PRIVATE $<TARGET_PROPERTY:zephyr_interface,INTERFACE_COMPILE_DEFINITIONS>
@@ -1483,23 +1470,13 @@ if(CONFIG_USERSPACE)
   # Use the script GEN_KOBJ_LIST to scan the kernel binary's
   # (${ZEPHYR_LINK_STAGE_EXECUTABLE}) DWARF information to produce a table of kernel
   # objects (KOBJECT_HASH_LIST) which we will then pass to gperf
-  add_custom_command(
+  gen_kobject_list_gperf(
+    TARGET kobj_hash_list
     OUTPUT ${KOBJECT_HASH_LIST}
-    COMMAND
-    ${PYTHON_EXECUTABLE}
-    ${GEN_KOBJ_LIST}
-    --kernel $<TARGET_FILE:${ZEPHYR_LINK_STAGE_EXECUTABLE}>
-    --gperf-output ${KOBJECT_HASH_LIST}
-    ${gen_kobject_list_include_args}
-    $<$<BOOL:${CMAKE_VERBOSE_MAKEFILE}>:--verbose>
-    DEPENDS
-    ${ZEPHYR_LINK_STAGE_EXECUTABLE}
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    KERNEL_TARGET ${ZEPHYR_LINK_STAGE_EXECUTABLE}
+    INCLUDES ${struct_tags_json}
+    DEPENDS ${struct_tags_json}
     )
-  add_custom_target(
-    kobj_hash_list
-    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${KOBJECT_HASH_LIST}
-  )
 
   # Use gperf to generate C code (KOBJECT_HASH_OUTPUT_SRC_PRE) which implements a
   # perfect hashtable based on KOBJECT_HASH_LIST
@@ -1548,9 +1525,9 @@ if(CONFIG_USERSPACE)
     OBJECT ${CMAKE_CURRENT_BINARY_DIR}/${KOBJECT_HASH_OUTPUT_SRC}
     )
 
-  set_source_files_properties(${KOBJECT_HASH_OUTPUT_SRC}
-    PROPERTIES COMPILE_FLAGS
-    "${NO_COVERAGE_FLAGS} -fno-function-sections -fno-data-sections")
+  set_target_properties(kobj_hash_output_lib PROPERTIES
+    COMPILE_OPTIONS "${KOBJECT_HASH_COMPILE_OPTIONS}"
+  )
 
   target_compile_definitions(kobj_hash_output_lib
     PRIVATE $<TARGET_PROPERTY:zephyr_interface,INTERFACE_COMPILE_DEFINITIONS>
@@ -1762,13 +1739,8 @@ if(CONFIG_BUILD_OUTPUT_ADJUST_LMA)
     )
 endif()
 
-if(NOT CONFIG_CPP_EXCEPTIONS)
-  set(eh_frame_section ".eh_frame")
-else()
-  set(eh_frame_section "")
-endif()
 set(remove_sections_argument_list "")
-foreach(section .comment COMMON ${eh_frame_section})
+foreach(section .comment COMMON)
   list(APPEND remove_sections_argument_list
     $<TARGET_PROPERTY:bintools,elfconvert_flag_section_remove>${section})
 endforeach()
@@ -2336,7 +2308,7 @@ if(CONFIG_LLEXT_EDK)
       ${SYSCALL_SPLIT_TIMEOUT_ARG}
     COMMAND ${CMAKE_COMMAND}
         -P ${ZEPHYR_BASE}/cmake/llext-edk.cmake
-    DEPENDS ${logical_target_for_zephyr_elf} build_info_yaml_saved
+    DEPENDS ${logical_target_for_zephyr_elf} ${syscalls_json} build_info_yaml_saved
     COMMAND_EXPAND_LISTS
   )
   add_custom_target(llext-edk DEPENDS ${llext_edk_file})
