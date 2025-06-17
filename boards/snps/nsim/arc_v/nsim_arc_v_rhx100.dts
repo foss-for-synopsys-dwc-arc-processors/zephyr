@@ -1,0 +1,14 @@
+/dts-v1/;
+
+#include "rhx100.dtsi"
+
+/ {
+	model = "Synopsys RHX100";
+	compatible = "snps,rhx100";
+
+	chosen {
+		zephyr,sram = &dccm;      /* Data memory */
+		zephyr,flash = &iccm0;    /* Code memory */
+		zephyr,code-partition = &iccm0;
+	};
+};

@@ -1,0 +1,15 @@
+#include "rhx1xx.dtsi"
+
+/ {
+	iccm0: memory@50000000 {
+		compatible = "mmio-sram";
+		device_type = "memory";
+		reg = <0x50000000 0x20000>; /* 128 KiB */
+	};
+
+	dccm: memory@50200000 {
+		compatible = "mmio-sram";
+		device_type = "memory";
+		reg = <0x50200000 0x80000>; /* 512 KiB */
+	};
+};

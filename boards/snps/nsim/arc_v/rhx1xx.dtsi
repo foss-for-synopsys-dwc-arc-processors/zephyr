@@ -1,0 +1,40 @@
+/ {
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	cpus {
+		timebase-frequency = <5000000>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		cpu0: cpu@0 {
+			compatible = "snps,av5rhx", "riscv";
+			device_type = "cpu";
+			reg = <0>;
+			clock-frequency = <5000000>;
+			riscv,isa = "rv32imafdcsuh_zicsr_zifencei_zihintpause_zca_zcf_zcb_zcmp_zcmt_zba_zbb_zbc_zbs_zicond_zfh_zicbom_zicbop";
+
+			cpu0_intc: interrupt-controller {
+				compatible = "riscv,cpu-intc";
+				interrupt-controller;
+				#address-cells = <0>;
+				#interrupt-cells = <1>;
+			};
+		};
+	};
+
+	soc {
+		compatible = "simple-bus";
+		ranges;
+		interrupt-parent = <&clint>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		clint: clint@f0010000 {
+			compatible = "sifive,clint0";
+			reg = <0xF0010000 0x10000>;
+			interrupts-extended = <&cpu0_intc 3 &cpu0_intc 7>;
+			interrupt-names = "soft0", "timer0";
+		};
+	};
+};

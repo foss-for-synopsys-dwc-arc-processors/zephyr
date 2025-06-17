@@ -3,3 +3,7 @@
 
 config BOARD_NSIM_ARC_V
 	select SOC_RMX100 if BOARD_NSIM_ARC_V_RMX100
+	
+config BOARD_NSIM_ARC_V_RHX100
+	bool
+	select SOC_NSIM_ARC_V_RHX100
