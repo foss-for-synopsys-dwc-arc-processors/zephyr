@@ -11,6 +11,9 @@ config SOC_SERIES_NSIM_ARC_V_RHX
 	select RISCV_ISA_EXT_M
 	select RISCV_ISA_EXT_ZICSR
 	select RISCV_ISA_EXT_ZIFENCEI
+	select CPU_HAS_FPU
+	select RISCV_ISA_EXT_F
+	select RISCV_ISA_EXT_D
     
 	help
 	  Enable support for Synopsys ARC-V nSIM RHX series
