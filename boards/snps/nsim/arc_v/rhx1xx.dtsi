@@ -30,7 +30,7 @@
 		#address-cells = <1>;
 		#size-cells = <1>;
 
-		clint: clint@0xa0010000 {
+		clint: clint@a0010000 {
 			compatible = "sifive,clint0";
 			reg = <0xA0010000 0x10000>;
 			interrupts-extended = <&cpu0_intc 3 &cpu0_intc 7>;

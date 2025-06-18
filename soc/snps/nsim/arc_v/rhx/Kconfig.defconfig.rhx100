@@ -40,6 +40,13 @@ config RISCV_ISA_EXT_ZBC
 config RISCV_ISA_EXT_ZBS
 	default y
 
+config FPU
+    default y if CPU_HAS_FPU
+
+config FPU_SHARING
+    default y
+    depends on FPU
+
 # Note: H, S, U extensions are privilege level extensions
 # and other extensions like ZFH, ZICOND, ZICBOM, ZICBOP
 # may need to be added to arch/riscv/Kconfig.isa if not already present

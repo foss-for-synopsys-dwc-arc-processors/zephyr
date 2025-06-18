@@ -4,12 +4,18 @@
 config SOC_SERIES_NSIM_ARC_V_RHX
 	bool
 	select SOC_FAMILY_NSIM_ARC_V
+    select CPU_HAS_FPU
+    select RISCV_ISA_EXT_F  # For single precision
+    select RISCV_ISA_EXT_D  # For double precision
 	help
 	  Synopsys ARC-V nSIM RHX series
 
 config SOC_NSIM_ARC_V_RHX100
 	bool
 	select SOC_SERIES_NSIM_ARC_V_RHX
+    select CPU_HAS_FPU
+    select RISCV_ISA_EXT_F  # For single precision
+    select RISCV_ISA_EXT_D  # For double precision
 	help
 	  Synopsys ARC-V nSIM RHX100 SoC
 
