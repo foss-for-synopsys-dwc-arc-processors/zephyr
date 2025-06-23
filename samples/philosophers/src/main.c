@@ -37,11 +37,7 @@
 
 #include <zephyr/kernel.h>
 
-#if defined(CONFIG_STDOUT_CONSOLE)
 #include <stdio.h>
-#else
-#include <zephyr/sys/printk.h>
-#endif
 
 #include <zephyr/sys/__assert.h>
 
@@ -80,6 +76,36 @@
 #define SAME_PRIO 0
 #endif
 
+#define USE_SEMI_WRITE	1
+
+#if USE_SEMI_WRITE
+#include <stdarg.h>
+#include <string.h>
+#include <zephyr/arch/common/semihost.h>
+#define SEMI_MAX_STRING	450
+#define SEMI_STDOUT	":tt"
+long fd;
+
+int semi_printf(const char *fmt, ...) __attribute__((format (printf, 1, 2)));
+
+int semi_printf(const char *fmt, ...)
+{
+	va_list args;
+	int len;
+	char out_str[SEMI_MAX_STRING];
+
+	va_start(args, fmt);
+	len = vsnprintf(out_str, SEMI_MAX_STRING, fmt, args);
+	va_end(args);
+
+	return semihost_write(fd, out_str, len);
+}
+
+#define print_outf	semi_printf
+#else
+#define print_outf	printf
+#endif
+
 /* end - control behaviour of the demo */
 /***************************************/
 
@@ -89,32 +115,25 @@
 
 #define fork(x) (forks[x])
 
-static void set_phil_state_pos(int id)
-{
-#if !DEBUG_PRINTF
-	printk("\x1b[%d;%dH", id + 1, 1);
-#endif
-}
-
-#include <stdarg.h>
 static void print_phil_state(int id, const char *fmt, int32_t delay)
 {
+#define PRINT_STATE_MAX_STRING 100
+
 	int prio = k_thread_priority_get(k_current_get());
-
-	set_phil_state_pos(id);
-
-	printk("Philosopher %d [%s:%s%d] ",
-	       id, prio < 0 ? "C" : "P",
-	       prio < 0 ? "" : " ",
-	       prio);
+	char state_buff[PRINT_STATE_MAX_STRING];
 
 	if (delay) {
-		printk(fmt, delay < 1000 ? " " : "", delay);
+		snprintf(state_buff, PRINT_STATE_MAX_STRING, fmt, delay < 1000 ? " " : "", delay);
 	} else {
-		printk(fmt, "");
+		snprintf(state_buff, PRINT_STATE_MAX_STRING, fmt, "");
 	}
 
-	printk("\n");
+	print_outf("\x1b[%d;1H" "Philosopher %d [%s:%s%d] " "%s" "\n",
+		id + 1,
+		id, prio < 0 ? "C" : "P",
+		prio < 0 ? "" : " ",
+		prio,
+		state_buff);
 }
 
 static int32_t get_random_delay(int id, int period_in_ms)
@@ -129,7 +148,10 @@ static int32_t get_random_delay(int id, int period_in_ms)
 	/* add 1 to not generate a delay of 0 */
 	int32_t ms = (delay + 1) * period_in_ms;
 
-	return ms;
+	// extra delay so messages would be more readable
+	int32_t extra_delay = 150;
+
+	return ms + extra_delay;
 }
 
 static inline int is_last_philosopher(int id)
@@ -245,12 +267,39 @@ static void start_threads(void)
 static void display_demo_description(void)
 {
 #if !DEBUG_PRINTF
-	printk(DEMO_DESCRIPTION);
+	print_outf(DEMO_DESCRIPTION);
 #endif
 }
 
 int main(void)
 {
+	k_sleep(K_MSEC(1000));
+
+#if USE_SEMI_WRITE
+	fd = semihost_open(SEMI_STDOUT, SEMIHOST_OPEN_WB);
+#endif
+
+	print_outf("\033[2J\033[H");
+
+	/* Minimal FP test - will show wrong result if FP broken */
+	print_outf("=== FP TEST ===\n");
+	print_outf("1: Starting FP test\n");
+	
+	/* Test 1: Just integer math */
+	volatile int int_a = 7;
+	volatile int int_b = 2;
+	volatile int int_result = int_a / int_b;
+	print_outf("2: Integer test: %d / %d = %d (expect 3)\n", int_a, int_b, int_result);
+	
+	/* Test 2: Try to detect if FPU is available */
+	print_outf("3: About to test FP...\n");
+	
+	/* This will crash if no FPU */
+	volatile float a = 1.0f;
+	print_outf("4: Float created - FPU is working!\n");
+	
+	print_outf("FP PASS\n\n");
+
 	display_demo_description();
 #if CONFIG_TIMESLICING
 	k_sched_time_slice_set(5000, 0);
