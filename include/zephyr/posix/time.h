@@ -66,9 +66,8 @@ struct itimerspec {
 extern "C" {
 #endif
 
-#ifndef CLOCK_REALTIME
+#undef CLOCK_REALTIME
 #define CLOCK_REALTIME SYS_CLOCK_REALTIME
-#endif
 
 #ifndef CLOCK_PROCESS_CPUTIME_ID
 #define CLOCK_PROCESS_CPUTIME_ID 2
@@ -78,13 +77,11 @@ extern "C" {
 #define CLOCK_THREAD_CPUTIME_ID 3
 #endif
 
-#ifndef CLOCK_MONOTONIC
+#undef CLOCK_MONOTONIC
 #define CLOCK_MONOTONIC SYS_CLOCK_MONOTONIC
-#endif
 
-#ifndef TIMER_ABSTIME
+#undef TIMER_ABSTIME
 #define TIMER_ABSTIME SYS_TIMER_ABSTIME
-#endif
 
 int clock_gettime(clockid_t clock_id, struct timespec *ts);
 int clock_getres(clockid_t clock_id, struct timespec *ts);
