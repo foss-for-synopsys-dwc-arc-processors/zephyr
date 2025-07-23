@@ -65,11 +65,11 @@ struct spi_dw_data {
 	(DT_INST_FOREACH_STATUS_OKAY_VARGS(DT_INST_NODE_PROP_AND_OR, prop) 0)
 
 #if DT_ANY_INST_PROP_STATUS_OKAY(aux_reg)
-static uint32_t aux_reg_read(uint8_t size, mm_reg_t addr, uint32_t off)
-{
-	ARG_UNUSED(size);
-	return sys_in32(addr + off/4);
-}
+// static uint32_t aux_reg_read(uint8_t size, mm_reg_t addr, uint32_t off)
+// {
+// 	ARG_UNUSED(size);
+// 	return sys_in32(addr + off/4);
+// }
 
 static void aux_reg_write(uint8_t size, uint32_t data, mm_reg_t addr, uint32_t off)
 {
