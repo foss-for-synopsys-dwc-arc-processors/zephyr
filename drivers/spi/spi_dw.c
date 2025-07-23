@@ -550,7 +550,6 @@ static DEVICE_API(spi, dw_spi_api) = {
 
 int spi_dw_init(const struct device *dev)
 {
-#error "spi_dw_init is compiled"
 	int err;
 	const struct spi_dw_config *info = dev->config;
 	struct spi_dw_data *spi = dev->data;
@@ -568,7 +567,7 @@ int spi_dw_init(const struct device *dev)
 	clear_bit_ssienr(dev);
 
 	/* SSI component version */
-	spi->version = read_ssi_comp_version(dev);
+	spi->version = 0;
 	LOG_DBG("Version: %c.%c%c%c", (spi->version >> 24) & 0xff,
 		(spi->version >> 16) & 0xff, (spi->version >> 8) & 0xff,
 		spi->version & 0xff);
