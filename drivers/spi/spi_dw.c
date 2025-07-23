@@ -550,6 +550,7 @@ static DEVICE_API(spi, dw_spi_api) = {
 
 int spi_dw_init(const struct device *dev)
 {
+#error "spi_dw_init is compiled"
 	int err;
 	const struct spi_dw_config *info = dev->config;
 	struct spi_dw_data *spi = dev->data;
