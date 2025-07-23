@@ -567,7 +567,7 @@ int spi_dw_init(const struct device *dev)
 	clear_bit_ssienr(dev);
 
 	/* SSI component version */
-	spi->version = 0;
+	spi->version = read_ssi_comp_version(dev);
 	LOG_DBG("Version: %c.%c%c%c", (spi->version >> 24) & 0xff,
 		(spi->version >> 16) & 0xff, (spi->version >> 8) & 0xff,
 		spi->version & 0xff);

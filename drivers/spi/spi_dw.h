@@ -68,7 +68,7 @@ struct spi_dw_data {
 static uint32_t aux_reg_read(uint8_t size, mm_reg_t addr, uint32_t off)
 {
 	ARG_UNUSED(size);
-	return sys_in32(addr + off/4);
+	return sys_in32(addr);
 }
 
 static void aux_reg_write(uint8_t size, uint32_t data, mm_reg_t addr, uint32_t off)
