@@ -667,7 +667,7 @@ COND_CODE_1(IS_EQ(DT_NUM_IRQS(DT_DRV_INST(inst)), 1),              \
 		.max_xfer_size = DT_INST_PROP(inst, max_xfer_size),                         \
 		IF_ENABLED(CONFIG_PINCTRL, (.pcfg = PINCTRL_DT_INST_DEV_CONFIG_GET(inst),)) \
 		COND_CODE_1(DT_INST_PROP(inst, aux_reg),                                    \
-			(.read_func = aux_reg_read,                                         \
+			(.read_func = reg_read,                                         \
 			.write_func = aux_reg_write,                                        \
 			.set_bit_func = aux_reg_set_bit,                                    \
 			.clear_bit_func = aux_reg_clear_bit,                                \
