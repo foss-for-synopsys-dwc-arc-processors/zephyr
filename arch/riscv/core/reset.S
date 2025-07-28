@@ -82,6 +82,10 @@ aa_loop:
 	li t0, __z_interrupt_stack_SIZEOF
 	add sp, sp, t0
 
+#ifdef CONFIG_RISCV_ISA_EXT_SMRNMI
+	csrs CSR_MNSTATUS, MNSTATUS_NMIE
+#endif
+
 #ifdef CONFIG_WDOG_INIT
 	call _WdogInit
 #endif
