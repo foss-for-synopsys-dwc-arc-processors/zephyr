@@ -59,6 +59,16 @@ boot_first_core:
 	fscsr zero
 #endif
 
+#ifdef CONFIG_RISCV_ISA_EXT_SMRNMI
+	/*
+	 * SMRNMI disables ALL interrupts on reset including normal interrupts.
+	 * Without setting MNSTATUS.NMIE bit, there are no interrupts at all.
+	 * Set MNSTATUS.NMIE bit to enable interrupt delivery.
+	 */
+	li t0, MNSTATUS_NMIE
+	csrs CSR_MNSTATUS, t0
+#endif
+
 #ifdef CONFIG_INIT_STACKS
 	/* Pre-populate all bytes in z_interrupt_stacks with 0xAA */
 	la t0, z_interrupt_stacks

@@ -810,3 +810,25 @@ fp_trap_exit:
 #endif /* CONFIG_RISCV_SOC_HAS_ISR_STACKING */
 
 	mret
+
+#ifdef CONFIG_RISCV_ISA_EXT_SMRNMI
+/*
+ * RISC-V Resumable Non-Maskable Interrupt (RNMI) handler.
+ * This handler is called when a non-maskable interrupt occurs.
+ * For now, it treats all NMIs as fatal errors.
+ */
+SECTION_FUNC(nmi_handler, z_riscv_nmi_handler)
+	/* Save minimal context */
+	csrw CSR_MNSCRATCH, t0
+	
+	/* Load NMI cause */
+	csrr t0, CSR_MNCAUSE
+	
+	/* Call fatal error handler with NMI cause */
+	mv a0, t0
+	call z_riscv_fatal_error
+	
+	/* Should not reach here, but if we do, loop forever */
+1:	wfi
+	j 1b
+#endif /* CONFIG_RISCV_ISA_EXT_SMRNMI */
