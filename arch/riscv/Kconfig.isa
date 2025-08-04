@@ -242,3 +242,14 @@ config RISCV_ISA_EXT_ZMMUL
 
 	  The Zmmul extension implements the multiplication subset of the M
 	  extension.
+
+config RISCV_ISA_EXT_SMRNMI
+	bool
+	select RISCV_ISA_EXT_ZICSR
+	help
+	  (Smrnmi) - Standard Extension for Resumable Non-Maskable Interrupts
+
+	  The Smrnmi extension provides a resumable non-maskable interrupt (RNMI)
+	  functionality for RISC-V systems. This extension allows hardware to
+	  generate non-maskable interrupts that can be handled and resumed,
+	  supporting critical system events like watchdog timers and ECC errors.
