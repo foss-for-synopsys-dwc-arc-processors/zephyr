@@ -7,7 +7,7 @@
  */
 
 #include <zephyr/kernel.h>
-#include <zephyr/sys/printk.h>
+#include <stdio.h>
 
 /*
  * The synchronization demo has two threads that utilize semaphores and sleeping
@@ -26,6 +26,36 @@
 
 /* delay between greetings (in ms) */
 #define SLEEPTIME 500
+
+#define USE_SEMI_WRITE	1
+
+#if USE_SEMI_WRITE
+#include <stdarg.h>
+#include <string.h>
+#include <zephyr/arch/common/semihost.h>
+#define SEMI_MAX_STRING	100
+#define SEMI_STDOUT	"/dev/stdout"
+long fd;
+
+int semi_printf(const char *fmt, ...) __attribute__((format (printf, 1, 2)));
+
+int semi_printf(const char *fmt, ...)
+{
+	va_list args;
+	int len;
+	char out_str[SEMI_MAX_STRING];
+
+	va_start(args, fmt);
+	len = vsnprintf(out_str, SEMI_MAX_STRING, fmt, args);
+	va_end(args);
+
+	return semihost_write(fd, out_str, len);
+}
+
+#define print_outf	semi_printf
+#else
+#define print_outf	printf
+#endif
 
 
 /*
@@ -53,12 +83,11 @@ void hello_loop(const char *my_name,
 #endif
 		/* say "hello" */
 		if (tname == NULL) {
-			printk("%s: Hello World from cpu %d on %s!\n",
-				my_name, cpu, CONFIG_BOARD);
-		} else {
-			printk("%s: Hello World from cpu %d on %s!\n",
-				tname, cpu, CONFIG_BOARD);
+			tname = my_name;
 		}
+
+		print_outf("%s: Hello World from cpu %d on %s!\n",
+			tname, cpu, CONFIG_BOARD);
 
 		/* wait a while, then let other thread have a turn */
 		k_busy_wait(100000);
@@ -101,6 +130,10 @@ extern const k_tid_t thread_b;
 
 int main(void)
 {
+#if USE_SEMI_WRITE
+	fd = semihost_open(SEMI_STDOUT, SEMIHOST_OPEN_WB);
+#endif
+
 	k_thread_create(&thread_a_data, thread_a_stack_area,
 			K_THREAD_STACK_SIZEOF(thread_a_stack_area),
 			thread_a_entry_point, NULL, NULL, NULL,

@@ -6,20 +6,12 @@
 	model = "Synopsys RMX100";
 	compatible = "snps,rmx100";
 
-	aliases {
-		uart-0 = &uart0;
-	};
-
 	chosen {
 		zephyr,sram = &dccm0;
 		zephyr,flash = &iccm0;
-		zephyr,console = &uart0;
-		zephyr,shell-uart = &uart0;
+		//zephyr,console = &uart0;
+		//zephyr,shell-uart = &uart0;
 	};
 
 };
 
-&uart0 {
-	status = "okay";
-	current-speed = <115200>;
-};

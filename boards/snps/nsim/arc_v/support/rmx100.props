@@ -14,7 +14,6 @@
 	dccm_base=0x80000000
 	dccm_size=0x40000
 	nsim_mmio_base=2560 
-	nsim_mem-dev=uart0,kind=16550,base=0x10000000,irq=24
 	nsim_mem-interface=ARCV_PMP,num_regions=8,granule=4
 	nsim_isa_rv_marchid=0x80000401
 	nsim_isa_rv_mimpid=0x10100
