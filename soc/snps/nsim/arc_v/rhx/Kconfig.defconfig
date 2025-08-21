@@ -1,0 +1,21 @@
+# Copyright (c) 2024 Synopsys, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+if SOC_SERIES_NSIM_ARC_V_RHX
+
+config NUM_IRQS
+	default 32
+
+config PMP_SLOTS
+	default 16
+
+config PMP_GRANULARITY
+	default 8
+
+config RISCV_PMP
+	default y
+
+config RISCV_SOC_INTERRUPT_INIT
+	default y
+
+endif # SOC_SERIES_NSIM_ARC_V_RHX
