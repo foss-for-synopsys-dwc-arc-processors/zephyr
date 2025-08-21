@@ -12,13 +12,4 @@ config MULTI_LEVEL_INTERRUPTS
 config NUM_IRQS
 	default 18
 
-config RISCV_PMP
-	default y
-
-config PMP_SLOTS
-	default 8
-
-config PMP_GRANULARITY
-	default 64
-
 endif # SOC_SERIES_NSIM_ARC_V_RMX
