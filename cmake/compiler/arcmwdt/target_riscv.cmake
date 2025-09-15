@@ -4,7 +4,16 @@
 #
 # This file centralizes RISC-V core selection for MWDT and removes the need
 # for SoC CMakeLists to push the core selector into every build.
+#
+# Supports TCF files or automatic Kconfig derivation.
+# Usage: -DARCMWDT_TCF_FILE=/path/to/config.tcf
 
+# TCF file override - skips all Kconfig-based derivation
+if(ARCMWDT_TCF_FILE)
+  list(APPEND TOOLCHAIN_C_FLAGS -tcf=${ARCMWDT_TCF_FILE})
+  list(APPEND TOOLCHAIN_LD_FLAGS -tcf=${ARCMWDT_TCF_FILE})
+  return()
+endif()
 # Derive core (e.g. -av5rmx) and ISA feature flags (-Z*)
 # Strictly from SoC Kconfig booleans (no board heuristics).
 if(CONFIG_SOC_SERIES_RMX)
