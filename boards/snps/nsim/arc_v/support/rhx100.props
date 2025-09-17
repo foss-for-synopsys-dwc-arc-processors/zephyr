@@ -1,6 +1,46 @@
 	nsim_isa_family=rv32
-	nsim_isa_ext=-all.i.m.a.c.s.u.h.zicsr.zifencei.zihintpause.zca.zcb.zcmp.zcmt.zba.zbb.zbc.zbs.zicond.zicbom.zicbop
-	nsim_isa_big_endian=0
+	nsim_isa_core=2
+	nsim_isa_rv_marchid=0x80000402
+	nsim_isa_rv_mimpid=0x20100
+	nsim_isa_unaligned_option=1
+	nsim_isa_ext=-all.i.zicsr.zifencei.zihintpause.a.zca.zcf.d.f.h.m.s.u.zcb.zcmp.zcmt.zba.zbb.zbc.zbs.zicond.zfh.zicbom.zicbop
+	nsim_rv_reset_pc=0x0
+	nsim_rv_reset_pc_ext=1
+	nsim_isa_dual_issue_option=1
+	nsim_isa_fusion_option=1
+	iccm0_base=0x50000000
+	iccm0_size=0x80000
+	dccm_base=0x50200000
+	dccm_size=0x80000
+	nsim_isa_dccm_mem_cycles=1
+	icache=0x8000,32,2,a
+	nsim_isa_ic_version=1
+	nsim_isa_ic_disable_on_reset=1
+	dcache=0x4000,32,2,a
+	nsim_isa_dc_version=1
+	nsim_isa_dc_feature_level=2
+	nsim_has_l0_dcache=1
+	nsim_isa_dc_mem_cycles=1
+	nsim_bpu_bc_entries=512
+	nsim_bpu_pt_entries=8192
+	nsim_bpu_rs_entries=4
+	nsim_bpu_tosq_entries=5
+	nsim_bpu_fb_entries=4
+	nsim_bpu_debug=1
 	nsim_mmio_base=2560
+	nsim_mem-interface=ARCV_PMP,num_regions=32,granule=3
+	nsim_isa_nvm_enabled=1
+	nsim_isa_nvm_base=0x0
+	nsim_isa_nvm_size=0x10000000
+	nsim_rtia_hart_major_prio=1
+	nsim_rtia_hart_major_prio_width=6
+	nsim_isa_ext=+xarcvstsp.xarcvsnvi.sstc
+	nsim_rnmi_vec_ext=0
+	nsim_rnmi_int_vec=0x800
+	nsim_isa_has_wb_mem=1
+	nsim_isa_wb_mem_num_entries=16
+	nsim_isa_wb_mem_max_outstanding=8
+	nsim_isa_ext=+smrnmi
+
+	# UART must remain consistent with DTS
 	nsim_mem-dev=uart0,kind=16550,base=0x10000000,irq=24
-	nsim_mem-interface=ARCV_PMP,num_regions=16,granule=1

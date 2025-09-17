@@ -3,6 +3,9 @@
 
 if SOC_SERIES_RHX
 
+config XIP
+	default y
+
 config SYS_CLOCK_HW_CYCLES_PER_SEC
 	default $(dt_node_int_prop_int,/cpus/cpu@0,clock-frequency)
 
@@ -10,10 +13,10 @@ config NUM_IRQS
 	default 32
 
 config PMP_SLOTS
-	default 16
+	default 32
 
 config PMP_GRANULARITY
-	default 8
+	default 32
 
 config RISCV_PMP
 	default y
