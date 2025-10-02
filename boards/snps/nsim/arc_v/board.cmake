@@ -8,8 +8,7 @@ string(REPLACE "/" "_" NSIM_BASE_FILENAME "${NSIM_BASE_FILENAME}")
 board_set_flasher_ifnset(arc-nsim)
 board_set_debugger_ifnset(arc-nsim)
 
-# Add lldbac runner support
-board_set_flasher_ifnset(lldbac)
+# Add lldbac runner support for debugging only
 board_set_debugger_ifnset(lldbac)
 
 set(NSIM_PROPS "${NSIM_BASE_FILENAME}.props")
