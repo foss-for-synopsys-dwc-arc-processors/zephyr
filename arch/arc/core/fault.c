@@ -104,6 +104,77 @@ static bool z_check_thread_stack_fail(const uint32_t fault_addr, uint32_t sp)
 }
 #endif
 
+
+/**
+ * @brief Check if a user thread stack overflow caused an MPU fault
+ *
+ * This function determines whether a memory access violation in user mode
+ * was due to a stack overflow.
+ *
+ * When called, an ARC protection violation (EV_ProtV) with an MPU-related
+ * cause has occurred. The goal is to identify if this is a general MPU
+ * access fault or specifically a stack overflow condition.
+ *
+ * ARC Stack Checking Rules
+ * ========================
+ * - Non-%SP (frame pointer) accesses must stay within the used stack area.
+ * - %SP-based accesses that don’t modify %SP must stay inside the used stack.
+ * - %SP-based accesses that modify %SP (push/enter) must stay in the reserved
+ *   stack region.
+ *
+ * Stack Layout (grows downward)
+ * -----------------------------
+ *   Higher addresses
+ *   +------------------+  STACK_BASE
+ *   |   Used Stack     |
+ *   +------------------+  %SP  <-- current top of stack
+ *   |  Unused Stack    |
+ *   +------------------+  STACK_TOP
+ *   Lower addresses
+ *
+ * Note:
+ * In some cases for Non-SP based instructions:
+ * The faulting address may lie outside the actual stack
+ * bounds, but since the current %SP is still below (≤) that address, the
+ * Stack Check (SC) mechanism considers it within the used stack region and
+ * does not raise an SC exception.
+ *
+ * @param fault_addr Memory address where the violation occurred
+ * @retval true  If the fault address is outside the user stack range
+ * @retval false Otherwise (not a stack overflow)
+ */
+
+static bool z_user_stack_check_fail(const uint32_t fault_addr)
+{
+#if defined(CONFIG_MULTITHREADING) && defined(CONFIG_USERSPACE)
+	uint32_t user_stack_base, user_stack_top;
+	const struct k_thread *thread = _current;
+
+	if (!thread) {
+		/* TODO: Under what circumstances could we get here ? */
+		return false;
+	}
+
+	if ((thread->base.user_options & K_USER) != 0) {
+		if ((z_arc_v2_aux_reg_read(_ARC_V2_ERSTATUS) & _ARC_V2_STATUS32_U) != 0) {
+
+			user_stack_base = thread->arch.u_stack_base;
+			user_stack_top = thread->arch.u_stack_top;
+
+			/* treat any MPU exceptions outside the stack guard area as a stack
+			 * overflow, in case of Stack Check mechanism is enabled.
+			 */
+			if (fault_addr < user_stack_top || fault_addr > user_stack_base) {
+				return true;
+			}
+		}
+	}
+#endif
+
+	return false;
+}
+
+
 #ifdef CONFIG_EXCEPTION_DEBUG
 /* For EV_ProtV, the numbering/semantics of the parameter are consistent across
  * several codes, although not all combination will be reported.
@@ -402,6 +473,16 @@ void z_arc_fault(struct arch_esf *esf, uint32_t old_sp)
 		z_arc_fatal_error(K_ERR_STACK_CHK_FAIL, esf);
 		return;
 	}
+
+#ifndef CONFIG_MPU_STACK_GUARD
+	if (vector == ARC_EV_PROT_V && ((parameter == 0x4) || (parameter == 0x24))) {
+		if (z_user_stack_check_fail(exc_addr)) {
+			z_arc_fatal_error(K_ERR_STACK_CHK_FAIL, esf);
+			return;
+		}
+	}
+#endif
+
 #endif
 
 #ifdef CONFIG_MPU_STACK_GUARD
