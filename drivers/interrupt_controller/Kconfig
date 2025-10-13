@@ -103,6 +103,8 @@ source "drivers/interrupt_controller/Kconfig.gd32_exti"
 
 source "drivers/interrupt_controller/Kconfig.plic"
 
+source "drivers/interrupt_controller/Kconfig.riscv_aia"
+
 source "drivers/interrupt_controller/Kconfig.nxp_s32"
 
 source "drivers/interrupt_controller/Kconfig.nxp_siul2"
