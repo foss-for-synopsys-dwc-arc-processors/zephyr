@@ -1,0 +1,9 @@
+board:
+  name: qemu_riscv32_aia
+  full_name: QEMU Emulation for RISCV32 AIA
+  vendor: qemu
+  socs:
+    - name: qemu_virt_riscv32_aia
+      variants:
+        - name: smp
+

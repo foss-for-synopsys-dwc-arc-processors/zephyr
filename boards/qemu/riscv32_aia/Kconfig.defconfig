@@ -1,0 +1,16 @@
+if BOARD_QEMU_RISCV32_AIA
+
+config THREAD_LOCAL_STORAGE
+    default y
+
+config BUILD_OUTPUT_BIN
+    default n
+
+config HAS_COVERAGE_SUPPORT
+    default y
+
+config QEMU_ICOUNT_SHIFT
+    default 6 if QEMU_ICOUNT
+
+
+endif # BOARD_QEMU_RISCV32_AIA
