@@ -1,0 +1,27 @@
+# Copyright (c) 2025 Synopsys, Inc.
+# Copyright (c) 2024 Synopsys, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+# Disable XIP - run from RAM
+CONFIG_XIP=n
+
+# Console
+CONFIG_CONSOLE=y
+CONFIG_SERIAL=y
+CONFIG_UART_CONSOLE=y
+
+# Build output
+CONFIG_BUILD_OUTPUT_HEX=y
+CONFIG_INCLUDE_RESET_VECTOR=y
+
+# Logging
+CONFIG_LOG=y
+
+# Enable AIA support
+CONFIG_RISCV_HAS_AIA=y
+CONFIG_RISCV_IMSIC=y
+CONFIG_RISCV_APLIC_MSI=y
+CONFIG_RISCV_AIA=y
+
+# Increase NUM_IRQS to support EIID range used by AIA
+CONFIG_NUM_IRQS=256

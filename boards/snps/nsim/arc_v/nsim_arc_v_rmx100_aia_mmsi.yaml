@@ -1,0 +1,16 @@
+# Copyright (c) 2025 Synopsys, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+identifier: nsim_arc_v/rmx100/aia_mmsi
+name: Synopsys RMX100 with AIA MMSI
+type: mcu
+arch: riscv
+toolchain:
+  - zephyr
+  - cross-compile
+ram: 256
+supported:
+  - uart
+testing:
+  default: true
+vendor: snps
