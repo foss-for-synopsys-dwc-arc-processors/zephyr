@@ -12,5 +12,10 @@ config SOC_RMX100
 	bool
 	select SOC_SERIES_RMX
 
+config SOC_RMX100_AIA_MMSI
+	bool
+	select SOC_SERIES_RMX
+
 config SOC
 	default "rmx100" if SOC_RMX100
+	default "rmx100_aia_mmsi" if SOC_RMX100_AIA_MMSI

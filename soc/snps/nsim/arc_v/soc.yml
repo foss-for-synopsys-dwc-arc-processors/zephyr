@@ -4,6 +4,7 @@ family:
       - name: rmx
         socs:
           - name: rmx100
+          - name: rmx100_aia_mmsi
       - name: rhx
         socs:
           - name: rhx100
