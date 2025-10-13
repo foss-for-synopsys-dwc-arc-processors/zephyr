@@ -16,3 +16,6 @@ if SOC_FAMILY_QEMU_VIRT_RISCV
 rsource "*/Kconfig"
 
 endif # SOC_FAMILY_QEMU_VIRT_RISCV
+
+# AIA variant outside family to avoid PLIC dependency
+rsource "qemu_virt_riscv32_aia/Kconfig"
