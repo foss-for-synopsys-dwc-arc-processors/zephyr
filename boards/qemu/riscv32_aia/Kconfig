@@ -1,0 +1,6 @@
+# Copyright (c) 2024 Antmicro <www.antmicro.com>
+# SPDX-License-Identifier: Apache-2.0
+
+config BOARD_QEMU_RISCV32_AIA
+    select QEMU_TARGET
+
