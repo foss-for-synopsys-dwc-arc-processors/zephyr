@@ -1,0 +1,33 @@
+# nSIM properties for RMX100 AIA MVP (Direct/Vectored + MMSI)
+
+## Console: disable semihosting; use UART console
+nsim_semihosting=0
+
+# MMIO aperture (lower 12 bits at 0xA00 -> 0xA0000000 base)
+nsim_mmio_base=0xa00
+
+# ISA with AIA Extensions (using current extension names)
+nsim_isa_family=rv32
+nsim_isa_ext=-all.i.zicsr.zifencei.zihintpause.a.m.zba.zbb.zbs.zca.zcb.zcmp.zcmt.zicbom.xarcvnvi
+
+# RTIA / IMSIC - M-mode only Configuration
+nsim_rtia_delivery=MMSI
+nsim_rtia_imsic_m_mode_file=1
+nsim_rtia_imsic_m_file_size=256
+
+# Additional RTIA options
+nsim_rtia_hart_major_prio=1
+nsim_rtia_hart_major_prio_width=8  
+nsim_rtia_sswi=1
+
+# Devices
+# UART0 at 0xF000_0000 (DesignWare 16550-compatible), APLIC IRQ 42
+nsim_mem-dev=uart0,kind=dwuart,base=0xF0000000,irq=42,use_aplic=1
+
+# APLIC in MMSI mode at 0xF800_0000 (MMSI to IMSIC M-file @ 0xA0040000)
+# Using only documented parameters from nSIM User Guide
+# Note: M_BASE_PPN parameters work but are undocumented
+nsim_mem-dev=aplic,base=0xF8000000,delivery=MMSI,mmsi_address_width=32,num_interrupts=64,num_harts=1,num_sdomains=0,num_guests=0,num_eiids=256,control_protocol=AXI5-LITE,enable_cpc=false,enable_pmu=false,enable_chain_dmsi=false,safety_level=0,M_BASE_PPN=0xA0040,M_LHXS=0,M_HHXS=0,M_LHXW=0,M_HHXW=0
+
+# Enable PMP to match Zephyr CONFIG_RISCV_PMP settings used by RMX boards
+nsim_mem-interface=ARCV_PMP,num_regions=16,granule=1

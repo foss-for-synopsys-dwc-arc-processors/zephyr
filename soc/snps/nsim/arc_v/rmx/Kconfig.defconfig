@@ -13,6 +13,7 @@ config MULTI_LEVEL_INTERRUPTS
 	default n
 
 config NUM_IRQS
+	default 256 if SOC_RMX100_AIA_MMSI
 	default 18
 
 config RISCV_PMP
