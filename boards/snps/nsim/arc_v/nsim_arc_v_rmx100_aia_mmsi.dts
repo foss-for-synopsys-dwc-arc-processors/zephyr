@@ -1,0 +1,57 @@
+/dts-v1/;
+
+#include "rmx100.dtsi"
+
+/ {
+	model = "Synopsys RMX100 AIA MMSI";
+	compatible = "snps,rmx100-aia-mmsi";
+
+	aliases {
+		uart-0 = &uart0_mmsi;
+	};
+
+	chosen {
+		zephyr,sram = &ddr0;
+		zephyr,console = &uart0_mmsi;
+		zephyr,shell-uart = &uart0_mmsi;
+	};
+
+	soc {
+		/* IMSIC M-mode interrupt file at 0xA0040000 */
+		imsic0: interrupt-controller@a0040000 {
+			compatible = "riscv,imsic";
+			reg = <0xA0040000 0x1000>;
+			interrupt-controller;
+			#interrupt-cells = <1>;
+			riscv,num-ids = <256>;
+			riscv,hart-id = <0>;
+		};
+
+		/* APLIC in MMSI mode at 0xF8008000 (M-mode domain) */
+		aplic: interrupt-controller@f8008000 {
+			compatible = "riscv,aplic-msi";
+			reg = <0xF8008000 0x4000>;
+			interrupt-controller;
+			#interrupt-cells = <3>;
+			riscv,num-sources = <64>;
+			msi-parent = <&imsic0>;
+		};
+
+		/* UART0 at 0xF0000000 (DesignWare UART) */
+		uart0_mmsi: serial@f0000000 {
+			compatible = "ns16550", "snps,dw-apb-uart";
+			reg = <0xF0000000 0x400>;
+			reg-shift = <2>;
+			interrupt-parent = <&aplic>;
+			interrupts = <42 1 4>;  /* Source 42, priority 1, edge-rising */
+			clock-frequency = <50000000>;
+			status = "okay";
+			current-speed = <115200>;
+		};
+	};
+};
+
+/* Disable the base UART since we're using uart0_mmsi instead */
+&uart0 {
+	status = "disabled";
+};
