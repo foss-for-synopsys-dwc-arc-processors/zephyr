@@ -1,0 +1,12 @@
+common:
+  arch_allow: riscv
+  tags:
+    - drivers
+    - interrupt
+    - riscv
+    - aia
+    - aplic
+    - imsic
+
+tests:
+  drivers.interrupt_controller.intc_riscv_aia: {}
