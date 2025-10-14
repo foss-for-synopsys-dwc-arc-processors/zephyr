@@ -24,11 +24,6 @@ struct imsic_cfg {
 	uint32_t nr_irqs; /* Effective IRQ limit for bounds checking */
 };
 
-/*
- * No runtime data struct needed - IMSIC driver is stateless.
- * All interrupt configuration is handled through CSR operations.
- */
-
 /* Forward declaration */
 static void imsic_mext_isr(const void *arg);
 
@@ -49,6 +44,8 @@ static int imsic_init(const struct device *dev)
 
 	LOG_INF("IMSIC init hart=%u num_ids=%u nr_irqs=%u", cfg->hart_id, cfg->num_ids,
 		cfg->nr_irqs);
+	LOG_INF("  EIDELIVERY=0x%08x EITHRESHOLD=0x%08x", read_imsic_csr(ICSR_EIDELIVERY),
+		read_imsic_csr(ICSR_EITHRESH));
 
 	return 0;
 }
@@ -59,7 +56,6 @@ uint32_t riscv_imsic_claim(void)
 	uint32_t topei;
 
 	__asm__ volatile("csrrw %0, " STRINGIFY(CSR_MTOPEI) ", x0" : "=r"(topei));
-
 	return topei & MTOPEI_EIID_MASK; /* Extract EIID from mtopei */
 }
 
@@ -83,12 +79,11 @@ void riscv_imsic_enable_eiid(uint32_t eiid)
 
 	LOG_INF("IMSIC enable EIID %u on CPU %u: EIE[%u] before=0x%08x", eiid, arch_proc_id(),
 		reg_index, cur);
-
 	cur |= BIT(bit);
 	write_imsic_csr(icsr_addr, cur);
 
-	LOG_INF("IMSIC enable EIID %u on CPU %u: EIE[%u] after write (bit %u)", eiid,
-		arch_proc_id(), reg_index, bit);
+	LOG_INF("IMSIC enable EIID %u on CPU %u: EIE[%u] after=0x%08x (bit %u)", eiid,
+		arch_proc_id(), reg_index, read_imsic_csr(icsr_addr), bit);
 }
 
 /* Disable an EIID in IMSIC EIE - operates on CURRENT CPU's IMSIC via CSRs */
@@ -97,6 +92,7 @@ void riscv_imsic_disable_eiid(uint32_t eiid)
 	uint32_t reg_index = eiid / 32U;
 	uint32_t bit = eiid % 32U;
 	uint32_t icsr_addr = ICSR_EIE0 + reg_index;
+
 	uint32_t cur = read_imsic_csr(icsr_addr);
 
 	cur &= ~BIT(bit);
@@ -111,6 +107,7 @@ int riscv_imsic_is_enabled(uint32_t eiid)
 	uint32_t reg_index = eiid / 32U;
 	uint32_t bit = eiid % 32U;
 	uint32_t icsr_addr = ICSR_EIE0 + reg_index;
+
 	uint32_t cur = read_imsic_csr(icsr_addr);
 
 	return !!(cur & BIT(bit));
@@ -120,7 +117,6 @@ int riscv_imsic_is_enabled(uint32_t eiid)
 uint32_t riscv_imsic_get_pending(const struct device *dev)
 {
 	ARG_UNUSED(dev);
-
 	/* Return pending bits for first 64 IDs as a quick probe (EIP0|EIP1<<32) */
 	uint32_t p0 = read_imsic_csr(ICSR_EIP0);
 	uint32_t p1 = read_imsic_csr(ICSR_EIP1);
@@ -242,3 +238,47 @@ static void imsic_mext_isr(const void *arg)
 		riscv_imsic_complete(eiid);
 	}
 }
+
+#ifdef CONFIG_SMP
+/**
+ * @brief Initialize IMSIC on secondary CPUs
+ *
+ * This function is called on each secondary CPU during SMP boot to initialize
+ * the IMSIC interrupt controller on that CPU. It configures the EIDELIVERY
+ * and EITHRESHOLD CSRs to enable interrupt delivery.
+ *
+ * This follows the same pattern as smp_timer_init() for the CLINT timer.
+ *
+ * Note: IMSIC CSRs (accessed via ISELECT/IREG) are local to each CPU.
+ * When this function executes on CPU N, it configures that CPU's IMSIC file.
+ */
+void z_riscv_imsic_secondary_init(void)
+{
+	LOG_INF("IMSIC secondary init on CPU %u", arch_proc_id());
+
+	/* Enable interrupt delivery in MMSI mode */
+	/* EIDELIVERY[0] = 1: Enable delivery */
+	/* EIDELIVERY[30:29] = 10: MMSI mode (0x40000000) */
+	uint32_t eidelivery_value = EIDELIVERY_ENABLE | EIDELIVERY_MODE_MMSI;
+
+	write_imsic_csr(ICSR_EIDELIVERY, eidelivery_value);
+
+	/* Set EITHRESHOLD to 0 to allow all interrupt priorities */
+	write_imsic_csr(ICSR_EITHRESH, 0);
+
+	/* Enable MEXT interrupt on this CPU */
+	irq_enable(RISCV_IRQ_MEXT);
+
+	/* Read back to verify initialization */
+	uint32_t eidelivery_readback = read_imsic_csr(ICSR_EIDELIVERY);
+
+	LOG_INF("CPU %u IMSIC initialized: EIDELIVERY=0x%08x EITHRESH=0x%08x", arch_proc_id(),
+		eidelivery_readback, read_imsic_csr(ICSR_EITHRESH));
+
+	/* Sanity check: verify EIDELIVERY enable bit is set */
+	if (!(eidelivery_readback & EIDELIVERY_ENABLE)) {
+		LOG_ERR("CPU %u IMSIC EIDELIVERY enable bit not set! Got 0x%08x",
+			arch_proc_id(), eidelivery_readback);
+	}
+}
+#endif /* CONFIG_SMP */
