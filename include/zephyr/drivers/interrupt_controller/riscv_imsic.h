@@ -136,4 +136,14 @@ uint32_t riscv_imsic_get_pending(const struct device *dev);
 /* Device access function (for MMIO operations and debugging) */
 const struct device *riscv_imsic_get_dev(void);
 
+#if defined(CONFIG_SMP)
+/**
+ * @brief Initialize IMSIC on secondary CPU
+ *
+ * Called during secondary CPU boot to configure that hart's IMSIC.
+ * Configures EIDELIVERY, EITHRESHOLD, and enables MEXT interrupt.
+ */
+void z_riscv_imsic_secondary_init(void);
+#endif /* CONFIG_SMP */
+
 #endif
