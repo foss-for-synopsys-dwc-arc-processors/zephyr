@@ -18,4 +18,4 @@ nsim_isa_ext=+xarcvstsp.-sstc
 nsim_isa_ext=+smrnmi
 nsim_rnmi_vec_ext=1
 nsim_rnmi_int_vec=0x100
-nsim_mem-dev=uart0,kind=16550,base=0xF0000000,irq=24
+nsim_semihosting=1
