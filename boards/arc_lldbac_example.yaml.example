@@ -1,0 +1,36 @@
+# Example board configuration for using lldbac runner
+# This file shows how to configure a board to use the lldbac runner for testing
+# Copy this structure to your actual board YAML file
+
+identifier: myboard/myvariant
+name: My ARC board with LLDB support
+type: sim  # or 'mcu' for hardware
+simulation:
+  - name: lldbac
+    exec: lldbac
+arch: arc
+toolchain:
+  - zephyr
+  - cross-compile
+  - arcmwdt
+testing:
+  ignore_tags:
+    - net
+    - bluetooth
+vendor: myvendor
+
+# Optional: Create support/lldbac.tcf in your board directory
+# for target-specific configuration if needed
+
+# Environment Variables for FPGA Programming:
+# Set these environment variables to configure FPGA programming paths:
+#
+# export LLDBAC_FPGA_DIR="chinacore_jtag_a12gpioj22_tar/synopsys_fpga/confpro/core_chip/designs/"
+# export LLDBAC_CONFPRO_PATH="/global/apps/protocompiler_2024.09/bin/confprosh"  
+# export LLDBAC_CONFPRO_SCRIPT="/u/relauto/.TOOLS_ROOT/ToolsCommon/HAPS_FARM/2.6/Linux/program_fpga.tcl"
+# export LLDBAC_CONFPRO_CONFIG="project.conf"
+#
+# Command line options:
+# west flash -r lldbac                           # Use defaults/environment
+# west flash -r lldbac --skip-fpga-program      # Skip FPGA programming
+# west flash -r lldbac --fpga-dir /my/path      # Override FPGA directory
