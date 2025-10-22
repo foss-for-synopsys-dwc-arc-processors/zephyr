@@ -25,8 +25,7 @@ typedef int clockid_t;
 #endif
 #endif
 
-/* pull in sys/timespec.h for struct timespec and _TIMESPEC_DECLARED */
-#include "sys/timespec.h"
+#define _TIMESPEC_DECLARED
 
 #include <zephyr/posix/posix_time.h>
 
