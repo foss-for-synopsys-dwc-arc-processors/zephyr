@@ -24,4 +24,8 @@ config RISCV_PMP
 config RISCV_SOC_INTERRUPT_INIT
 	default y
 
+# Disable Zcmp as GCC 12.2.0 doesn't support it
+config RISCV_ISA_EXT_ZCMP
+	default n
+
 endif # SOC_SERIES_RHX

@@ -1,24 +1,16 @@
 #include "rhx1xx.dtsi"
 
 / {
-	ddr0: memory@80000000  {
-		compatible = "mmio-sram";
-		device_type = "memory";
-		reg = <0x80000000 0x10000000>; /* 256 MB */
-	};
-
 	/* Instruction/Data Closely Coupled Memories */
 	iccm0: iccm@50000000 {
-		compatible = "zephyr,memory-region", "mmio-sram";
-		zephyr,memory-region = "FLASH";
-		zephyr,memory-region-flags = "rx";
-		reg = <0x50000000 0x00080000>;
+		compatible = "mmio-sram";
+		device_type = "memory";
+		reg = <0x50000000 0x00080000>; /* 512 KB ICCM */
 	};
 
 	dccm0: dccm@50200000 {
-		compatible = "zephyr,memory-region", "mmio-sram";
-		zephyr,memory-region = "SRAM";
-		zephyr,memory-region-flags = "rw";
-		reg = <0x50200000 0x00080000>;
+		compatible = "mmio-sram";
+		device_type = "memory";
+		reg = <0x50200000 0x00100000>; /* 1 MB DCCM */
 	};
 };
