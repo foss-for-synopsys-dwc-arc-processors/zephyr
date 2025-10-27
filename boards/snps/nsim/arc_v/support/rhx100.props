@@ -43,4 +43,4 @@
 	nsim_isa_ext=+smrnmi
 
 	# UART must remain consistent with DTS
-	nsim_mem-dev=uart0,kind=16550,base=0x10000000,irq=24
+nsim_semihosting=1

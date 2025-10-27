@@ -259,11 +259,10 @@ int main(void)
 	init_objects();
 	start_threads();
 
-#ifdef CONFIG_COVERAGE
 	/* Wait a few seconds before main() exit, giving the sample the
-	 * opportunity to dump some output before coverage data gets emitted
+	 * opportunity to dump some output
 	 */
 	k_sleep(K_MSEC(5000));
-#endif
+
 	return 0;
 }
