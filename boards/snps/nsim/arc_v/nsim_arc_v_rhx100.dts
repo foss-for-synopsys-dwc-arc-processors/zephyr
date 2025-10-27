@@ -10,15 +10,20 @@
 		zephyr,flash = &iccm0;
 		zephyr,sram = &dccm0;
 		zephyr,code-partition = &iccm0;
-		/* No console - using semihosting */
 	};
-};
 
-/* Ensure CCM memories are used for linker */
-&iccm0 {
-	status = "okay";
-};
+	/* Instruction/Data Closely Coupled Memories */
+	iccm0: iccm@50000000 {
+		compatible = "mmio-sram";
+		device_type = "memory";
+		reg = <0x50000000 0x00080000>; /* 512 KB ICCM */
+		status = "okay";
+	};
 
-&dccm0 {
-	status = "okay";
+	dccm0: dccm@50200000 {
+		compatible = "mmio-sram";
+		device_type = "memory";
+		reg = <0x50200000 0x00100000>; /* 1 MB DCCM */
+		status = "okay";
+	};
 };
