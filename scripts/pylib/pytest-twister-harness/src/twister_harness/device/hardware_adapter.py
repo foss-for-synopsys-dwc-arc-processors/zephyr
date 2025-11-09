@@ -148,6 +148,24 @@ class HardwareAdapter(DeviceAdapter):
                 self._run_custom_script(self.device_config.post_flash_script, self.base_timeout)
             if process is not None and process.returncode == 0:
                 logger.debug('Flashing finished')
+                # WORKAROUND: Close and reopen serial connection after device reset
+                # Close and reopen serial connection after device reset
+                logger.debug('Closing serial connection after flash...')
+                if self._serial_connection and self._serial_connection.is_open:
+                    self._serial_connection.close()
+                
+                # Wait for USB device to stabilize after reset
+                logger.debug('Waiting for USB device to stabilize...')
+                time.sleep(5)
+                
+                # Reopen serial connection with fresh state
+                logger.debug('Reopening serial connection...')
+                self._connect_device()
+                logger.debug('Serial connection reopened successfully')
+                
+                # Wait for device to boot and shell to initialize
+                logger.debug('Waiting for device boot and shell initialization...')
+                time.sleep(3)
             else:
                 msg = f'Could not flash device {self.device_config.id}'
                 logger.error(msg)
