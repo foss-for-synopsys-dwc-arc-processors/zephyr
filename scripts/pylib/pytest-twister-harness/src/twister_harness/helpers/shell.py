@@ -37,8 +37,14 @@ class Shell:
         """
         timeout = timeout or self.base_timeout
         timeout_time = time.time() + timeout
+        start_time = time.time()
         self._device.clear_buffer()
+        check_count = 0
         while time.time() < timeout_time:
+            check_count += 1
+            elapsed = time.time() - start_time
+            if check_count % 10 == 0:  # Log every 10 attempts (~5 seconds)
+                logger.info(f'Still waiting for prompt... {elapsed:.1f}s elapsed')
             self._device.write(b'\n')
             try:
                 line = self._device.readline(timeout=0.5, print_output=False)
@@ -47,7 +53,9 @@ class Shell:
                 continue
             logger.debug(f'Received: {line[:80]!r}')
             if self.prompt in line:
+                logger.info(f'Prompt found after {elapsed:.1f}s!')
                 return True
+        logger.error(f'Prompt NOT found after {time.time() - start_time:.1f}s timeout')
         return False
 
     def exec_command(

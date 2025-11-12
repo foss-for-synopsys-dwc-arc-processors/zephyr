@@ -150,9 +150,15 @@ class HardwareAdapter(DeviceAdapter):
                 logger.debug('Flashing finished')
                 # Reconnect serial after flash (USB device was reset)
                 if self._serial_connection and self._serial_connection.is_open:
+                    logger.info('Closing serial after flash')
                     self._serial_connection.close()
-                    time.sleep(0.5)  # Brief pause for USB to stabilize
+                    logger.info('Waiting for USB to stabilize')
+                    time.sleep(2.0)  # USB stabilization
+                    logger.info('Reconnecting serial')
                     self._connect_device()
+                    logger.info('Waiting for device boot')
+                    time.sleep(3.0)  # Give device time to boot
+                    logger.info('Ready to detect prompt')
             else:
                 msg = f'Could not flash device {self.device_config.id}'
                 logger.error(msg)
