@@ -148,30 +148,23 @@ class HardwareAdapter(DeviceAdapter):
                 self._run_custom_script(self.device_config.post_flash_script, self.base_timeout)
             if process is not None and process.returncode == 0:
                 logger.debug('Flashing finished')
-                # Reconnect serial after flash (USB device was reset)
-                # For extremely slow boards like iotdk, just wait longer instead of reconnecting
+                # Reconnect serial after flash (USB device was reset during flashing)
+                # All boards need reconnection to get fresh file descriptor
                 if self._serial_connection and self._serial_connection.is_open:
-                    # Check if this is a very slow board that can't handle reconnection
-                    # iotdk has 144MHz CPU and needs 30-60s boot time
+                    logger.info('Closing serial after flash')
+                    self._serial_connection.close()
+                    logger.info('Waiting for USB to stabilize')
+                    time.sleep(2.0)  # USB stabilization wait
+                    logger.info('Reconnecting serial')
+                    self._connect_device()
+                    # Very slow boards like iotdk (144MHz) need longer boot time
                     # Check build_dir path which contains board name (e.g., "iotdk_arc_iot")
                     build_dir_str = str(self.device_config.build_dir).lower()
                     is_very_slow_board = 'iotdk' in build_dir_str
-                    
-                    if is_very_slow_board:
-                        logger.info('Very slow board detected - keeping serial connection open')
-                        logger.info('Waiting for extended boot time (20s)')
-                        time.sleep(20.0)  # Long wait for iotdk's slow 144MHz CPU
-                        logger.info('Ready to detect prompt')
-                    else:
-                        logger.info('Closing serial after flash')
-                        self._serial_connection.close()
-                        logger.info('Waiting for USB to stabilize')
-                        time.sleep(2.0)  # USB stabilization
-                        logger.info('Reconnecting serial')
-                        self._connect_device()
-                        logger.info('Waiting for device boot')
-                        time.sleep(10.0)  # Extended wait for slow boards like hsdk4xd
-                        logger.info('Ready to detect prompt')
+                    boot_wait = 30.0 if is_very_slow_board else 15.0
+                    logger.info(f'Waiting for device boot ({boot_wait}s)')
+                    time.sleep(boot_wait)
+                    logger.info('Ready to detect prompt')
             else:
                 msg = f'Could not flash device {self.device_config.id}'
                 logger.error(msg)

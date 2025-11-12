@@ -78,12 +78,11 @@ def shell(dut: DeviceAdapter) -> Shell:
         shell.prompt = prompt
         logger.info(f'Shell prompt: {prompt!r}')
     logger.info('Waiting for prompt...')
-    # Extended timeout for very slow boards (iotdk needs 60-80s total, hsdk4xd needs 30-40s)
-    # iotdk has 144MHz CPU and extremely slow boot time
-    # Check build_dir path which contains board name (e.g., "iotdk_arc_iot")
+    # Extended timeout for very slow boards (iotdk 144MHz CPU needs more time)
+    # After reconnect + boot wait, still need margin for prompt detection
     build_dir_str = str(dut.device_config.build_dir).lower()
     is_very_slow_board = 'iotdk' in build_dir_str
-    timeout = 60 if is_very_slow_board else 40
+    timeout = 45 if is_very_slow_board else 30
     if not shell.wait_for_prompt(timeout=timeout):
         pytest.fail('Prompt not found')
     logger.info('Prompt found!')
