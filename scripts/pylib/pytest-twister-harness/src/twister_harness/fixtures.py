@@ -72,28 +72,15 @@ def dut(request: pytest.FixtureRequest, device_object: DeviceAdapter) -> Generat
 @pytest.fixture(scope=determine_scope)
 def shell(dut: DeviceAdapter) -> Shell:
     """Return ready to use shell interface"""
-    timeout = 40.0  # DIAGNOSTIC: Extended timeout
-    
-    logger.info('='*60)
-    logger.info('SHELL FIXTURE: Starting with diagnostic mode')
-    logger.info(f'Build dir: {dut.device_config.app_build_dir}')
-    logger.info(f'Timeout: {timeout}s')
-    logger.info('='*60)
-    
-    shell = Shell(dut, timeout=timeout)
+    shell = Shell(dut, timeout=20)
     if prompt := find_in_config(Path(dut.device_config.app_build_dir) / 'zephyr' / '.config',
                                 'CONFIG_SHELL_PROMPT_UART'):
         shell.prompt = prompt
-        logger.info(f'Shell prompt: "{prompt}"')
-    
-    logger.info(f'Waiting for prompt (timeout={timeout}s)...')
-    prompt_start = time.time()
-    if not shell.wait_for_prompt(timeout=timeout):
-        elapsed = time.time() - prompt_start
-        logger.error(f'PROMPT NOT FOUND after {elapsed:.1f}s')
+        logger.info(f'Shell prompt: {prompt!r}')
+    logger.info('Waiting for prompt...')
+    if not shell.wait_for_prompt(timeout=20):
         pytest.fail('Prompt not found')
-    logger.info(f'PROMPT FOUND after {time.time() - prompt_start:.1f}s!')
-    
+    logger.info('Prompt found!')
     if dut.device_config.type == 'hardware':
         # after booting up the device, there might appear additional logs
         # after first prompt, so we need to wait and clear the buffer

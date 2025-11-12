@@ -148,31 +148,7 @@ class HardwareAdapter(DeviceAdapter):
                 self._run_custom_script(self.device_config.post_flash_script, self.base_timeout)
             if process is not None and process.returncode == 0:
                 logger.debug('Flashing finished')
-                
-                # DIAGNOSTIC: Serial reconnection with timing
-                logger.info('='*60)
-                logger.info('DIAGNOSTIC: Serial reconnection starting')
-                logger.info(f'Build dir: {self.device_config.build_dir}')
-                logger.info('='*60)
-                
-                logger.info('Closing serial connection after flash...')
-                if self._serial_connection and self._serial_connection.is_open:
-                    self._serial_connection.close()
-                    logger.info('Serial closed successfully')
-                
-                logger.info('Waiting 5s for USB stabilization...')
-                time.sleep(5)
-                
-                logger.info('Reopening serial connection...')
-                reopen_start = time.time()
-                self._connect_device()
-                logger.info(f'Serial reopened in {time.time() - reopen_start:.2f}s')
-                
-                logger.info('Waiting 10s for device boot...')
-                boot_start = time.time()
-                time.sleep(10)
-                logger.info(f'Boot wait complete after {time.time() - boot_start:.2f}s')
-                logger.info('='*60)
+                # No serial reconnection - keeping original connection open
             else:
                 msg = f'Could not flash device {self.device_config.id}'
                 logger.error(msg)
