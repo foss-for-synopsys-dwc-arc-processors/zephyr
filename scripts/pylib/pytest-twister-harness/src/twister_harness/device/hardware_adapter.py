@@ -149,16 +149,27 @@ class HardwareAdapter(DeviceAdapter):
             if process is not None and process.returncode == 0:
                 logger.debug('Flashing finished')
                 # Reconnect serial after flash (USB device was reset)
+                # For extremely slow boards like iotdk, just wait longer instead of reconnecting
                 if self._serial_connection and self._serial_connection.is_open:
-                    logger.info('Closing serial after flash')
-                    self._serial_connection.close()
-                    logger.info('Waiting for USB to stabilize')
-                    time.sleep(2.0)  # USB stabilization
-                    logger.info('Reconnecting serial')
-                    self._connect_device()
-                    logger.info('Waiting for device boot')
-                    time.sleep(10.0)  # Extended wait for slow boards like iotdk
-                    logger.info('Ready to detect prompt')
+                    # Check if this is a very slow board that can't handle reconnection
+                    # iotdk has 144MHz CPU and needs 30-60s boot time
+                    is_very_slow_board = 'iotdk' in str(self.device_config.id).lower()
+                    
+                    if is_very_slow_board:
+                        logger.info('Very slow board detected - keeping serial connection open')
+                        logger.info('Waiting for extended boot time (20s)')
+                        time.sleep(20.0)  # Long wait for iotdk's slow 144MHz CPU
+                        logger.info('Ready to detect prompt')
+                    else:
+                        logger.info('Closing serial after flash')
+                        self._serial_connection.close()
+                        logger.info('Waiting for USB to stabilize')
+                        time.sleep(2.0)  # USB stabilization
+                        logger.info('Reconnecting serial')
+                        self._connect_device()
+                        logger.info('Waiting for device boot')
+                        time.sleep(10.0)  # Extended wait for slow boards like hsdk4xd
+                        logger.info('Ready to detect prompt')
             else:
                 msg = f'Could not flash device {self.device_config.id}'
                 logger.error(msg)
