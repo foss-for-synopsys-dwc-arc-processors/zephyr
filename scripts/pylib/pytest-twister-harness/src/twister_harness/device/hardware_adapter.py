@@ -157,7 +157,7 @@ class HardwareAdapter(DeviceAdapter):
                     logger.info('Reconnecting serial')
                     self._connect_device()
                     logger.info('Waiting for device boot')
-                    time.sleep(3.0)  # Give device time to boot
+                    time.sleep(10.0)  # Extended wait for slow boards like iotdk
                     logger.info('Ready to detect prompt')
             else:
                 msg = f'Could not flash device {self.device_config.id}'
