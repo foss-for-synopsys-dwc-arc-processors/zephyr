@@ -153,7 +153,9 @@ class HardwareAdapter(DeviceAdapter):
                 if self._serial_connection and self._serial_connection.is_open:
                     # Check if this is a very slow board that can't handle reconnection
                     # iotdk has 144MHz CPU and needs 30-60s boot time
-                    is_very_slow_board = 'iotdk' in str(self.device_config.id).lower()
+                    # Check build_dir path which contains board name (e.g., "iotdk_arc_iot")
+                    build_dir_str = str(self.device_config.build_dir).lower()
+                    is_very_slow_board = 'iotdk' in build_dir_str
                     
                     if is_very_slow_board:
                         logger.info('Very slow board detected - keeping serial connection open')
