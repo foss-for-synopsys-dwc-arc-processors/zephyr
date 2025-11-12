@@ -148,7 +148,11 @@ class HardwareAdapter(DeviceAdapter):
                 self._run_custom_script(self.device_config.post_flash_script, self.base_timeout)
             if process is not None and process.returncode == 0:
                 logger.debug('Flashing finished')
-                # No serial reconnection - keeping original connection open
+                # Reconnect serial after flash (USB device was reset)
+                if self._serial_connection and self._serial_connection.is_open:
+                    self._serial_connection.close()
+                    time.sleep(0.5)  # Brief pause for USB to stabilize
+                    self._connect_device()
             else:
                 msg = f'Could not flash device {self.device_config.id}'
                 logger.error(msg)
