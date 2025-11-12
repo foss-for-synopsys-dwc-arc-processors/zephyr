@@ -148,7 +148,7 @@ class HardwareAdapter(DeviceAdapter):
                 self._run_custom_script(self.device_config.post_flash_script, self.base_timeout)
             if process is not None and process.returncode == 0:
                 logger.debug('Flashing finished')
-                # WORKAROUND: Close and reopen serial connection after device reset
+                
                 # Close and reopen serial connection after device reset
                 logger.debug('Closing serial connection after flash...')
                 if self._serial_connection and self._serial_connection.is_open:
@@ -164,8 +164,21 @@ class HardwareAdapter(DeviceAdapter):
                 logger.debug('Serial connection reopened successfully')
                 
                 # Wait for device to boot and shell to initialize
-                logger.debug('Waiting for device boot and shell initialization...')
-                time.sleep(3)
+                # IoTDK (ARC EM @ 144MHz) requires longer boot time than HSDK (ARC HS)
+                boot_wait_time = 3  # default for fast boards
+                platform_boot_times = {
+                    'iotdk': 15,      # ARC EM @ 144MHz - slower boot
+                    'hsdk4xd': 5,     # ARC HS with 4 cores - may need extra time
+                    'hsdk': 3,        # ARC HS - fast boot
+                }
+                build_dir_str = str(self.device_config.build_dir).lower()
+                for platform, wait_time in platform_boot_times.items():
+                    if platform in build_dir_str:
+                        boot_wait_time = wait_time
+                        break
+                logger.debug(f'Waiting for device boot and shell initialization ({boot_wait_time}s)...')
+                time.sleep(boot_wait_time)
+
             else:
                 msg = f'Could not flash device {self.device_config.id}'
                 logger.error(msg)
