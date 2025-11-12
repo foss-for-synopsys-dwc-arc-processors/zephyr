@@ -78,7 +78,8 @@ def shell(dut: DeviceAdapter) -> Shell:
         shell.prompt = prompt
         logger.info(f'Shell prompt: {prompt!r}')
     logger.info('Waiting for prompt...')
-    if not shell.wait_for_prompt(timeout=20):
+    # Extended timeout for slow boards (iotdk) and multi-core boot (hsdk4xd)
+    if not shell.wait_for_prompt(timeout=30):
         pytest.fail('Prompt not found')
     logger.info('Prompt found!')
     if dut.device_config.type == 'hardware':
