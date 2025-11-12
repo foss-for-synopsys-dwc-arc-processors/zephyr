@@ -148,24 +148,31 @@ class HardwareAdapter(DeviceAdapter):
                 self._run_custom_script(self.device_config.post_flash_script, self.base_timeout)
             if process is not None and process.returncode == 0:
                 logger.debug('Flashing finished')
-                # WORKAROUND: Close and reopen serial connection after device reset
-                # Close and reopen serial connection after device reset
-                logger.debug('Closing serial connection after flash...')
+                
+                # DIAGNOSTIC: Serial reconnection with timing
+                logger.info('='*60)
+                logger.info('DIAGNOSTIC: Serial reconnection starting')
+                logger.info(f'Build dir: {self.device_config.build_dir}')
+                logger.info('='*60)
+                
+                logger.info('Closing serial connection after flash...')
                 if self._serial_connection and self._serial_connection.is_open:
                     self._serial_connection.close()
+                    logger.info('Serial closed successfully')
                 
-                # Wait for USB device to stabilize after reset
-                logger.debug('Waiting for USB device to stabilize...')
+                logger.info('Waiting 5s for USB stabilization...')
                 time.sleep(5)
                 
-                # Reopen serial connection with fresh state
-                logger.debug('Reopening serial connection...')
+                logger.info('Reopening serial connection...')
+                reopen_start = time.time()
                 self._connect_device()
-                logger.debug('Serial connection reopened successfully')
+                logger.info(f'Serial reopened in {time.time() - reopen_start:.2f}s')
                 
-                # Wait for device to boot and shell to initialize
-                logger.debug('Waiting for device boot and shell initialization...')
-                time.sleep(15)
+                logger.info('Waiting 10s for device boot...')
+                boot_start = time.time()
+                time.sleep(10)
+                logger.info(f'Boot wait complete after {time.time() - boot_start:.2f}s')
+                logger.info('='*60)
             else:
                 msg = f'Could not flash device {self.device_config.id}'
                 logger.error(msg)

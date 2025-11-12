@@ -37,17 +37,22 @@ class Shell:
         """
         timeout = timeout or self.base_timeout
         timeout_time = time.time() + timeout
+        start_time = time.time()
         self._device.clear_buffer()
         while time.time() < timeout_time:
+            elapsed = time.time() - start_time
+            logger.debug(f'Prompt check at {elapsed:.1f}s (timeout={timeout}s)')
             self._device.write(b'\n')
             try:
                 line = self._device.readline(timeout=0.5, print_output=False)
             except TwisterHarnessTimeoutException:
                 # ignore read timeout and try to send enter once again
                 continue
+            logger.debug(f'  Received: {line[:80]!r}')
             if self.prompt in line:
-                logger.debug('Got prompt')
+                logger.info(f'PROMPT DETECTED after {elapsed:.1f}s!')
                 return True
+        logger.error(f'Prompt NOT found after {time.time() - start_time:.1f}s')
         return False
 
     def exec_command(
