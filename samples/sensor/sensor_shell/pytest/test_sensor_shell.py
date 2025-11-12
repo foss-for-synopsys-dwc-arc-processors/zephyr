@@ -27,13 +27,10 @@ def test_sensor_shell_get(shell: Shell):
     logger.info(f'channel count: [{channel_count}]')
 
     logger.info('send "sensor get" command')
-    # Use longer timeout for individual channel queries on slower/SMP platforms
-    # hsdk4xd shows timeouts on channel 0 with default 20s timeout
-    query_timeout = 30.0  # increased from default 20.0
     for channel in range(channel_count):
         logger.info(f'channel {channel}')
         shell.wait_for_prompt()
-        lines = shell.exec_command(f'sensor get sensor@0 {channel}', timeout=query_timeout)
+        lines = shell.exec_command(f'sensor get sensor@0 {channel}')
         assert any([f'channel type={channel}' in line for line in lines]), 'expected response not found'
 
     logger.info('response is valid')

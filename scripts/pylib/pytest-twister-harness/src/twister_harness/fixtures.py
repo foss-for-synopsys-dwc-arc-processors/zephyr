@@ -72,20 +72,12 @@ def dut(request: pytest.FixtureRequest, device_object: DeviceAdapter) -> Generat
 @pytest.fixture(scope=determine_scope)
 def shell(dut: DeviceAdapter) -> Shell:
     """Return ready to use shell interface"""
-    # Platform-specific timeouts for shell prompt
-    timeout = 20.0  # default
-    build_dir_str = str(dut.device_config.app_build_dir).lower()
-    if 'iotdk' in build_dir_str:
-        timeout = 35.0  # IoTDK needs more time due to slower CPU (144MHz ARC EM)
-    elif 'hsdk4xd' in build_dir_str:
-        timeout = 30.0  # hsdk4xd might need more time for SMP initialization
-    
-    shell = Shell(dut, timeout=timeout)
+    shell = Shell(dut, timeout=20.0)
     if prompt := find_in_config(Path(dut.device_config.app_build_dir) / 'zephyr' / '.config',
                                 'CONFIG_SHELL_PROMPT_UART'):
         shell.prompt = prompt
-    logger.info(f'Wait for prompt (timeout={timeout}s)')
-    if not shell.wait_for_prompt(timeout=timeout):
+    logger.info('Wait for prompt')
+    if not shell.wait_for_prompt():
         pytest.fail('Prompt not found')
     if dut.device_config.type == 'hardware':
         # after booting up the device, there might appear additional logs
