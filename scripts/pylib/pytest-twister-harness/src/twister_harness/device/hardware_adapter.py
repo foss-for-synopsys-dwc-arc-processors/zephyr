@@ -148,34 +148,27 @@ class HardwareAdapter(DeviceAdapter):
                 self._run_custom_script(self.device_config.post_flash_script, self.base_timeout)
             if process is not None and process.returncode == 0:
                 logger.debug('Flashing finished')
-                # Check board type first
-                build_dir_str = str(self.device_config.build_dir).lower()
-                is_iotdk = 'iotdk' in build_dir_str
-                
-                # IOTDK: Don't reconnect - USB may not reset or serial stays valid
-                # Diagnostic shows NO data when reconnecting, suggesting serial is dead
-                if is_iotdk:
-                    logger.info('IOTDK detected - keeping existing serial connection')
-                    logger.info('Clearing buffers and waiting for boot')
-                    if self._serial_connection and self._serial_connection.is_open:
-                        self._serial_connection.reset_input_buffer()
-                        self._serial_connection.reset_output_buffer()
-                    # Wait for device to boot after flash
-                    boot_wait = 60.0
-                    logger.info(f'Waiting for device boot ({boot_wait}s)')
-                    time.sleep(boot_wait)
-                    logger.info('Ready to detect prompt')
-                # Other boards: Reconnect serial after flash (USB device was reset during flashing)
-                elif self._serial_connection and self._serial_connection.is_open:
+                # Reconnect serial after flash (USB device was reset during flashing)
+                # All boards need reconnection to get fresh file descriptor
+                if self._serial_connection and self._serial_connection.is_open:
                     logger.info('Closing serial after flash')
                     self._serial_connection.close()
-                    usb_wait = 2.0
+                    # Check board type for timing
+                    build_dir_str = str(self.device_config.build_dir).lower()
+                    is_iotdk = 'iotdk' in build_dir_str
+                    
+                    # IOTDK needs longer USB stabilization - diagnostic showed it needs time
+                    usb_wait = 10.0 if is_iotdk else 2.0
                     logger.info(f'Waiting for USB to stabilize ({usb_wait}s)')
                     time.sleep(usb_wait)
                     logger.info('Reconnecting serial')
                     self._connect_device()
-                    # ARC boards need substantial boot time after USB reset
-                    boot_wait = 20.0
+                    
+                    # IOTDK: Don't send anything, just wait for boot
+                    # Diagnostic showed board doesn't output boot messages
+                    # and responds very slowly to input (38+ seconds for first byte)
+                    # Other ARC boards: Need substantial boot time after USB reset
+                    boot_wait = 60.0 if is_iotdk else 20.0
                     logger.info(f'Waiting for device boot ({boot_wait}s)')
                     time.sleep(boot_wait)
                     logger.info('Ready to detect prompt')
