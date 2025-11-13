@@ -164,11 +164,22 @@ class HardwareAdapter(DeviceAdapter):
                     logger.info('Reconnecting serial')
                     self._connect_device()
                     
-                    # IOTDK: Don't send anything, just wait for boot
-                    # Diagnostic showed board doesn't output boot messages
-                    # and responds very slowly to input (38+ seconds for first byte)
+                    # IOTDK: Try hardware reset via DTR/RTS (diagnostic that worked had this)
+                    if is_iotdk:
+                        logger.info('IOTDK: Attempting hardware reset via DTR/RTS')
+                        try:
+                            self._serial_connection.dtr = False
+                            self._serial_connection.rts = False
+                            time.sleep(0.1)
+                            self._serial_connection.dtr = True
+                            self._serial_connection.rts = True
+                            logger.info('IOTDK: DTR/RTS toggle complete')
+                        except Exception as e:
+                            logger.warning(f'IOTDK: DTR/RTS toggle failed: {e}')
+                    
+                    # IOTDK: Minimal wait - shell's wait_for_prompt will start probing immediately
                     # Other ARC boards: Need substantial boot time after USB reset
-                    boot_wait = 60.0 if is_iotdk else 20.0
+                    boot_wait = 0.5 if is_iotdk else 20.0
                     logger.info(f'Waiting for device boot ({boot_wait}s)')
                     time.sleep(boot_wait)
                     logger.info('Ready to detect prompt')

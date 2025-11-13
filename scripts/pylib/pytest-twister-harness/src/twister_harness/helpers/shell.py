@@ -54,8 +54,10 @@ class Shell:
         send_interval = 5.0 if is_very_slow_board else 0.5
         read_timeout = 5.0 if is_very_slow_board else 0.5
         last_send_time = 0
+        start_time = time.time()
+        newline_count = 0
         
-        logger.info(f'Waiting for prompt (send interval: {send_interval}s, read timeout: {read_timeout}s)')
+        logger.info(f'Waiting for prompt (send interval: {send_interval}s, read timeout: {read_timeout}s, timeout: {timeout}s)')
         
         while time.time() < timeout_time:
             current_time = time.time()
@@ -64,20 +66,25 @@ class Shell:
             if current_time - last_send_time >= send_interval:
                 self._device.write(b'\n')
                 last_send_time = current_time
-                logger.debug(f'Sent newline, waiting {read_timeout}s for response')
+                newline_count += 1
+                elapsed = current_time - start_time
+                logger.debug(f'[{elapsed:.1f}s] Sent newline #{newline_count}, waiting {read_timeout}s for response')
             
             try:
                 line = self._device.readline(timeout=read_timeout, print_output=False)
+                # Log any data received
+                if line:
+                    elapsed = time.time() - start_time
+                    logger.info(f'[{elapsed:.1f}s] Received: {line[:80]!r}')
+                    if self.prompt in line:
+                        logger.info(f'Got prompt after {elapsed:.1f}s!')
+                        return True
             except TwisterHarnessTimeoutException:
                 # ignore read timeout and try to send enter once again
                 continue
-            
-            logger.debug(f'Received: {line[:80]!r}')
-            if self.prompt in line:
-                logger.info('Got prompt!')
-                return True
         
-        logger.error(f'Prompt not found after {timeout}s timeout')
+        elapsed = time.time() - start_time
+        logger.error(f'Prompt not found after {elapsed:.1f}s (sent {newline_count} newlines)')
         return False
 
     def exec_command(

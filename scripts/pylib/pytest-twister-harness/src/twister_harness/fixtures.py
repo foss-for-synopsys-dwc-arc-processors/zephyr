@@ -72,11 +72,11 @@ def dut(request: pytest.FixtureRequest, device_object: DeviceAdapter) -> Generat
 @pytest.fixture(scope=determine_scope)
 def shell(dut: DeviceAdapter) -> Shell:
     """Return ready to use shell interface"""
-    # IOTDK needs longer timeout as it boots slowly
-    # Not reconnecting serial, so prompt should appear after boot completes
+    # IOTDK needs much longer timeout - diagnostic showed first response at 38.5s
+    # With 5s send intervals, need 90-120s to ensure we cover the boot period
     build_dir_str = str(dut.device_config.build_dir).lower()
     is_very_slow_board = 'iotdk' in build_dir_str
-    shell_timeout = 60.0 if is_very_slow_board else 20.0
+    shell_timeout = 120.0 if is_very_slow_board else 20.0
     
     shell = Shell(dut, timeout=shell_timeout)
     if prompt := find_in_config(Path(dut.device_config.app_build_dir) / 'zephyr' / '.config',
