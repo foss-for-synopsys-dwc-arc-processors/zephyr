@@ -153,8 +153,12 @@ class HardwareAdapter(DeviceAdapter):
                 if self._serial_connection and self._serial_connection.is_open:
                     logger.info('Closing serial after flash')
                     self._serial_connection.close()
-                    logger.info('Waiting for USB to stabilize')
-                    time.sleep(2.0)  # USB stabilization wait
+                    # IOTDK needs longer USB stabilization time
+                    build_dir_str = str(self.device_config.build_dir).lower()
+                    is_iotdk = 'iotdk' in build_dir_str
+                    usb_wait = 5.0 if is_iotdk else 2.0
+                    logger.info(f'Waiting for USB to stabilize ({usb_wait}s)')
+                    time.sleep(usb_wait)
                     logger.info('Reconnecting serial')
                     self._connect_device()
                     # Very slow boards like iotdk (144MHz) need longer boot time
@@ -183,6 +187,14 @@ class HardwareAdapter(DeviceAdapter):
     def _connect_device(self) -> None:
         serial_name = self._open_serial_pty() or self.device_config.serial
         logger.debug('Opening serial connection for %s', serial_name)
+        
+        # Check if device exists
+        if serial_name and serial_name.startswith('/dev/'):
+            if os.path.exists(serial_name):
+                logger.debug(f'Serial device {serial_name} exists')
+            else:
+                logger.error(f'Serial device {serial_name} does NOT exist!')
+        
         try:
             self._serial_connection = serial.Serial(
                 serial_name,
@@ -197,6 +209,7 @@ class HardwareAdapter(DeviceAdapter):
             self._close_serial_pty()
             raise
 
+        logger.debug(f'Serial connection opened successfully: DTR={self._serial_connection.dtr}, RTS={self._serial_connection.rts}')
         self._serial_connection.flush()
         self._serial_connection.reset_input_buffer()
         self._serial_connection.reset_output_buffer()
@@ -206,17 +219,46 @@ class HardwareAdapter(DeviceAdapter):
         Diagnostic function for IOTDK to understand boot timing and communication
         This runs immediately after reconnection to capture real boot behavior
         """
-        logger.info('Starting IOTDK boot diagnostic (90 seconds)...')
+        logger.info('Starting IOTDK boot diagnostic (120 seconds)...')
         logger.info('This will help identify the actual boot timing')
+        
+        # Try hardware reset via DTR/RTS signals
+        logger.info('DIAGNOSTIC: Attempting hardware reset via DTR/RTS...')
+        try:
+            self._serial_connection.dtr = False
+            self._serial_connection.rts = False
+            time.sleep(0.1)
+            self._serial_connection.dtr = True
+            self._serial_connection.rts = True
+            time.sleep(0.5)
+            logger.info('DIAGNOSTIC: DTR/RTS toggle complete')
+        except Exception as e:
+            logger.warning(f'DIAGNOSTIC: DTR/RTS toggle failed: {e}')
+        
+        # Try sending break signal
+        logger.info('DIAGNOSTIC: Attempting break signal...')
+        try:
+            self._serial_connection.send_break(duration=0.25)
+            time.sleep(0.5)
+            logger.info('DIAGNOSTIC: Break signal sent')
+        except Exception as e:
+            logger.warning(f'DIAGNOSTIC: Break signal failed: {e}')
+        
+        # Check serial port parameters
+        logger.info(f'DIAGNOSTIC: Serial port: {self._serial_connection.port}')
+        logger.info(f'DIAGNOSTIC: Baud rate: {self._serial_connection.baudrate}')
+        logger.info(f'DIAGNOSTIC: Is open: {self._serial_connection.is_open}')
+        logger.info(f'DIAGNOSTIC: DTR: {self._serial_connection.dtr}, RTS: {self._serial_connection.rts}')
         
         start_time = time.time()
         all_data = bytearray()
         first_data_time = None
         prompt_found_time = None
         data_chunks = []
+        last_newline_time = 0
         
-        # Listen for 90 seconds to capture full boot sequence
-        while time.time() - start_time < 90:
+        # Listen for 120 seconds to capture full boot sequence
+        while time.time() - start_time < 120:
             if self._serial_connection.in_waiting > 0:
                 chunk_time = time.time() - start_time
                 data = self._serial_connection.read(self._serial_connection.in_waiting)
@@ -236,8 +278,17 @@ class HardwareAdapter(DeviceAdapter):
                     prompt_found_time = chunk_time
                     logger.info(f'DIAGNOSTIC: *** PROMPT FOUND at {prompt_found_time:.1f}s! ***')
             else:
-                # Log progress every 10 seconds
+                # Try sending newlines periodically to trigger output
                 elapsed = time.time() - start_time
+                if elapsed - last_newline_time >= 5.0:
+                    try:
+                        self._serial_connection.write(b'\n')
+                        last_newline_time = elapsed
+                        logger.debug(f'DIAGNOSTIC: [{elapsed:6.1f}s] Sent newline')
+                    except Exception as e:
+                        logger.warning(f'DIAGNOSTIC: Write failed: {e}')
+                
+                # Log progress every 10 seconds
                 if int(elapsed) % 10 == 0 and elapsed - int(elapsed) < 0.1:
                     logger.info(f'DIAGNOSTIC: [{elapsed:6.1f}s] Waiting... (total bytes: {len(all_data)})')
                 time.sleep(0.5)
@@ -245,7 +296,7 @@ class HardwareAdapter(DeviceAdapter):
         # Summary
         logger.info('=' * 80)
         logger.info('IOTDK DIAGNOSTIC SUMMARY:')
-        logger.info(f'  Total time: 90.0s')
+        logger.info(f'  Total time: 120.0s')
         logger.info(f'  Total data received: {len(all_data)} bytes')
         logger.info(f'  First data at: {first_data_time if first_data_time else "NEVER"}')
         logger.info(f'  Prompt found at: {prompt_found_time if prompt_found_time else "NOT FOUND"}')
