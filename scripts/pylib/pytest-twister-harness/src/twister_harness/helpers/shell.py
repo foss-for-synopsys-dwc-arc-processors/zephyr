@@ -40,7 +40,6 @@ class Shell:
         """
         timeout = timeout or self.base_timeout
         timeout_time = time.time() + timeout
-        self._device.clear_buffer()
         
         # IOTDK is extremely slow - takes 38+ seconds to respond to first newline
         # Send newlines less frequently to give it time to respond
@@ -51,13 +50,42 @@ class Shell:
         except:
             is_very_slow_board = False
         
+        # For IOTDK, read any pending data before starting
+        # (board might have already output prompt during boot wait)
+        if is_very_slow_board:
+            try:
+                logger.info('Reading any pending boot output...')
+                pending = ""
+                while True:
+                    try:
+                        chunk = self._device.readline(timeout=0.1, print_output=False)
+                        if chunk:
+                            pending += chunk
+                            logger.debug(f'Pending data: {chunk[:80]!r}')
+                    except TwisterHarnessTimeoutException:
+                        break
+                if pending:
+                    logger.info(f'Found pending output ({len(pending)} chars): {pending[:200]!r}')
+                    if self.prompt in pending:
+                        logger.info('Prompt already in pending output!')
+                        return True
+            except Exception as e:
+                logger.warning(f'Error reading pending data: {e}')
+        
+        self._device.clear_buffer()
+        
         send_interval = 5.0 if is_very_slow_board else 0.5
         read_timeout = 5.0 if is_very_slow_board else 0.5
         last_send_time = 0
         start_time = time.time()
         newline_count = 0
+        accumulated_output = ""  # Accumulate output for IOTDK fragmented responses
         
         logger.info(f'Waiting for prompt (send interval: {send_interval}s, read timeout: {read_timeout}s, timeout: {timeout}s)')
+        
+        # For IOTDK: Read more frequently (0.5s) but send newlines less frequently (5s)
+        # This ensures we don't miss fragmented output
+        actual_read_timeout = 0.5 if is_very_slow_board else read_timeout
         
         while time.time() < timeout_time:
             current_time = time.time()
@@ -68,23 +96,32 @@ class Shell:
                 last_send_time = current_time
                 newline_count += 1
                 elapsed = current_time - start_time
-                logger.debug(f'[{elapsed:.1f}s] Sent newline #{newline_count}, waiting {read_timeout}s for response')
+                logger.debug(f'[{elapsed:.1f}s] Sent newline #{newline_count}')
             
             try:
-                line = self._device.readline(timeout=read_timeout, print_output=False)
+                line = self._device.readline(timeout=actual_read_timeout, print_output=False)
                 # Log any data received
                 if line:
                     elapsed = time.time() - start_time
+                    accumulated_output += line
                     logger.info(f'[{elapsed:.1f}s] Received: {line[:80]!r}')
-                    if self.prompt in line:
+                    
+                    # Check both current line and accumulated output for prompt
+                    # (IOTDK sends data in fragments)
+                    if self.prompt in line or self.prompt in accumulated_output:
                         logger.info(f'Got prompt after {elapsed:.1f}s!')
+                        if is_very_slow_board:
+                            logger.info(f'Accumulated output: {accumulated_output[:200]!r}')
                         return True
             except TwisterHarnessTimeoutException:
-                # ignore read timeout and try to send enter once again
+                # ignore read timeout and continue checking
                 continue
         
         elapsed = time.time() - start_time
         logger.error(f'Prompt not found after {elapsed:.1f}s (sent {newline_count} newlines)')
+        if is_very_slow_board and accumulated_output:
+            logger.error(f'Accumulated output: {accumulated_output[:200]!r}')
+            logger.error(f'Looking for prompt: {self.prompt!r}')
         return False
 
     def exec_command(
