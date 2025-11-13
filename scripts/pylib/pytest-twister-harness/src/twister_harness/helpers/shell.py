@@ -64,20 +64,27 @@ class Shell:
         regex_prompt = re.escape(self.prompt)
         regex_command = f'.*{re.escape(command)}'
         self._device.clear_buffer()
+        logger.debug(f'Sending command: {command!r} (timeout={timeout}s)')
         self._device.write(command_ext.encode())
         lines: list[str] = []
         # wait for device command print - it should be done immediately after sending command to device
+        start_time = time.time()
         lines.extend(
             self._device.readlines_until(
                 regex=regex_command, timeout=1.0, print_output=print_output
             )
         )
+        echo_time = time.time() - start_time
+        logger.debug(f'Command echoed back after {echo_time:.2f}s')
         # wait for device command execution
+        exec_start = time.time()
         lines.extend(
             self._device.readlines_until(
                 regex=regex_prompt, timeout=timeout, print_output=print_output
             )
         )
+        exec_time = time.time() - exec_start
+        logger.debug(f'Command execution completed after {exec_time:.2f}s')
         return lines
 
     def get_filtered_output(self, command_lines: list[str]) -> list[str]:

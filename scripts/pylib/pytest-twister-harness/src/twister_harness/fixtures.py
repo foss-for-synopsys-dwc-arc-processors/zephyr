@@ -72,7 +72,10 @@ def dut(request: pytest.FixtureRequest, device_object: DeviceAdapter) -> Generat
 @pytest.fixture(scope=determine_scope)
 def shell(dut: DeviceAdapter) -> Shell:
     """Return ready to use shell interface"""
-    shell = Shell(dut, timeout=20.0)
+    # HSDK4XD needs much longer timeout due to SMP-related delays in sensor enumeration
+    is_hsdk4xd = 'hsdk4xd' in dut.device_config.platform
+    shell_timeout = 180.0 if is_hsdk4xd else 20.0
+    shell = Shell(dut, timeout=shell_timeout)
     if prompt := find_in_config(Path(dut.device_config.app_build_dir) / 'zephyr' / '.config',
                                 'CONFIG_SHELL_PROMPT_UART'):
         shell.prompt = prompt
