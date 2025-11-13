@@ -158,11 +158,11 @@ class HardwareAdapter(DeviceAdapter):
                     logger.info('Reconnecting serial')
                     self._connect_device()
                     # Very slow boards like iotdk (144MHz) need longer boot time
-                    # iotdk needs 50+ seconds before any UART output appears!
+                    # iotdk needs 45-50 seconds before any UART output appears!
                     # Check build_dir path which contains board name (e.g., "iotdk_arc_iot")
                     build_dir_str = str(self.device_config.build_dir).lower()
                     is_very_slow_board = 'iotdk' in build_dir_str
-                    boot_wait = 50.0 if is_very_slow_board else 3.0
+                    boot_wait = 45.0 if is_very_slow_board else 3.0
                     logger.info(f'Waiting for device boot ({boot_wait}s)')
                     time.sleep(boot_wait)
                     logger.info('Ready to detect prompt')

@@ -79,11 +79,11 @@ def shell(dut: DeviceAdapter) -> Shell:
         logger.info(f'Shell prompt: {prompt!r}')
     logger.info('Waiting for prompt...')
     # Extended timeout for very slow boards (iotdk 144MHz CPU needs more time)
-    # After 50s boot wait, iotdk should transmit soon, but give extra margin
-    # Other boards should be ready quickly after 3s boot wait
+    # iotdk: After 45s boot wait, data appears around 9-10s, full boot takes 35-40s
+    # Other boards: Ready quickly after 3s boot wait
     build_dir_str = str(dut.device_config.build_dir).lower()
     is_very_slow_board = 'iotdk' in build_dir_str
-    timeout = 30 if is_very_slow_board else 40
+    timeout = 50 if is_very_slow_board else 40
     if not shell.wait_for_prompt(timeout=timeout):
         pytest.fail('Prompt not found')
     logger.info('Prompt found!')
