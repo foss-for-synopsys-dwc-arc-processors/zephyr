@@ -148,6 +148,33 @@ class HardwareAdapter(DeviceAdapter):
                 self._run_custom_script(self.device_config.post_flash_script, self.base_timeout)
             if process is not None and process.returncode == 0:
                 logger.debug('Flashing finished')
+                # Reconnect serial after flash (USB device was reset during flashing)
+                # All boards need reconnection to get fresh file descriptor
+                if self._serial_connection and self._serial_connection.is_open:
+                    logger.info('Closing serial after flash')
+                    self._serial_connection.close()
+                    logger.info('Waiting for USB to stabilize')
+                    time.sleep(2.0)  # USB stabilization wait
+                    logger.info('Reconnecting serial')
+                    self._connect_device()
+                    # Very slow boards like iotdk (144MHz) need longer boot time
+                    # iotdk: First data appears at ~55s, full boot takes 90-100s total
+                    # After USB reset, ALL ARC boards need substantial boot time
+                    # Check build_dir path which contains board name (e.g., "iotdk_arc_iot")
+                    build_dir_str = str(self.device_config.build_dir).lower()
+                    is_very_slow_board = 'iotdk' in build_dir_str
+                    
+                    # Run diagnostic for IOTDK to understand boot behavior
+                    if is_very_slow_board:
+                        logger.info('=== IOTDK DIAGNOSTIC MODE ===')
+                        self._diagnose_iotdk_boot()
+                    
+                    # iotdk needs 60s boot wait so data starts arriving, then 60s for full boot
+                    # Other ARC boards need 20s boot wait for safety
+                    boot_wait = 60.0 if is_very_slow_board else 20.0
+                    logger.info(f'Waiting for device boot ({boot_wait}s)')
+                    time.sleep(boot_wait)
+                    logger.info('Ready to detect prompt')
             else:
                 msg = f'Could not flash device {self.device_config.id}'
                 logger.error(msg)
@@ -173,6 +200,85 @@ class HardwareAdapter(DeviceAdapter):
         self._serial_connection.flush()
         self._serial_connection.reset_input_buffer()
         self._serial_connection.reset_output_buffer()
+
+    def _diagnose_iotdk_boot(self) -> None:
+        """
+        Diagnostic function for IOTDK to understand boot timing and communication
+        This runs immediately after reconnection to capture real boot behavior
+        """
+        logger.info('Starting IOTDK boot diagnostic (90 seconds)...')
+        logger.info('This will help identify the actual boot timing')
+        
+        start_time = time.time()
+        all_data = bytearray()
+        first_data_time = None
+        prompt_found_time = None
+        data_chunks = []
+        
+        # Listen for 90 seconds to capture full boot sequence
+        while time.time() - start_time < 90:
+            if self._serial_connection.in_waiting > 0:
+                chunk_time = time.time() - start_time
+                data = self._serial_connection.read(self._serial_connection.in_waiting)
+                
+                if first_data_time is None:
+                    first_data_time = chunk_time
+                    logger.info(f'DIAGNOSTIC: First data received at {first_data_time:.1f}s')
+                
+                all_data.extend(data)
+                data_chunks.append((chunk_time, len(data)))
+                
+                # Log every data arrival
+                logger.info(f'DIAGNOSTIC: [{chunk_time:6.1f}s] +{len(data):4d} bytes (total: {len(all_data):5d})')
+                
+                # Check if prompt appeared
+                if prompt_found_time is None and b'uart:~$' in all_data:
+                    prompt_found_time = chunk_time
+                    logger.info(f'DIAGNOSTIC: *** PROMPT FOUND at {prompt_found_time:.1f}s! ***')
+            else:
+                # Log progress every 10 seconds
+                elapsed = time.time() - start_time
+                if int(elapsed) % 10 == 0 and elapsed - int(elapsed) < 0.1:
+                    logger.info(f'DIAGNOSTIC: [{elapsed:6.1f}s] Waiting... (total bytes: {len(all_data)})')
+                time.sleep(0.5)
+        
+        # Summary
+        logger.info('=' * 80)
+        logger.info('IOTDK DIAGNOSTIC SUMMARY:')
+        logger.info(f'  Total time: 90.0s')
+        logger.info(f'  Total data received: {len(all_data)} bytes')
+        logger.info(f'  First data at: {first_data_time if first_data_time else "NEVER"}')
+        logger.info(f'  Prompt found at: {prompt_found_time if prompt_found_time else "NOT FOUND"}')
+        logger.info(f'  Number of data chunks: {len(data_chunks)}')
+        
+        if all_data:
+            # Show first and last data for analysis
+            logger.info(f'  First 100 bytes: {repr(bytes(all_data[:100]))}')
+            logger.info(f'  Last 100 bytes: {repr(bytes(all_data[-100:]))}')
+            
+            # Check for prompt pattern
+            if b'uart:~$' in all_data:
+                prompt_pos = all_data.find(b'uart:~$')
+                logger.info(f'  Prompt position: byte {prompt_pos}')
+                context_start = max(0, prompt_pos - 50)
+                context_end = min(len(all_data), prompt_pos + 50)
+                logger.info(f'  Prompt context: {repr(bytes(all_data[context_start:context_end]))}')
+            else:
+                logger.warning('  WARNING: Prompt pattern "uart:~$" NOT found!')
+            
+            # Save diagnostic output
+            diag_file = self.device_config.build_dir / 'iotdk_diagnostic.bin'
+            try:
+                with open(diag_file, 'wb') as f:
+                    f.write(all_data)
+                logger.info(f'  Diagnostic data saved to: {diag_file}')
+            except Exception as e:
+                logger.warning(f'  Could not save diagnostic data: {e}')
+        else:
+            logger.error('  ERROR: NO DATA RECEIVED AT ALL!')
+        
+        logger.info('=' * 80)
+        logger.info('DIAGNOSTIC COMPLETE - Continuing with normal boot wait...')
 
     def _open_serial_pty(self) -> str | None:
         """Open a pty pair, run process and return tty name"""
