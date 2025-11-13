@@ -34,20 +34,50 @@ class Shell:
         Send every 0.5 second "enter" command to the device until shell prompt
         statement will occur (return True) or timeout will be exceeded (return
         False).
+        
+        For very slow boards (IOTDK), wait longer between sends as they can take
+        30+ seconds to respond to first input.
         """
         timeout = timeout or self.base_timeout
         timeout_time = time.time() + timeout
         self._device.clear_buffer()
+        
+        # IOTDK is extremely slow - takes 38+ seconds to respond to first newline
+        # Send newlines less frequently to give it time to respond
+        # Check if this is IOTDK by looking at build dir
+        try:
+            build_dir_str = str(self._device.device_config.build_dir).lower()
+            is_very_slow_board = 'iotdk' in build_dir_str
+        except:
+            is_very_slow_board = False
+        
+        send_interval = 5.0 if is_very_slow_board else 0.5
+        read_timeout = 5.0 if is_very_slow_board else 0.5
+        last_send_time = 0
+        
+        logger.info(f'Waiting for prompt (send interval: {send_interval}s, read timeout: {read_timeout}s)')
+        
         while time.time() < timeout_time:
-            self._device.write(b'\n')
+            current_time = time.time()
+            
+            # Send newline at intervals
+            if current_time - last_send_time >= send_interval:
+                self._device.write(b'\n')
+                last_send_time = current_time
+                logger.debug(f'Sent newline, waiting {read_timeout}s for response')
+            
             try:
-                line = self._device.readline(timeout=0.5, print_output=False)
+                line = self._device.readline(timeout=read_timeout, print_output=False)
             except TwisterHarnessTimeoutException:
                 # ignore read timeout and try to send enter once again
                 continue
+            
+            logger.debug(f'Received: {line[:80]!r}')
             if self.prompt in line:
-                logger.debug('Got prompt')
+                logger.info('Got prompt!')
                 return True
+        
+        logger.error(f'Prompt not found after {timeout}s timeout')
         return False
 
     def exec_command(
