@@ -256,7 +256,7 @@ This test runs before any UART activity, ensuring the interrupt path is working 
 
 - **Board**: qemu_riscv32_aia
 - **QEMU**: Build with AIA support (virt,aia=aplic-imsic)
-- **Zephyr**: AIA drivers enabled (CONFIG_RISCV_HAS_APLIC + CONFIG_RISCV_HAS_IMSIC)
+- **Zephyr**: AIA drivers enabled (CONFIG_RISCV_APLIC_MSI + CONFIG_RISCV_IMSIC)
 
 ## Use Case: Driver Development
 
