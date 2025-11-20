@@ -3,11 +3,21 @@
 / {
 	iccm0: memory@0 {
 		device_type = "memory";
-		reg = <0x0 0x40000>; /* 256 KB ICCM */
+		reg = <0x0 0x80000>; /* 512 KB ICCM */
 	};
 
-	dccm0: memory@80000000 {
+	dccm0: memory@100000 {
 		device_type = "memory";
-		reg = <0x80000000 0x40000>; /* 256 KB DCCM */
+		reg = <0x100000 0x100000>; /* 1 MB DCCM */
+	};
+
+	sram: memory@10000000 {
+		device_type = "memory";
+		reg = <0x10000000 0x100000>; /* 1 MB */
+	};
+
+	ddr0: memory@80000000 {
+		device_type = "memory";
+		reg = <0x80000000 0x80000000>; /* 2 GB */
 	};
 };

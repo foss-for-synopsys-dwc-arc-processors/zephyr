@@ -3,23 +3,28 @@
     nsim_isa_rv_marchid=0x80000401
     nsim_isa_rv_mimpid=0x10100
     nsim_isa_unaligned_option=1
-    nsim_isa_ext=-all.i.zicsr.zifencei.zihintpause.a.zca.m.u.zcb.zcmp.zcmt.zba.zbb.zbs.zicond.zfinx.zdinx.zicbom.zicbop
-    nsim_isa_ext=+xarcvudsp
+    nsim_isa_ext=-all.i.zicsr.zifencei.zihintpause.a.zca.m.s.u.zcb.zcmp.zcmt.zba.zbb.zbs.zicond.zicbom.zicbop
     nsim_rv_reset_pc=0x0
-    nsim_isa_mpy_option=1c
+    nsim_rv_reset_pc_ext=1
+    nsim_isa_mpy_option=10c
     iccm0_base=0x0
-    iccm0_size=0x40000
-    dccm_base=0x80000000
-    dccm_size=0x40000
+    iccm0_size=0x80000
+    dccm_base=0x100000
+    dccm_size=0x100000
     nsim_isa_dccm_mem_cycles=1
-    icache=0x4000,64,2,a
+    icache=0x4000,32,2,a
     nsim_isa_ic_version=1
-    nsim_mmio_base=0xe00
-    nsim_mem-interface=ARCV_PMP,num_regions=8,granule=4
+    nsim_mmio_base=3584
+    nsim_mem-interface=ARCV_PMP,num_regions=4,granule=1
+    nsim_mem-interface=ARCV_SPMP,num_regions=8,granule=3,icsr_base=0x4
     nsim_rtia_hart_major_prio=1
     nsim_rtia_hart_major_prio_width=6
-    nsim_isa_ext=+xarcvstsp.xarcvsnvi.-sstc
-    nsim_isa_ext=+smrnmi
+    nsim_isa_ext=+xarcvtsp.xarcvnvi.-sstc
+    nsim_rtia_imsic_m_mode_file=1
+    nsim_rtia_imsic_m_file_size=64
+    nsim_rtia_imsic_s_mode_file=1
+    nsim_rtia_imsic_s_file_size=64
+    nsim_rtia_delivery=DMSI
     nsim_rnmi_vec_ext=1
     nsim_rnmi_int_vec=0x100
     nsim_semihosting=1
