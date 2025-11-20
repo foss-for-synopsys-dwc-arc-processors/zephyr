@@ -6,7 +6,7 @@ config SOC_SERIES_NSIM_ARC_V_RMX
 
 	select RISCV
 	select RISCV_PRIVILEGED
-	select RISCV_ISA_RV32I
+	select RISCV_ISA_RV32E
 	select RISCV_ISA_EXT_M
 	select RISCV_ISA_EXT_A
 	select RISCV_ISA_EXT_C
