@@ -27,6 +27,9 @@ class LldbacBinaryRunner(ZephyrBinaryRunner):
         gui=False,
         gdb_host=None,
         gdb_port=DEFAULT_LLDBAC_GDB_PORT,
+        postconnect_cmds=None,
+        postconnect_file=None,
+        board_json=None,
     ):
         super().__init__(cfg)
 
@@ -49,6 +52,9 @@ class LldbacBinaryRunner(ZephyrBinaryRunner):
         self.gui = gui
         self.gdb_host = gdb_host
         self.gdb_port = gdb_port
+        self.postconnect_cmds = postconnect_cmds or []
+        self.postconnect_file = postconnect_file
+        self.board_json = board_json
 
     @classmethod
     def name(cls):
@@ -102,6 +108,23 @@ class LldbacBinaryRunner(ZephyrBinaryRunner):
         # Common options
         parser.add_argument('--gui', action='store_true', help='Launch VS Code GUI for debugging')
 
+        # Postconnect options
+        parser.add_argument(
+            '--postconnect-cmd',
+            action='append',
+            help='Command to execute after connection (can be used multiple times)',
+        )
+        parser.add_argument(
+            '--postconnect-file',
+            help='File containing commands to execute after connection',
+        )
+
+        # Board configuration
+        parser.add_argument(
+            '--board-json',
+            help='Path to board.json file for board configuration',
+        )
+
     @classmethod
     def do_create(cls, cfg, args):
         return LldbacBinaryRunner(
@@ -115,6 +138,9 @@ class LldbacBinaryRunner(ZephyrBinaryRunner):
             gui=args.gui,
             gdb_host=args.gdb_host,
             gdb_port=args.gdb_port,
+            postconnect_cmds=args.postconnect_cmd,
+            postconnect_file=args.postconnect_file,
+            board_json=args.board_json,
         )
 
     def do_run(self, command, **kwargs):
@@ -138,34 +164,35 @@ class LldbacBinaryRunner(ZephyrBinaryRunner):
                 "'west flash --runner arc-nsim'"
             )
 
-        if not self.jtag_device:
-            raise ValueError(
-                "Hardware flash requires --jtag-device. Example:\n"
-                "  west flash --runner lldbac --jtag-device=JtagHs2"
-            )
-
         # Require run-lldbac for flash
         self.require(self.run_lldbac_cmd)
 
-        # Build platform connect command
-        connect_cmd = self._build_platform_connect_cmd()
-
-        # Create run-lldbac script for hardware flash
+        # Create run-lldbac command for hardware flash
         lldbac_cmd = [
             self.run_lldbac_cmd,
             '--batch',  # Exit after executing commands
-            '-o',
-            connect_cmd,
-            '-o',
-            'run',
         ]
+
+        # Use board.json if provided, otherwise build core properties
+        if self.board_json:
+            lldbac_cmd.extend(['--cores-json', self.board_json])
+            self.logger.info(f"Using board configuration from: {self.board_json}")
+        else:
+            # Build core properties for hardware connection
+            core_props = self._build_core_properties_for_hardware()
+            lldbac_cmd.extend(['--core', core_props])
+
+        # Add postconnect commands
+        lldbac_cmd.extend(self._build_postconnect_args())
+
+        lldbac_cmd.extend(['-o', 'c'])
 
         if self.gui:
             lldbac_cmd.append('--gui')
 
         lldbac_cmd.append(self.cfg.elf_file)
 
-        self.logger.info(f"Flashing to hardware (JTAG: {self.jtag}, device: {self.jtag_device})")
+        self.logger.info(f"Flashing to hardware (JTAG: {self.jtag})")
         self.check_call(lldbac_cmd)
 
     def do_debug_integrated(self, **kwargs):
@@ -175,7 +202,11 @@ class LldbacBinaryRunner(ZephyrBinaryRunner):
 
         lldbac_cmd = [self.run_lldbac_cmd]
 
-        if self.simulator:
+        # Use board.json if provided (works for both simulator and hardware)
+        if self.board_json:
+            lldbac_cmd.extend(['--cores-json', self.board_json])
+            self.logger.info(f"Using board configuration from: {self.board_json}")
+        elif self.simulator:
             # Simulator mode: use --nsim or --tcf
             if self.tcf:
                 lldbac_cmd.extend(['--tcf', self.tcf])
@@ -186,19 +217,16 @@ class LldbacBinaryRunner(ZephyrBinaryRunner):
                 lldbac_cmd.extend(['--nsim', nsim_props_string])
                 self.logger.info(f"Starting integrated simulator debug (props: {nsim_props_file})")
         else:
-            # Hardware mode: use platform connect
-            if not self.jtag_device:
-                raise ValueError(
-                    "Hardware debug requires --jtag-device. Example:\n"
-                    "  west debug --runner lldbac --jtag-device=JtagHs2"
-                )
-
-            connect_cmd = self._build_platform_connect_cmd()
-            lldbac_cmd.extend(['-o', connect_cmd])
+            # Hardware mode: use --core with connection properties
+            core_props = self._build_core_properties_for_hardware()
+            lldbac_cmd.extend(['--core', core_props])
             self.logger.info(
                 f"Starting integrated hardware debug "
-                f"(JTAG: {self.jtag}, device: {self.jtag_device})"
+                f"(JTAG: {self.jtag})"
             )
+
+        # Add postconnect commands
+        lldbac_cmd.extend(self._build_postconnect_args())
 
         # Load ELF in debug mode
         lldbac_cmd.extend(['-o', 'load'])
@@ -241,17 +269,38 @@ class LldbacBinaryRunner(ZephyrBinaryRunner):
         self.logger.debug(f"Running command: {' '.join(lldbac_cmd)}")
         self.check_call(lldbac_cmd)
 
-    def _build_platform_connect_cmd(self):
-        '''Build platform connect command from JTAG flags.'''
-        parts = [f'platform connect --connect={self.jtag}']
+    def _build_core_properties_for_hardware(self):
+        '''Build core properties string for run-lldbac --core argument.
+
+        Format: "connect=<type> connect-props=key1=val1 connect-props=key2=val2"
+        '''
+        props = [f'connect={self.jtag}']
 
         if self.jtag_device:
-            parts.append(f'--jtag-device={self.jtag_device}')
+            props.append(f'connect-props=jtag_device={self.jtag_device}')
 
         if self.jtag_frequency:
-            parts.append(f'--jtag-frequency={self.jtag_frequency}')
+            props.append(f'connect-props=jtag_frequency={self.jtag_frequency}')
 
-        return ' '.join(parts)
+        return ' '.join(props)
+
+    def _build_postconnect_args(self):
+        '''Build postconnect arguments for run-lldbac.
+
+        Returns a list of arguments to add to the run-lldbac command.
+        '''
+        args = []
+
+        # Add postconnect commands from --postconnect-cmd
+        if self.postconnect_cmds:
+            for cmd in self.postconnect_cmds:
+                args.extend(['--postconnect', cmd])
+
+        # Add postconnect file from --postconnect-file
+        if self.postconnect_file:
+            args.extend(['--postconnect', f'command source {self.postconnect_file}'])
+
+        return args
 
     def _get_nsim_props(self):
         '''Get nSIM properties file path: board_dir/support/<props>.'''
