@@ -12,15 +12,6 @@ config SYS_CLOCK_HW_CYCLES_PER_SEC
 config NUM_IRQS
 	default 32
 
-config PMP_SLOTS
-	default 32
-
-config PMP_GRANULARITY
-	default 32
-
-config RISCV_PMP
-	default y
-
 config RISCV_SOC_INTERRUPT_INIT
 	default y
 
