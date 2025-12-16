@@ -7,8 +7,7 @@
 	compatible = "snps,rhx100";
 
 	chosen {
-		zephyr,flash = &iccm0;
-		zephyr,sram = &dccm0;
+		zephyr,sram = &ddr0;
 		//zephyr,console = &uart0;
 		//zephyr,shell-uart = &uart0;
 	};
