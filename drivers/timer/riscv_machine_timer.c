@@ -102,9 +102,18 @@ static uint64_t mtime(void)
 #endif
 }
 
+/* Weak hook for timer ISR - can be overridden by application for diagnostics */
+void __weak z_timer_test_hook(void)
+{
+	/* Default implementation does nothing */
+}
+
 static void timer_isr(const void *arg)
 {
 	ARG_UNUSED(arg);
+
+	/* Call diagnostic hook */
+	z_timer_test_hook();
 
 	k_spinlock_key_t key = k_spin_lock(&lock);
 
