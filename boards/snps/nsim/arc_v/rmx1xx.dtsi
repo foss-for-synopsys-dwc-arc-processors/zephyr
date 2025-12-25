@@ -30,23 +30,23 @@
 		#address-cells = <1>;
 		#size-cells = <1>;
 
-		clint: clint@a0010000 {
+		clint: clint@e0010000 {
 			compatible = "sifive,clint0";
-			reg = <0xa0010000 0x1000>;
+			reg = <0xe0010000 0x1000>;
 			interrupts-extended = <&cpu0_intc 3 &cpu0_intc 7>;
 			interrupt-names = "soft0", "timer0";
 		};
 
-		mtimer: timer@a001bff8 {
+		mtimer: timer@e001bff8 {
 			compatible = "riscv,machine-timer";
 			interrupts-extended = <&cpu0_intc 7>;
-			reg = <0xa001bff8 0x8 0xa0014000 0x8>;
+			reg = <0xe001bff8 0x8 0xe0014000 0x8>;
 			reg-names = "mtime", "mtimecmp";
 		};
 
-		uart0: serial@10000000 {
+		uart0: serial@f0000000 {
 			compatible = "ns16550", "snps,dw-apb-uart";
-			reg = <0x10000000 0x400>;
+			reg = <0xf0000000 0x1000>;
 			reg-shift = <2>;
 
 			/* AIA interrupt controller is not currently implemented,
@@ -55,7 +55,7 @@
 			 */
 			interrupt-parent = <&cpu0_intc>;
 			interrupts = <17>;
-			clock-frequency = <50000000>;
+			clock-frequency = <20000000>;
 			status = "disabled";
 		};
 	};
