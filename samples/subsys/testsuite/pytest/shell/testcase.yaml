@@ -22,7 +22,6 @@ tests:
       pytest_args: [--flash-before=true]
   sample.pytest.shell.vt100_colors_off:
     harness: pytest
-    arch_exclude: arc
     integration_platforms:
       - native_sim
       - qemu_cortex_m3
@@ -56,7 +55,6 @@ tests:
       shell_commands: *kernel_commands
   sample.harness.shell.vt100_colors_off:
     harness: shell
-    arch_exclude: arc
     integration_platforms:
       - native_sim
       - qemu_cortex_m3
