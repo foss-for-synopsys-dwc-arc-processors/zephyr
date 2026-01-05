@@ -717,6 +717,30 @@ class DeviceHandler(Handler):
             logger.error(self.instance.reason)
         return hardware
 
+    def _get_flash_before(self, hardware) -> bool:
+        """
+        Determine effective flash_before value for this test.
+
+        Priority:
+        1. Hardware map setting (if explicitly set)
+        2. Board YAML setting (only for pytest/shell harnesses)
+        3. Default (False)
+
+        This method does NOT modify the shared hardware object.
+        """
+        # If hardware map explicitly sets flash_before, use that
+        if hardware.flash_before:
+            return True
+
+        # Check if board YAML requests flash_before for pytest/shell tests
+        if self.instance.platform.flash_before:
+            harness_type = self.instance.testsuite.harness
+            if harness_type in ["pytest", "shell"]:
+                logger.debug(f"Using flash_before for {harness_type} test: {self.instance.name}")
+                return True
+
+        return False
+
     def _start_serial_pty(self, serial_pty, serial_pty_master):
         ser_pty_process = None
         try:
@@ -745,6 +769,9 @@ class DeviceHandler(Handler):
             self.instance.dut = hardware.id
         else:
             return
+
+        # Determine effective flash_before for this test (without modifying shared DUT)
+        flash_before = self._get_flash_before(hardware)
 
         # Run pre-script BEFORE starting serial PTY to avoid conflicts
         pre_script = hardware.pre_script
@@ -778,7 +805,7 @@ class DeviceHandler(Handler):
 
         serial_port = None
         ser_pty_process = None
-        if hardware.flash_before is False:
+        if not flash_before:
             if serial_pty:
                 ser_pty_process = self._start_serial_pty(serial_pty, ser_pty_master)
             serial_port = serial_device
@@ -844,7 +871,7 @@ class DeviceHandler(Handler):
             self.run_custom_script(post_flash_script, timeout)
 
         # Connect to device after flashing it
-        if hardware.flash_before:
+        if flash_before:
             try:
                 if serial_pty:
                     ser_pty_process = self._start_serial_pty(serial_pty, ser_pty_master)
