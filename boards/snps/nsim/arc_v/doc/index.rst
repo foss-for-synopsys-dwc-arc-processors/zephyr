@@ -183,14 +183,25 @@ For debugging on physical hardware, provide JTAG configuration via command-line 
 
 .. code-block:: console
 
-   west debug --runner lldbac --jtag-device=JtagHs2
-   west flash --runner lldbac --jtag-device=JtagHs2
+   west debug --runner lldbac
+   west flash --runner lldbac
 
 Available hardware options:
 
-* ``--jtag-device``: JTAG device name (required, e.g., JtagHs2)
 * ``--jtag``: JTAG adapter type (default: jtag-digilent)
+* ``--jtag-device``: JTAG device name (optional, auto-detected if not specified, e.g., JtagHs2)
 * ``--jtag-frequency``: JTAG clock frequency (default: 500KHz)
+* ``--postconnect-cmd``: Command to execute after connection (can be used multiple times)
+* ``--postconnect-file``: File containing commands to execute after hardware initialization
+* ``--board-json``: Path to board.json file for complex board configurations
+
+Examples with postconnect commands for hardware initialization:
+
+.. code-block:: console
+
+   west flash --runner lldbac --postconnect-cmd "command source postconnect.cmd"
+   west flash --runner lldbac --postconnect-file postconnect.cmd
+   west debug --runner lldbac --board-json board.json
 
 GUI Mode
 ********
@@ -200,7 +211,7 @@ To launch debugging with VS Code GUI support, add the ``--gui`` flag:
 .. code-block:: console
 
    west debug --runner lldbac --simulator --gui
-   west debug --runner lldbac --jtag-device=JtagHs2 --gui
+   west debug --runner lldbac --gui
 
 Client-Only Mode (debugserver)
 *******************************
