@@ -43,15 +43,6 @@ SECTION_FUNC(TEXT, arch_cpu_idle)
 	POPR blink
 #endif
 
-/*
- * Workaround for iotdk board. When iotdk board enter sleep mode,
- * some peripherals (eg: uart) will power off and board can't
- * wake up through peripherals interrupt.
- */
-#ifdef CONFIG_BOARD_IOTDK
-	j_s.d [blink]
-	seti 0
-#else
 	/* z_arc_cpu_sleep_mode is 32 bit despite of platform bittnes */
 	ld r1, [z_arc_cpu_sleep_mode]
 	or r1, r1, (1 << 4) /* set IRQ-enabled bit */
@@ -59,7 +50,6 @@ SECTION_FUNC(TEXT, arch_cpu_idle)
 	j_s [blink]
 	nop
 
-#endif
 #endif
 
 #ifndef CONFIG_ARCH_HAS_CUSTOM_CPU_ATOMIC_IDLE
@@ -79,20 +69,10 @@ SECTION_FUNC(TEXT, arch_cpu_atomic_idle)
 	POPR blink
 #endif
 
-/*
- * Workaround for iotdk board. When iotdk board enter sleep mode,
- * some peripherals (eg: uart) will power off and board can't
- * wake up through peripherals interrupt.
- */
-#ifdef CONFIG_BOARD_IOTDK
-	j_s.d [blink]
-	seti r0
-#else
 	/* z_arc_cpu_sleep_mode is 32 bit despite of platform bittnes */
 	ld r1, [z_arc_cpu_sleep_mode]
 	or r1, r1, (1 << 4) /* set IRQ-enabled bit */
 	sleep r1
 	j_s.d [blink]
 	seti r0
-#endif
 #endif
