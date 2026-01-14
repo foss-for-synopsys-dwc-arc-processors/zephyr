@@ -55,9 +55,90 @@ static inline struct net_buf *_zbus_create_net_buf(struct net_buf_pool *pool, si
 
 int _zbus_init(void)
 {
+	/* ===== DIAGNOSTIC: Memory Layout and Initialization Analysis ===== */
+	extern char __data_region_start[];
+	extern char __data_region_end[];
+	extern char __bss_start[];
+	extern char __bss_end[];
+	
+	/* Declare mask section symbols */
+	TYPE_SECTION_START_EXTERN(struct zbus_channel_observation_mask, zbus_channel_observation_mask);
+	TYPE_SECTION_END_EXTERN(struct zbus_channel_observation_mask, zbus_channel_observation_mask);
+	
+	printk("\n========== ZBUS INIT MEMORY DIAGNOSTIC ==========\n");
+	printk("DATA region:  0x%08x - 0x%08x (size: %u bytes)\n",
+	       (uint32_t)__data_region_start, (uint32_t)__data_region_end,
+	       (uint32_t)(__data_region_end - __data_region_start));
+	printk("BSS region:   0x%08x - 0x%08x (size: %u bytes)\n",
+	       (uint32_t)__bss_start, (uint32_t)__bss_end,
+	       (uint32_t)(__bss_end - __bss_start));
+	printk("GAP between DATA_END and BSS_START: %u bytes\n",
+	       (uint32_t)(__bss_start - __data_region_end));
+	printk("\n");
+	
+	/* Get mask section bounds using TYPE_SECTION macros */
+	struct zbus_channel_observation_mask *mask_start = 
+		TYPE_SECTION_START(zbus_channel_observation_mask);
+	struct zbus_channel_observation_mask *mask_end = 
+		TYPE_SECTION_END(zbus_channel_observation_mask);
+	
+	printk("ZBUS mask section: 0x%08x - 0x%08x (size: %u bytes)\n",
+	       (uint32_t)mask_start,
+	       (uint32_t)mask_end,
+	       (uint32_t)((char *)mask_end - (char *)mask_start));
+	printk("  Position: %s\n", 
+	       ((uint32_t)mask_end <= (uint32_t)__data_region_end) 
+	       ? "INSIDE DATA region" 
+	       : "OUTSIDE DATA region (DANGER!)");
+	printk("\n");
+	
+	/* Print bytes in the gap (if any) */
+	if (&__data_region_end[0] < &__bss_start[0]) {
+		printk("GAP contents (between DATA_END and BSS_START):\n");
+		uint8_t *gap_ptr = (uint8_t *)__data_region_end;
+		uint32_t gap_size = __bss_start - __data_region_end;
+		for (uint32_t i = 0; i < gap_size; i++) {
+			printk("  [DATA_END+%u] @ 0x%08x = 0x%02x\n", 
+			       i, (uint32_t)(gap_ptr + i), gap_ptr[i]);
+		}
+		printk("\n");
+	}
+	
+	/* Check each observation mask */
+	int mask_idx = 0;
+	STRUCT_SECTION_FOREACH(zbus_channel_observation_mask, mask) {
+		printk("Mask[%d] @ 0x%08x: sizeof=%u, enabled=0x%02x, padding bytes:",
+		       mask_idx, (uint32_t)mask, sizeof(*mask), mask->enabled);
+		
+		/* Read all 4 bytes of the struct (1 enabled + 3 padding) */
+		uint8_t *mask_bytes = (uint8_t *)mask;
+		for (int i = 0; i < 4; i++) {
+			printk(" [%d]=0x%02x", i, mask_bytes[i]);
+		}
+		printk("\n");
+		
+		mask_idx++;
+	}
+	printk("========== END DIAGNOSTIC ==========\n\n");
+	/* ===== END DIAGNOSTIC ===== */
 
 	const struct zbus_channel *curr = NULL;
 	const struct zbus_channel *prev = NULL;
+
+	// /*
+	//  * Explicitly initialize observation masks to ensure they start as disabled.
+	//  * 
+	//  * NOTE: While these are statically initialized to {.enabled = false} in the
+	//  * source code, some toolchains (notably ARCMWDT) have issues with proper
+	//  * BSS initialization of iterable sections, causing the masks to contain
+	//  * garbage data instead of zeros. This explicit initialization ensures
+	//  * correct behavior across all supported toolchains.
+	//  * 
+	//  * See: GitHub issue #XXXXX (zbus observation masks not zero-initialized with ARCMWDT)
+	//  */
+	// STRUCT_SECTION_FOREACH(zbus_channel_observation_mask, mask) {
+	// 	mask->enabled = false;
+	// }
 
 	STRUCT_SECTION_FOREACH(zbus_channel_observation, observation) {
 		curr = observation->chan;

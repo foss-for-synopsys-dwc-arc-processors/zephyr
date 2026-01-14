@@ -76,6 +76,18 @@ extern FUNC_NORETURN void z_cstart(void);
 extern void arc_mpu_init(void);
 extern void arc_secureshield_init(void);
 
+/* External linker symbols for diagnostics */
+extern char __data_region_start[];
+extern char __data_region_end[];
+extern char __bss_start[];
+extern char __bss_end[];
+
+#ifdef CONFIG_ZBUS
+/* zbus mask section symbols */
+extern char _zbus_channel_observation_mask_list_start[];
+extern char _zbus_channel_observation_mask_list_end[];
+#endif
+
 /**
  * @brief Prepare to and run C code
  *
@@ -88,6 +100,46 @@ FUNC_NORETURN void z_prep_c(void)
 
 #ifdef CONFIG_ISA_ARCV3
 	arc_cluster_scm_enable();
+#endif
+
+#ifdef CONFIG_ZBUS
+	/* DIAGNOSTIC: Print memory layout BEFORE BSS clear */
+	/* Note: We can't use printk here as BSS is not yet cleared */
+	/* These will be shown via debugger or early UART if configured */
+	volatile uint32_t data_start = (uint32_t)__data_region_start;
+	volatile uint32_t data_end = (uint32_t)__data_region_end;
+	volatile uint32_t bss_start_addr = (uint32_t)__bss_start;
+	volatile uint32_t bss_end_addr = (uint32_t)__bss_end;
+	volatile uint32_t mask_start = (uint32_t)_zbus_channel_observation_mask_list_start;
+	volatile uint32_t mask_end = (uint32_t)_zbus_channel_observation_mask_list_end;
+	volatile uint32_t gap_size = bss_start_addr - data_end;
+	
+	/* Read the bytes in the "gap" between data_end and bss_start */
+	volatile uint8_t *gap_ptr = (uint8_t *)data_end;
+	volatile uint8_t gap_byte0 = (data_end < bss_start_addr) ? gap_ptr[0] : 0xFF;
+	volatile uint8_t gap_byte1 = (data_end + 1 < bss_start_addr) ? gap_ptr[1] : 0xFF;
+	
+	/* Read mask values BEFORE bss_zero */
+	volatile uint8_t *mask_ptr = (uint8_t *)mask_start;
+	volatile uint8_t mask_before_0 = mask_ptr[0];
+	volatile uint8_t mask_before_1 = mask_ptr[1];
+	volatile uint8_t mask_before_2 = mask_ptr[2];
+	volatile uint8_t mask_before_3 = mask_ptr[3];
+	
+	/* Force compiler to keep these variables */
+	(void)data_start;
+	(void)data_end;
+	(void)bss_start_addr;
+	(void)bss_end_addr;
+	(void)mask_start;
+	(void)mask_end;
+	(void)gap_size;
+	(void)gap_byte0;
+	(void)gap_byte1;
+	(void)mask_before_0;
+	(void)mask_before_1;
+	(void)mask_before_2;
+	(void)mask_before_3;
 #endif
 
 	arch_bss_zero();
