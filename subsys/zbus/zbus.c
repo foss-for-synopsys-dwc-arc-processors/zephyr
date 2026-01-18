@@ -61,6 +61,40 @@ int _zbus_init(void)
 	extern char __bss_start[];
 	extern char __bss_end[];
 	
+	/* Kernel object section symbols */
+	extern char _k_timer_list_start[];
+	extern char _k_timer_list_end[];
+	extern char _k_mem_slab_list_start[];
+	extern char _k_mem_slab_list_end[];
+	extern char _k_heap_list_start[];
+	extern char _k_heap_list_end[];
+	extern char _k_mutex_list_start[];
+	extern char _k_mutex_list_end[];
+	extern char _k_stack_list_start[];
+	extern char _k_stack_list_end[];
+	extern char _k_msgq_list_start[];
+	extern char _k_msgq_list_end[];
+	extern char _k_mbox_list_start[];
+	extern char _k_mbox_list_end[];
+	extern char _k_pipe_list_start[];
+	extern char _k_pipe_list_end[];
+	extern char _k_sem_list_start[];
+	extern char _k_sem_list_end[];
+	extern char _k_event_list_start[];
+	extern char _k_event_list_end[];
+	extern char _k_queue_list_start[];
+	extern char _k_queue_list_end[];
+	extern char _k_fifo_list_start[];
+	extern char _k_fifo_list_end[];
+	extern char _k_lifo_list_start[];
+	extern char _k_lifo_list_end[];
+	extern char _k_condvar_list_start[];
+	extern char _k_condvar_list_end[];
+	extern char _sys_mem_blocks_ptr_list_start[];
+	extern char _sys_mem_blocks_ptr_list_end[];
+	extern char _net_buf_pool_list_start[];
+	extern char _net_buf_pool_list_end[];
+	
 	/* Declare mask section symbols */
 	TYPE_SECTION_START_EXTERN(struct zbus_channel_observation_mask, zbus_channel_observation_mask);
 	TYPE_SECTION_END_EXTERN(struct zbus_channel_observation_mask, zbus_channel_observation_mask);
@@ -103,6 +137,91 @@ int _zbus_init(void)
 		}
 		printk("\n");
 	}
+	
+	/* Print kernel object sections */
+	printk("\n--- Kernel Object Sections ---\n");
+	printk("k_timer:        0x%08x - 0x%08x (size: %u bytes)\n",
+	       (uint32_t)_k_timer_list_start, (uint32_t)_k_timer_list_end,
+	       (uint32_t)(_k_timer_list_end - _k_timer_list_start));
+	printk("k_mem_slab:     0x%08x - 0x%08x (size: %u bytes)\n",
+	       (uint32_t)_k_mem_slab_list_start, (uint32_t)_k_mem_slab_list_end,
+	       (uint32_t)(_k_mem_slab_list_end - _k_mem_slab_list_start));
+	printk("k_heap:         0x%08x - 0x%08x (size: %u bytes)\n",
+	       (uint32_t)_k_heap_list_start, (uint32_t)_k_heap_list_end,
+	       (uint32_t)(_k_heap_list_end - _k_heap_list_start));
+	printk("k_mutex:        0x%08x - 0x%08x (size: %u bytes)\n",
+	       (uint32_t)_k_mutex_list_start, (uint32_t)_k_mutex_list_end,
+	       (uint32_t)(_k_mutex_list_end - _k_mutex_list_start));
+	printk("k_stack:        0x%08x - 0x%08x (size: %u bytes)\n",
+	       (uint32_t)_k_stack_list_start, (uint32_t)_k_stack_list_end,
+	       (uint32_t)(_k_stack_list_end - _k_stack_list_start));
+	printk("k_msgq:         0x%08x - 0x%08x (size: %u bytes)\n",
+	       (uint32_t)_k_msgq_list_start, (uint32_t)_k_msgq_list_end,
+	       (uint32_t)(_k_msgq_list_end - _k_msgq_list_start));
+	printk("k_mbox:         0x%08x - 0x%08x (size: %u bytes)\n",
+	       (uint32_t)_k_mbox_list_start, (uint32_t)_k_mbox_list_end,
+	       (uint32_t)(_k_mbox_list_end - _k_mbox_list_start));
+	printk("k_pipe:         0x%08x - 0x%08x (size: %u bytes)\n",
+	       (uint32_t)_k_pipe_list_start, (uint32_t)_k_pipe_list_end,
+	       (uint32_t)(_k_pipe_list_end - _k_pipe_list_start));
+	printk("k_sem:          0x%08x - 0x%08x (size: %u bytes)\n",
+	       (uint32_t)_k_sem_list_start, (uint32_t)_k_sem_list_end,
+	       (uint32_t)(_k_sem_list_end - _k_sem_list_start));
+	printk("k_event:        0x%08x - 0x%08x (size: %u bytes)\n",
+	       (uint32_t)_k_event_list_start, (uint32_t)_k_event_list_end,
+	       (uint32_t)(_k_event_list_end - _k_event_list_start));
+	printk("k_queue:        0x%08x - 0x%08x (size: %u bytes)\n",
+	       (uint32_t)_k_queue_list_start, (uint32_t)_k_queue_list_end,
+	       (uint32_t)(_k_queue_list_end - _k_queue_list_start));
+	printk("k_fifo:         0x%08x - 0x%08x (size: %u bytes)\n",
+	       (uint32_t)_k_fifo_list_start, (uint32_t)_k_fifo_list_end,
+	       (uint32_t)(_k_fifo_list_end - _k_fifo_list_start));
+	printk("k_lifo:         0x%08x - 0x%08x (size: %u bytes)\n",
+	       (uint32_t)_k_lifo_list_start, (uint32_t)_k_lifo_list_end,
+	       (uint32_t)(_k_lifo_list_end - _k_lifo_list_start));
+	printk("k_condvar:      0x%08x - 0x%08x (size: %u bytes)\n",
+	       (uint32_t)_k_condvar_list_start, (uint32_t)_k_condvar_list_end,
+	       (uint32_t)(_k_condvar_list_end - _k_condvar_list_start));
+	printk("sys_mem_blocks: 0x%08x - 0x%08x (size: %u bytes)\n",
+	       (uint32_t)_sys_mem_blocks_ptr_list_start, (uint32_t)_sys_mem_blocks_ptr_list_end,
+	       (uint32_t)(_sys_mem_blocks_ptr_list_end - _sys_mem_blocks_ptr_list_start));
+	printk("net_buf_pool:   0x%08x - 0x%08x (size: %u bytes)\n",
+	       (uint32_t)_net_buf_pool_list_start, (uint32_t)_net_buf_pool_list_end,
+	       (uint32_t)(_net_buf_pool_list_end - _net_buf_pool_list_start));
+	printk("\n");
+	
+	/* Read ALL memory from k_timer_list_start to __bss_start */
+	printk("\n--- COMPLETE MEMORY DUMP: k_timer_start to BSS_start ---\n");
+	uint8_t *mem_start = (uint8_t *)_k_timer_list_start;
+	uint8_t *mem_end = (uint8_t *)__bss_start;
+	uint32_t total_bytes = mem_end - mem_start;
+	
+	printk("Reading %u bytes from 0x%08x to 0x%08x:\n",
+	       total_bytes, (uint32_t)mem_start, (uint32_t)mem_end);
+	
+	/* Print in rows of 16 bytes */
+	for (uint32_t offset = 0; offset < total_bytes; offset += 16) {
+		printk("0x%08x: ", (uint32_t)(mem_start + offset));
+		
+		/* Print hex values */
+		for (uint32_t i = 0; i < 16 && (offset + i) < total_bytes; i++) {
+			printk("%02x ", mem_start[offset + i]);
+		}
+		
+		/* Padding for alignment if less than 16 bytes */
+		for (uint32_t i = (offset + 16 > total_bytes) ? (total_bytes - offset) : 16; i < 16; i++) {
+			printk("   ");
+		}
+		
+		/* Print ASCII representation */
+		printk(" | ");
+		for (uint32_t i = 0; i < 16 && (offset + i) < total_bytes; i++) {
+			uint8_t byte = mem_start[offset + i];
+			printk("%c", (byte >= 32 && byte < 127) ? byte : '.');
+		}
+		printk("\n");
+	}
+	printk("--- END MEMORY DUMP ---\n\n");
 	
 	/* Check each observation mask */
 	int mask_idx = 0;
