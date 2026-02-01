@@ -60,7 +60,7 @@
 	nsim_isa_safety=1
 	nsim_isa_safety_bus=0
 	nsim_isa_safety_level=3
-	nsim_isa_safety_sbe_depth=0
+	nsim_isa_safety_sbe_depth=1
 	nsim_isa_safety_hardware_error_injection=1
 	nsim_rv_pma_regions=8
 	nsim_semihosting=1

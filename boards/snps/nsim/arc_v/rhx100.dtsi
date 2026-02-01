@@ -2,12 +2,18 @@
 
 / {
 	/*
-	 * Single DRAM / NVM region as per ARC TCF:
-	 *   nsim_isa_nvm_base=0x80000000
-	 *   nsim_isa_nvm_size=0x4000000
+	 * Using ddr system0 as per ARC TCF.
 	 */
-	ddr0: memory@80000000 {
+	ddr0: memory@00000000 {
 		device_type = "memory";
-		reg = <0x80000000 0x04000000>; /* 64 MB */
+		reg = <0x00000000 0x00200000>; /* 64 MB */
 	};
+
+	dccm0: dccm@00200000 {
+		compatible = "zephyr,memory-region", "mmio-sram";
+		zephyr,memory-region = "SRAM";
+		zephyr,memory-region-flags = "rw";
+		reg = <0x00200000 0x00080000>;
+	};
+
 };
