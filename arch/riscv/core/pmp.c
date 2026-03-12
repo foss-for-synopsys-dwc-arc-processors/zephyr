@@ -58,6 +58,14 @@ LOG_MODULE_REGISTER(mpu);
 
 #define PMP_NONE 0
 
+#ifdef CONFIG_PMP_SMEPMP
+/* Enable Smepmp Machine Mode Lockdown (mseccfg.MML) */
+static void pmp_smepmp_init(void)
+{
+	csr_set(CSR_MSECCFG, MSECCFG_MML);
+}
+#endif /* CONFIG_PMP_SMEPMP */
+
 #define PMP_PERM_MASK (PMP_R | PMP_W | PMP_X)
 
 /**
@@ -669,24 +677,31 @@ void z_riscv_pmp_init(void)
 	attr_cnt = set_pmp_mem_attr(&index, pmp_addr, pmp_cfg, ARRAY_SIZE(pmp_addr));
 #endif /* CONFIG_MEM_ATTR */
 
-#if defined(CONFIG_MEM_ATTR) || defined(CONFIG_PMP_NO_LOCK_GLOBAL)
+#if defined(CONFIG_MEM_ATTR) || defined(CONFIG_PMP_NO_LOCK_GLOBAL) || defined(CONFIG_PMP_SMEPMP)
 	/*
 	 * This early, we want to protect unlock PMP entries as soon as
 	 * possible. But we need a temporary default "catch all" PMP entry for
 	 * MPRV to work. Later on, this entry will be set for each thread by
 	 * z_riscv_pmp_kernelmode_prepare().
 	 */
+#ifndef CONFIG_PMP_SMEPMP
 	set_pmp_mprv_catchall(&index, pmp_addr, pmp_cfg, ARRAY_SIZE(pmp_addr));
+#endif
 
 	/* Write those entries to PMP regs. */
 	write_pmp_entries(0, index, true, pmp_addr, pmp_cfg, ARRAY_SIZE(pmp_addr));
 
-	/* Activate our non-locked PMP entries for m-mode */
+#ifdef CONFIG_PMP_SMEPMP
+	/* Enable Smepmp MML for M-mode PMP enforcement */
+	pmp_smepmp_init();
+#else
+	/* Activate our non-locked PMP entries for m-mode using MPRV */
 	csr_clear(mstatus, MSTATUS_MPP);
 	csr_set(mstatus, MSTATUS_MPRV);
 
 	/* And forget about that last entry as we won't need it later */
 	index--;
+#endif /* CONFIG_PMP_SMEPMP */
 #else
 	/* Write those entries to PMP regs. */
 	write_pmp_entries(0, index, true, pmp_addr, pmp_cfg, ARRAY_SIZE(pmp_addr));
@@ -822,7 +837,9 @@ void z_riscv_pmp_kernelmode_enable(struct k_thread *thread)
 	 * While at it, also clear MSTATUS_MPP as it must be cleared for
 	 * MSTATUS_MPRV to be effective later.
 	 */
+#ifndef CONFIG_PMP_SMEPMP
 	csr_clear(mstatus, MSTATUS_MPRV | MSTATUS_MPP);
+#endif
 
 	/* Write our m-mode MPP entries */
 #ifdef CONFIG_USERSPACE
@@ -842,7 +859,9 @@ void z_riscv_pmp_kernelmode_enable(struct k_thread *thread)
 	}
 
 	/* Activate our non-locked PMP entries in m-mode */
+#ifndef CONFIG_PMP_SMEPMP
 	csr_set(mstatus, MSTATUS_MPRV);
+#endif
 }
 
 /**
@@ -850,20 +869,21 @@ void z_riscv_pmp_kernelmode_enable(struct k_thread *thread)
  */
 void z_riscv_pmp_kernelmode_disable(void)
 {
-
 	unsigned long pmp_addr[CONFIG_PMP_SLOTS];
-	unsigned long pmp_cfg[CONFIG_PMP_SLOTS / PMPCFG_STRIDE];
+	unsigned long pmp_cfg[CONFIG_PMP_SLOTS / PMPCFG_STRIDE] = {0};
 	unsigned int index = global_pmp_end_index[M_MODE];
 
 	/* Retrieve the pmpaddr value matching the last global PMP slot. */
 	pmp_addr[index - 1] = global_pmp_last_addr[M_MODE];
 
 	/* Disable (non-locked) PMP entries for m-mode while we update them. */
+#ifndef CONFIG_PMP_SMEPMP
 	csr_clear(mstatus, MSTATUS_MPRV);
+#endif
 
 	/*
-	 * Set a temporary default "catch all" PMP entry for MPRV to work,
-	 * except for the global locked entries.
+	 * Set a temporary default "catch all" PMP entry to allow M-mode
+	 * access everywhere (except locked entries).
 	 */
 	set_pmp_mprv_catchall(&index, pmp_addr, pmp_cfg, ARRAY_SIZE(pmp_addr));
 

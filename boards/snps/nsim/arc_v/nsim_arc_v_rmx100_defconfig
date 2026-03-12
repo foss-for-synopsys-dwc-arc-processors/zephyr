@@ -8,3 +8,8 @@ CONFIG_UART_CONSOLE=y
 CONFIG_BUILD_OUTPUT_HEX=y
 CONFIG_INCLUDE_RESET_VECTOR=y
 CONFIG_LOG=y
+
+# Enable Smepmp for PMP stack guard enforcement in M-mode
+# This is required because rmx100 is M-mode only (no U-mode)
+# and MPRV is hardwired to 0 without U-mode per RISC-V spec
+CONFIG_PMP_SMEPMP=y

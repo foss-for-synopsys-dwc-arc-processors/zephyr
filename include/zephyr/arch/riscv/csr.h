@@ -144,6 +144,15 @@
 #define PMP_NA4		0x10
 #define PMP_NAPOT	0x18
 
+/* Smepmp extension: mseccfg CSR (address 0x747, 0x757 for mseccfgh on RV32) */
+#define CSR_MSECCFG	0x747
+#define CSR_MSECCFGH	0x757
+
+/* mseccfg bit definitions */
+#define MSECCFG_MML	0x01	/* Machine Mode Lockdown */
+#define MSECCFG_MMWP	0x02	/* Machine Mode Whitelist Policy */
+#define MSECCFG_RLB	0x04	/* Rule Locking Bypass */
+
 #define IRQ_S_SOFT	1
 #define IRQ_H_SOFT	2
 #define IRQ_M_SOFT	3

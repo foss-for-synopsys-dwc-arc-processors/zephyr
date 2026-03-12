@@ -424,10 +424,12 @@ is_kernel_syscall:
 
 #ifdef CONFIG_PMP_KERNEL_MODE_DYNAMIC
 	/* Re-activate PMP for m-mode */
+#ifndef CONFIG_PMP_SMEPMP
 	li t1, MSTATUS_MPP
 	csrc mstatus, t1
 	li t1, MSTATUS_MPRV
 	csrs mstatus, t1
+#endif
 #endif
 
 	/* Determine what to do. Operation code is in t0. */
@@ -601,10 +603,12 @@ is_interrupt:
 	j 2f
 #endif /* CONFIG_USERSPACE */
 1:	/* Re-activate PMP for m-mode */
+#ifndef CONFIG_PMP_SMEPMP
 	li t1, MSTATUS_MPP
 	csrc mstatus, t1
 	li t1, MSTATUS_MPRV
 	csrs mstatus, t1
+#endif
 2:
 #endif
 

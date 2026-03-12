@@ -431,6 +431,18 @@ config PMP_UNLOCK_ROM_FOR_DEBUG
 	  and stack guards remain locked to catch critical bugs during
 	  development. Only enable for debug builds.
 
+config PMP_SMEPMP
+	bool "Use Smepmp extension for M-mode PMP enforcement"
+	help
+	  Enable the Smepmp (PMP Enhancements for memory access and execution
+	  prevention on Machine mode) extension. When enabled, uses mseccfg.MML
+	  (Machine Mode Lockdown) instead of MPRV to enforce unlocked PMP entries
+	  in M-mode. This is the architecturally correct approach for M-mode-only
+	  systems that don't implement U-mode.
+
+	  Per RISC-V spec, MPRV is hardwired to zero without U-mode, so Smepmp
+	  provides an alternative mechanism for PMP enforcement in M-mode.
+
 endif #RISCV_PMP
 
 config PMP_STACK_GUARD

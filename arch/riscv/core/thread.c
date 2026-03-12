@@ -90,10 +90,13 @@ void arch_new_thread(struct k_thread *thread, k_thread_stack_t *stack,
 		stack_init->mepc = (unsigned long)z_thread_entry;
 
 #ifdef CONFIG_PMP_KERNEL_MODE_DYNAMIC
+#ifndef CONFIG_PMP_SMEPMP
 		/* Enable PMP in mstatus.MPRV mode for RISC-V machine mode
 		 * if thread is supervisor thread.
+		 * Not needed with Smepmp MML - entries are always enforced.
 		 */
 		stack_init->mstatus |= MSTATUS_MPRV;
+#endif /* CONFIG_PMP_SMEPMP */
 #endif /* CONFIG_PMP_KERNEL_MODE_DYNAMIC */
 	}
 
