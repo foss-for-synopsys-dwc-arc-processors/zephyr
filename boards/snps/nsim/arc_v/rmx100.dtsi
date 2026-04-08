@@ -1,8 +1,19 @@
 #include "rmx1xx.dtsi"
 
 / {
-	ddr0: memory@80000000 {
+	/*
+	 * Using ddr system0 as per ARC TCF.
+	 */
+	ddr0: memory@00000000 {
 		device_type = "memory";
-		reg = <0x80000000 0x10000000>; /* 256 MB */
+		reg = <0x00000000 0x00200000>; /* 64 MB */
 	};
+
+	dccm0: dccm@00200000 {
+		compatible = "zephyr,memory-region", "mmio-sram";
+		zephyr,memory-region = "SRAM";
+		zephyr,memory-region-flags = "rw";
+		reg = <0x00200000 0x00080000>;
+	};
+
 };
