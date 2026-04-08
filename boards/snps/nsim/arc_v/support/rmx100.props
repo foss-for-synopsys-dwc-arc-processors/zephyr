@@ -49,3 +49,4 @@
 	nsim_isa_pct_size=64
 	nsim_isa_pct_interrupt=1
 	nsim_rv_pma_regions=8
+	nsim_semihosting=1
