@@ -255,6 +255,17 @@ SECTIONS
  */
 #include <snippets-ram-sections.ld>
 
+#if defined(CONFIG_HW_SHADOW_STACK)
+	/* RISC-V Zicfiss shadow stack buffers */
+	SECTION_PROLOGUE(.riscvshadowstack,,)
+	{
+		__riscvshadowstack_start = .;
+		*(.riscvshadowstack)
+		*(.riscvshadowstack.arr*)
+		__riscvshadowstack_end = .;
+	} GROUP_LINK_IN(RAMABLE_REGION)
+#endif /* CONFIG_HW_SHADOW_STACK */
+
 #if defined(CONFIG_USERSPACE)
 #define APP_SHARED_ALIGN MPU_MIN_SIZE_ALIGN
 #define SMEM_PARTITION_ALIGN MPU_ALIGN

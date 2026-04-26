@@ -48,6 +48,12 @@ SECTION_FUNC(TEXT, z_riscv_switch)
 	/* Save the old thread's stack pointer */
 	sr sp, _thread_offset_to_sp(a1)
 
+#ifdef CONFIG_HW_SHADOW_STACK
+	/* Save the outgoing thread's shadow stack pointer (ssp = CSR 0x011) */
+	csrr t0, 0x011
+	sr   t0, _thread_offset_to_shstk_addr(a1)
+#endif
+
 	/* Set thread->switch_handle = thread to mark completion */
 	sr a1, ___thread_t_switch_handle_OFFSET(a1)
 
@@ -116,6 +122,16 @@ not_user_task:
 	mv s0, a0
 	call z_thread_mark_switched_in
 	mv a0, s0
+#endif
+
+#ifdef CONFIG_HW_SHADOW_STACK
+	/* Restore the incoming thread's shadow stack pointer (ssp = CSR 0x011).
+	 * In QEMU Zicfiss, writing a non-zero value to ssp activates the shadow
+	 * stack — no mseccfg.SSE manipulation needed. */
+	lr   t0, _thread_offset_to_shstk_addr(a0)
+	beqz t0, 1f
+	csrw 0x011, t0
+1:
 #endif
 
 	/* Restore the new thread's callee-saved registers */

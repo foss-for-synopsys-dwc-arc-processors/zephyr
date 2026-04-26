@@ -21,6 +21,9 @@
 
 #ifndef _ASMLANGUAGE
 #include <zephyr/types.h>
+#ifdef CONFIG_RISCV_CFI_SHADOW_STACK
+#include <zephyr/arch/riscv/cfi.h>
+#endif
 
 /*
  * The following structure defines the list of registers that need to be
@@ -81,6 +84,12 @@ struct _thread_arch {
 	unsigned int m_mode_pmp_end_index;
 	unsigned long m_mode_pmpaddr_regs[CONFIG_PMP_SLOTS];
 	unsigned long m_mode_pmpcfg_regs[CONFIG_PMP_SLOTS / (__riscv_xlen / 8)];
+#endif
+#ifdef CONFIG_HW_SHADOW_STACK
+	/* RISC-V Zicfiss shadow stack */
+	arch_thread_hw_shadow_stack_t *shstk_addr; /* current shadow stack pointer */
+	arch_thread_hw_shadow_stack_t *shstk_base; /* shadow stack buffer base */
+	size_t shstk_size;                          /* shadow stack buffer size */
 #endif
 #if defined(CONFIG_CPP) && !defined(CONFIG_FPU_SHARING) && !defined(CONFIG_USERSPACE) &&           \
 	!defined(CONFIG_PMP_STACK_GUARD)

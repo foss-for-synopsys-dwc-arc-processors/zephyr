@@ -1,0 +1,35 @@
+/*
+ * Copyright (c) 2026
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * DTS overlay for RISC-V CFI tests on qemu_riscv64.
+ *
+ * Adds Zicfiss (shadow stack) and Zicfilp (landing pad) to ALL CPU nodes.
+ * dt_compat_all_has_prop requires every riscv-compatible node to carry the
+ * extension before Kconfig will set RISCV_ISA_EXT_ZICFISS/ZICFILP=y.
+ * The board.cmake reads riscv,isa-extensions and passes each entry to QEMU
+ * as "<ext>=on", so this is sufficient to enable hardware CFI in QEMU.
+ *
+ * Extension dependency chain enforced by QEMU:
+ *   zicfiss  -> s (supervisor), zimop, zcmop (when c/zca present)
+ *   zicfilp  -> s (supervisor)
+ */
+
+#define CFI_ISA_EXTENSIONS \
+	"i", "m", "a", "f", "d", "c", \
+	"zicsr", "zifencei", \
+	"s", "zimop", "zcmop", \
+	"zicfiss", "zicfilp"
+
+/ {
+	cpus {
+		cpu@0 { riscv,isa-extensions = CFI_ISA_EXTENSIONS; };
+		cpu@1 { riscv,isa-extensions = CFI_ISA_EXTENSIONS; };
+		cpu@2 { riscv,isa-extensions = CFI_ISA_EXTENSIONS; };
+		cpu@3 { riscv,isa-extensions = CFI_ISA_EXTENSIONS; };
+		cpu@4 { riscv,isa-extensions = CFI_ISA_EXTENSIONS; };
+		cpu@5 { riscv,isa-extensions = CFI_ISA_EXTENSIONS; };
+		cpu@6 { riscv,isa-extensions = CFI_ISA_EXTENSIONS; };
+		cpu@7 { riscv,isa-extensions = CFI_ISA_EXTENSIONS; };
+	};
+};

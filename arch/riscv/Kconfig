@@ -607,6 +607,48 @@ config RISCV_NO_MTVAL_ON_FP_TRAP
 	  to contain the faulting FP instruction, requiring alternative methods
 	  to handle FP exceptions.
 
+menu "RISC-V Control Flow Integrity"
+
+config RISCV_CFI
+	bool "RISC-V Control Flow Integrity (CFI)"
+	depends on RISCV_ISA_EXT_ZICFISS || RISCV_ISA_EXT_ZICFILP
+	help
+	  Enable RISC-V hardware Control Flow Integrity support.
+	  This option acts as a top-level switch for CFI features
+	  (shadow stack and/or landing pads).
+
+config RISCV_CFI_SHADOW_STACK
+	bool "Shadow Stack (Zicfiss)"
+	depends on RISCV_CFI && RISCV_ISA_EXT_ZICFISS
+	depends on !USERSPACE && !DYNAMIC_THREAD_ALLOC
+	select ARCH_HAS_HW_SHADOW_STACK
+	help
+	  Enable hardware shadow stack support via the Zicfiss extension.
+	  A separate shadow stack is maintained for return addresses,
+	  providing return-edge CFI protection against ROP attacks.
+
+	  USERSPACE and DYNAMIC_THREAD_ALLOC are not yet supported
+	  together with shadow stack.
+
+config RISCV_CFI_SHADOW_STACK_ALIGNMENT
+	int "Shadow stack buffer alignment (bytes)"
+	default 16
+	depends on RISCV_CFI_SHADOW_STACK
+	help
+	  Alignment in bytes for RISC-V Zicfiss shadow stack buffers.
+	  Must be at least pointer-sized (8 bytes on RV64). 16 bytes is
+	  the recommended default for most implementations.
+
+config RISCV_CFI_LANDING_PAD
+	bool "Landing Pad (Zicfilp)"
+	depends on RISCV_CFI && RISCV_ISA_EXT_ZICFILP
+	help
+	  Enable hardware landing pad support via the Zicfilp extension.
+	  The compiler inserts lpad instructions at valid indirect branch
+	  targets, providing forward-edge CFI protection against JOP attacks.
+
+endmenu
+
 rsource "Kconfig.isa"
 
 rsource "custom/Kconfig"

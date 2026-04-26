@@ -1,0 +1,28 @@
+common:
+  ignore_faults: true
+  tags:
+    - kernel
+    - cfi
+  arch_allow: riscv
+
+tests:
+  arch.riscv.cfi.kernel.shstk:
+    filter: CONFIG_RISCV_ISA_EXT_ZICFISS
+    extra_configs:
+      - CONFIG_RISCV_CFI=y
+      - CONFIG_RISCV_CFI_SHADOW_STACK=y
+      - CONFIG_HW_SHADOW_STACK=y
+
+  arch.riscv.cfi.kernel.lpad:
+    filter: CONFIG_RISCV_ISA_EXT_ZICFILP
+    extra_configs:
+      - CONFIG_RISCV_CFI=y
+      - CONFIG_RISCV_CFI_LANDING_PAD=y
+
+  arch.riscv.cfi.kernel.shstk_lpad:
+    filter: CONFIG_RISCV_ISA_EXT_ZICFISS and CONFIG_RISCV_ISA_EXT_ZICFILP
+    extra_configs:
+      - CONFIG_RISCV_CFI=y
+      - CONFIG_RISCV_CFI_SHADOW_STACK=y
+      - CONFIG_HW_SHADOW_STACK=y
+      - CONFIG_RISCV_CFI_LANDING_PAD=y

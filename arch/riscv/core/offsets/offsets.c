@@ -142,4 +142,10 @@ GEN_OFFSET_SYM(_cpu_arch_t, user_exc_tmp0);
 GEN_OFFSET_SYM(_cpu_arch_t, user_exc_tmp1);
 #endif
 
+#ifdef CONFIG_HW_SHADOW_STACK
+GEN_OFFSET_SYM(_thread_arch_t, shstk_addr);
+GEN_OFFSET_SYM(_thread_arch_t, shstk_base);
+GEN_OFFSET_SYM(_thread_arch_t, shstk_size);
+#endif
+
 GEN_ABS_SYM_END

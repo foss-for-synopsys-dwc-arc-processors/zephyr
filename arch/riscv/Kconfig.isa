@@ -301,3 +301,48 @@ config RISCV_ISA_EXT_ZMMUL
 
 	  The Zmmul extension implements the multiplication subset of the M
 	  extension.
+
+config RISCV_ISA_EXT_ZIMOP
+	bool
+	default y if $(dt_compat_all_has_prop,riscv,$(RISCV_ISA_EXT_PROP),zimop)
+	help
+	  (Zimop) - May-Be-Operations Extension
+
+	  The Zimop extension reserves a set of instruction encodings for
+	  "may-be-operations" (MOPs). These encodings are currently defined to
+	  raise an illegal-instruction exception but are reserved for use by
+	  future extensions. Zicfiss (shadow stack) requires Zimop.
+
+config RISCV_ISA_EXT_ZCMOP
+	bool
+	default y if $(dt_compat_all_has_prop,riscv,$(RISCV_ISA_EXT_PROP),zcmop)
+	depends on RISCV_ISA_EXT_ZCA
+	help
+	  (Zcmop) - Compressed May-Be-Operations Extension
+
+	  The Zcmop extension reserves a set of 16-bit compressed instruction
+	  encodings for future "may-be-operations". Required by Zicfiss when
+	  the C (compressed) extension is also present.
+
+config RISCV_ISA_EXT_ZICFISS
+	bool
+	default y if $(dt_compat_all_has_prop,riscv,$(RISCV_ISA_EXT_PROP),zicfiss)
+	depends on RISCV_ISA_EXT_ZIMOP
+	help
+	  (Zicfiss) - Shadow Stack extension for RISC-V CFI
+
+	  The Zicfiss extension provides hardware shadow stack support for
+	  return-edge control flow integrity. It maintains a separate
+	  shadow stack for return addresses to protect against return-oriented
+	  programming (ROP) attacks.
+
+config RISCV_ISA_EXT_ZICFILP
+	bool
+	default y if $(dt_compat_all_has_prop,riscv,$(RISCV_ISA_EXT_PROP),zicfilp)
+	help
+	  (Zicfilp) - Landing Pad extension for RISC-V CFI
+
+	  The Zicfilp extension provides hardware landing pad support for
+	  forward-edge control flow integrity. It ensures that indirect
+	  branches only target valid landing pad instructions (lpad),
+	  preventing jump-oriented programming (JOP) attacks.

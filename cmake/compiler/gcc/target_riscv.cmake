@@ -136,6 +136,41 @@ if(NOT CONFIG_RISCV_ISA_EXT_M AND
   string(APPEND riscv_march "_zmmul")
 endif()
 
+# CFI extensions: Zicfiss (shadow stack) and Zicfilp (landing pad).
+# Use execute_process to probe the compiler directly — check_c_compiler_flag
+# cannot be used here because the C language is not yet enabled at this stage.
+if(CONFIG_RISCV_ISA_EXT_ZICFISS OR CONFIG_RISCV_ISA_EXT_ZICFILP)
+  set(_cfi_probe_march "${riscv_march}")
+  if(CONFIG_RISCV_ISA_EXT_ZICFISS)
+    string(APPEND _cfi_probe_march "_zicfiss")
+  endif()
+  if(CONFIG_RISCV_ISA_EXT_ZICFILP)
+    string(APPEND _cfi_probe_march "_zicfilp")
+  endif()
+
+  execute_process(
+    COMMAND ${CMAKE_C_COMPILER} -march=${_cfi_probe_march} -x c -c /dev/null -o /dev/null
+    RESULT_VARIABLE _cfi_march_result
+    ERROR_QUIET
+    OUTPUT_QUIET
+  )
+
+  if(_cfi_march_result EQUAL 0)
+    if(CONFIG_RISCV_ISA_EXT_ZICFISS)
+      string(APPEND riscv_march "_zicfiss")
+    endif()
+    if(CONFIG_RISCV_ISA_EXT_ZICFILP)
+      string(APPEND riscv_march "_zicfilp")
+    endif()
+    message(STATUS "RISC-V CFI: compiler supports zicfiss/zicfilp in -march")
+  else()
+    message(STATUS "RISC-V CFI: compiler does not support zicfiss/zicfilp in -march "
+                   "(shadow stack sspopchk must be emitted via inline asm)")
+  endif()
+  unset(_cfi_probe_march)
+  unset(_cfi_march_result)
+endif()
+
 if(CONFIG_RISCV_USE_MSAVE_RESTORE)
   list(APPEND RISCV_C_FLAGS -msave-restore)
 endif()
