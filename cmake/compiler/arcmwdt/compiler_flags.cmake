@@ -118,7 +118,32 @@ set_compiler_property(PROPERTY cstd -std=)
 
 if(NOT CONFIG_ARCMWDT_LIBC)
   set_compiler_property(PROPERTY nostdinc -Hno_default_include -Hnoarcexlib -U__STDC_LIB_EXT1__)
-  set_compiler_property(APPEND PROPERTY nostdinc_include ${NOSTDINC})
+  # TEMPORARILY ENABLED FOR TESTING - investigate using Zephyr's picolibc
+  # integration (lib/libc/picolibc/) with MWDT's toolchain-provided picolibc.
+  #
+  # `-Hno_default_include` strips the include paths that the MWDT compiler
+  # driver would normally add. We must replicate them here so that picolibc
+  # and (for C++) the MWDT C++ standard library headers can still be found.
+  #
+  # MWDT's default search order (from `ccac -v`) is:
+  #   C   : arc/lib/src/pico/inc, arc/inc/<arch>
+  #   C++ : arc/lib/src/c++/inc, arc/lib/src/c++/abi_g/include,
+  #         arc/lib/src/pico/inc, arc/inc/<arch>
+  # where <arch> is `riscv` for ARCv (RISC-V based) and `arc` for ARC Classic.
+  set_compiler_property(APPEND PROPERTY nostdinc_include
+    ${TOOLCHAIN_HOME}/arc/lib/src/c++/inc
+    ${TOOLCHAIN_HOME}/arc/lib/src/c++/abi_g/include
+    ${TOOLCHAIN_HOME}/arc/lib/src/pico/inc
+  )
+  if(CONFIG_RISCV)
+    set_compiler_property(APPEND PROPERTY nostdinc_include
+      ${TOOLCHAIN_HOME}/arc/inc/riscv
+    )
+  else()
+    set_compiler_property(APPEND PROPERTY nostdinc_include
+      ${TOOLCHAIN_HOME}/arc/inc/arc
+    )
+  endif()
 endif()
 
 # C++ std options
