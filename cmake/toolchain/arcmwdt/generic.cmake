@@ -32,7 +32,8 @@ set(TOOLCHAIN_HOME ${ZEPHYR_SDK_INSTALL_DIR})
 # For other build stages ARCMWDT will be used.
 include(${ZEPHYR_SDK_INSTALL_DIR}/cmake/zephyr/gnu/generic.cmake)
 unset(TOOLCHAIN_HAS_NEWLIB CACHE)
-unset(TOOLCHAIN_HAS_PICOLIBC CACHE)
+# TEMPORARILY ENABLED FOR TESTING - revert after experiment
+set(TOOLCHAIN_HAS_PICOLIBC ON CACHE BOOL "True if toolchain supports picolibc")
 
 set(ZEPHYR_SDK_CROSS_COMPILE ${CROSS_COMPILE})
 # Handling to be improved in Zephyr SDK, to avoid overriding ZEPHYR_TOOLCHAIN_VARIANT by

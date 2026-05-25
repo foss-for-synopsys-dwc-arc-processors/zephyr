@@ -12,3 +12,9 @@ CONFIG_LOG=y
 # nSIM standalone mode has no PLIC/APLIC model, so UART interrupts never
 # reach the CPU. Use polling mode for the shell UART backend instead.
 CONFIG_SHELL_BACKEND_SERIAL_INTERRUPT_DRIVEN=n
+
+# TEMPORARILY ENABLED FOR TESTING - investigate using Zephyr's picolibc
+# integration (lib/libc/picolibc/) with MWDT's toolchain-provided picolibc,
+# instead of the arcmwdt libc shim. Revert after experiment.
+CONFIG_PICOLIBC=y
+CONFIG_PICOLIBC_USE_TOOLCHAIN=y
