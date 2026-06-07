@@ -4,7 +4,7 @@ board_set_flasher_ifnset(openocd)
 board_set_debugger_ifnset(openocd)
 
 # "load_image" or "flash write_image erase"?
-if(CONFIG_X86 OR CONFIG_ARC)
+if(CONFIG_X86 OR CONFIG_ARC OR CONFIG_BOARD_NSIM_ARC_V)
   set_ifndef(OPENOCD_USE_LOAD_IMAGE YES)
 endif()
 if(OPENOCD_USE_LOAD_IMAGE)

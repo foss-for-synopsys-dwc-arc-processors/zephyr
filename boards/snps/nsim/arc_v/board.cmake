@@ -12,5 +12,8 @@ set(NSIM_PROPS "${NSIM_BASE_FILENAME}.props")
 board_runner_args(arc-nsim "--props=${NSIM_PROPS}")
 
 board_finalize_runner_args(arc-nsim)
+board_runner_args(openocd "--config" "target/rmx100.cfg" "--cmd-reset-halt=")
+
+include(${ZEPHYR_BASE}/boards/common/openocd.board.cmake)
 include(${ZEPHYR_BASE}/boards/common/mdb-nsim.board.cmake)
 include(${ZEPHYR_BASE}/boards/common/mdb-hw.board.cmake)
