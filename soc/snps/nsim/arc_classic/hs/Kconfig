@@ -4,4 +4,6 @@
 config SOC_SERIES_NSIM_HS
 	select ARC
 	select CPU_HAS_FPU
-	select CPU_HAS_MPU if !SMP
+	# Autotalks HS48x2 has an MPUv6 even in the SMP configuration, so expose
+	# the MPU regardless of SMP (upstream only enabled it for !SMP).
+	select CPU_HAS_MPU
